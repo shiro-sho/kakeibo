@@ -1014,34 +1014,47 @@ body {
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
-  padding: 16px 20px;
+  padding: 16px 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   box-shadow: var(--shadow-card);
-  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.account-card:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
 }
 
 .account-card:active {
-  transform: scale(0.98);
+  transform: scale(0.99);
 }
 
 .account-left {
   display: flex;
-  align-items: center;
-  gap: 14px;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .account-badge {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: var(--radius-full);
-  box-shadow: 0 0 12px currentColor;
+  margin-top: 6px;
+  flex-shrink: 0;
 }
 
-.account-badge.smbc { background-color: #10b981; color: #10b981; }
-.account-badge.mufg { background-color: #ef4444; color: #ef4444; }
-.account-badge.mizuho { background-color: #3b82f6; color: #3b82f6; }
+.account-badge.smbc { background-color: #10b981; box-shadow: 0 0 10px #10b981; }
+.account-badge.mufg { background-color: #f43f5e; box-shadow: 0 0 10px #f43f5e; }
+.account-badge.mizuho { background-color: #38bdf8; box-shadow: 0 0 10px #38bdf8; }
+
+.account-info-main {
+  display: flex;
+  flex-direction: column;
+}
 
 .account-name {
   font-size: 0.95rem;
@@ -1050,18 +1063,87 @@ body {
   color: var(--text-primary);
 }
 
-.account-sub {
-  font-size: 0.72rem;
+/* 月初残高チップ（月初に編集可能であることを明示するデザイン） */
+.initial-balance-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 3px 8px;
+  margin-top: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: fit-content;
+}
+
+.initial-balance-chip:hover {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: var(--accent-primary);
+  border-style: solid;
+}
+
+.chip-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
   color: var(--text-muted);
-  margin-top: 2px;
+}
+
+.chip-amount {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.chip-action {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding-left: 3px;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* 右側：現在の口座残高（メイン数値・カラー強調） */
+.account-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.account-current-label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
 }
 
 .account-val {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-primary);
+}
+
+.account-val.smbc {
+  color: #10b981;
+  text-shadow: 0 0 16px rgba(16, 185, 129, 0.25);
+}
+
+.account-val.mufg {
+  color: #fb7185;
+  text-shadow: 0 0 16px rgba(251, 113, 133, 0.25);
+}
+
+.account-val.mizuho {
+  color: #38bdf8;
+  text-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
 }
 
 .total-balance-bar {

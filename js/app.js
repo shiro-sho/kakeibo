@@ -232,7 +232,7 @@ class AppController {
     }
   }
 
-  // 2. 銀行口座サマリー (絵文字廃止・SVGアイコン化)
+  // 2. 銀行口座サマリー (現在の口座残高を強調、月初残高は専用タップチップに分離)
   renderHomeAccounts(s) {
     const container = document.getElementById('home-accounts-container');
     if (!container) return;
@@ -240,26 +240,28 @@ class AppController {
     container.innerHTML = s.accounts
       .map(
         (acc) => `
-      <div class="account-card" style="--card-color: ${acc.color};" data-account-id="${acc.id}">
-        <div class="account-info">
-          <div class="account-icon-wrap" style="color: ${acc.color};">
-            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="3" y1="21" x2="21" y2="21"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="5 6 12 3 19 6"></polyline><line x1="4" y1="10" x2="4" y2="21"></line><line x1="20" y1="10" x2="20" y2="21"></line><line x1="8" y1="14" x2="8" y2="17"></line><line x1="12" y1="14" x2="12" y2="17"></line><line x1="16" y1="14" x2="16" y2="17"></line></svg>
-          </div>
-          <div class="account-names">
+      <div class="account-card" data-account-id="${acc.id}">
+        <div class="account-left">
+          <span class="account-badge ${acc.id}"></span>
+          <div class="account-info-main">
             <span class="account-name">${acc.name}</span>
-            <span class="account-sub">月初: ¥${acc.initialBalance.toLocaleString()}</span>
+            <div class="initial-balance-chip" data-account-id="${acc.id}" title="月初残高を編集（月初に設定）">
+              <span class="chip-tag">月初残高</span>
+              <span class="chip-amount">¥${acc.initialBalance.toLocaleString()}</span>
+              <span class="chip-action">✎ 編集</span>
+            </div>
           </div>
         </div>
-        <div class="account-balance-wrap">
-          <span class="account-balance">¥${acc.currentBalance.toLocaleString()}</span>
-          <span class="edit-hint">タップで更新 ✎</span>
+        <div class="account-right">
+          <span class="account-current-label">現在残高</span>
+          <span class="account-val ${acc.id}">¥${acc.currentBalance.toLocaleString()}</span>
         </div>
       </div>
     `
       )
       .join('');
 
-    // クリックで残高編集モーダルを開く
+    // クリックで残高編集モーダルを開く（カード全体および月初残高チップ）
     container.querySelectorAll('.account-card').forEach((card) => {
       card.addEventListener('click', () => {
         const id = card.dataset.accountId;
