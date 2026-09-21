@@ -408,56 +408,496 @@ body {
   letter-spacing: -0.02em;
 }
 
-/* 内訳ブレークダウン（自由資金の計算内訳 6項目グリッド） */
-.calc-breakdown-container {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 12px 14px;
+/* ==========================================================================
+   Apple Financial Flow: 計算内訳アコーディオン（Heroカード内）
+   ========================================================================== */
+.calc-insight-card {
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
   margin: 16px 0 10px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-[data-theme="white"] .calc-breakdown-container,
-[data-theme="light"] .calc-breakdown-container {
+[data-theme="white"] .calc-insight-card,
+[data-theme="light"] .calc-insight-card {
   background: rgba(0, 0, 0, 0.03);
-  border-color: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
-.calc-breakdown-title {
+.calc-insight-trigger {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.calc-insight-trigger:active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.insight-trigger-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.insight-sparkle-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(59, 130, 246, 0.25));
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.insight-trigger-text {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.insight-trigger-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.insight-status-tag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.insight-chevron {
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  color: var(--text-muted);
+}
+
+.insight-chevron.open {
+  transform: rotate(180deg);
+  color: var(--accent-primary);
+}
+
+/* アコーディオン内部ドロワー */
+.calc-insight-drawer {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  padding: 0 14px;
+}
+
+.calc-insight-drawer.open {
+  max-height: 900px;
+  opacity: 1;
+  padding-bottom: 14px;
+}
+
+.calc-flow-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="white"] .calc-flow-timeline,
+[data-theme="light"] .calc-flow-timeline {
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+.flow-connector {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 6px 0 2px 8px;
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
 }
 
-.calc-breakdown-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+.flow-connector::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
 }
 
-.calc-item {
+[data-theme="white"] .flow-connector::after,
+[data-theme="light"] .flow-connector::after {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.flow-step {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+}
+
+[data-theme="white"] .flow-step,
+[data-theme="light"] .flow-step {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+.flow-step-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 900;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.flow-step-icon.base {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.flow-step-icon.minus {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+}
+
+.flow-step-icon.plus {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.flow-step-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 6px 4px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  text-align: center;
+  flex: 1;
+  text-align: left;
 }
 
-[data-theme="white"] .calc-item,
-[data-theme="light"] .calc-item {
-  background: rgba(255, 255, 255, 0.7);
-  border-color: rgba(0, 0, 0, 0.04);
+.flow-step-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
-.calc-label {
+.flow-step-desc {
   font-size: 0.62rem;
+  color: var(--text-muted);
+}
+
+.flow-step-val {
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.flow-step-val.minus {
+  color: var(--accent-rose);
+}
+
+.flow-step-val.plus {
+  color: var(--accent-primary);
+}
+
+.flow-result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.16) 0%, rgba(59, 130, 246, 0.16) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-top: 6px;
+}
+
+.flow-result-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #34d399;
+}
+
+.flow-result-val {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+[data-theme="white"] .flow-result-val,
+[data-theme="light"] .flow-result-val {
+  color: #10b981;
+}
+
+/* ==========================================================================
+   Apple Wallet Style: 確定支払いセグメントカード
+   ========================================================================== */
+.section-subtext {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.expense-segment-card {
+  padding: 18px;
+  margin-bottom: 16px;
+  border-radius: 20px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-glass);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.segment-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="white"] .segment-card-header,
+[data-theme="light"] .segment-card-header {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+.segment-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.segment-pill.cyan {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(14, 165, 233, 0.2));
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  color: #38bdf8;
+}
+
+.segment-pill.purple {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(139, 92, 246, 0.2));
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #c084fc;
+}
+
+.segment-header-desc {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* ミニバッジ（ホーム最新履歴用） */
+.badge-mini {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  padding: 3px 10px;
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+}
+
+/* ==========================================================================
+   Apple Card Titanium: クレジット利用明細サマリーカード
+   ========================================================================== */
+.tx-apple-card-hero {
+  background: radial-gradient(ellipse at 85% 0%, rgba(56, 189, 248, 0.15) 0%, rgba(20, 24, 33, 0.95) 75%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 24px;
+  padding: 22px 20px;
+  margin-bottom: 22px;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="white"] .tx-apple-card-hero,
+[data-theme="light"] .tx-apple-card-hero {
+  background: radial-gradient(ellipse at 85% 0%, rgba(14, 165, 233, 0.1) 0%, #ffffff 80%);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff;
+}
+
+.apple-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.apple-card-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="white"] .apple-card-chip,
+[data-theme="light"] .apple-card-chip {
+  color: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+.apple-card-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  background: rgba(16, 185, 129, 0.12);
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.apple-card-body {
+  margin-bottom: 16px;
+}
+
+.apple-card-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.apple-card-total-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.apple-card-cur {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+.apple-card-amount {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  line-height: 1;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="white"] .apple-card-amount,
+[data-theme="light"] .apple-card-amount {
+  color: #1d1d1f;
+  text-shadow: none;
+}
+
+/* カテゴリ別マルチカラーバー */
+.category-multi-bar {
+  display: flex;
+  height: 8px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  margin-bottom: 16px;
+}
+
+.category-bar-segment {
+  height: 100%;
+  transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* カテゴリ別小計グリッド */
+.tx-category-chips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="white"] .tx-category-chips-grid,
+[data-theme="light"] .tx-category-chips-grid {
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+.tx-cat-chip-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 8px 10px;
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+[data-theme="white"] .tx-cat-chip-card,
+[data-theme="light"] .tx-cat-chip-card {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+.tx-cat-chip-card:active {
+  transform: scale(0.96);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.chip-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.chip-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chip-name {
+  font-size: 0.65rem;
   font-weight: 600;
   color: var(--text-muted);
   white-space: nowrap;
@@ -465,163 +905,12 @@ body {
   text-overflow: ellipsis;
 }
 
-.calc-val {
+.chip-amount {
   font-family: var(--font-display);
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
   color: var(--text-primary);
-}
-
-.calc-val.negative {
-  color: var(--accent-rose);
-}
-
-.calc-val.positive {
-  color: var(--accent-primary);
-}
-
-/* 旧内訳互換スタイル */
-.limit-breakdown-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.breakdown-box {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 8px 6px;
-  border-radius: var(--radius-sm);
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-.breakdown-label {
-  font-size: 0.68rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.breakdown-val {
-  font-family: var(--font-display);
-  font-size: 0.92rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--text-primary);
-}
-
-/* 固定費・変動費グループ見出し */
-.expense-group-title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  margin: 12px 6px 6px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* ミニバッジ */
-.badge-mini {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--accent-primary);
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  padding: 2px 8px;
-  border-radius: 12px;
-}
-
-/* クレジット利用明細サマリーカード */
-.tx-summary-hero {
-  background: var(--surface-card);
-  border: 1px solid var(--border-glow);
-  padding: 18px 20px;
-  border-radius: var(--radius-md);
-  margin-bottom: 18px;
-}
-
-.tx-summary-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 12px;
-}
-
-.tx-summary-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-.tx-summary-total {
-  font-family: var(--font-display);
-  font-size: 1.8rem;
-  font-weight: 900;
-  color: var(--text-primary);
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
-
-.tx-summary-badge {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.06);
-  padding: 4px 10px;
-  border-radius: 20px;
-  border: 1px solid var(--border-glass);
-}
-
-[data-theme="white"] .tx-summary-badge,
-[data-theme="light"] .tx-summary-badge {
-  background: rgba(0, 0, 0, 0.04);
-}
-
-.tx-category-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-[data-theme="white"] .tx-category-chips,
-[data-theme="light"] .tx-category-chips {
-  border-top-color: rgba(0, 0, 0, 0.06);
-}
-
-.tx-category-chip {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-glass);
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 0.72rem;
-}
-
-[data-theme="white"] .tx-category-chip,
-[data-theme="light"] .tx-category-chip {
-  background: rgba(0, 0, 0, 0.03);
-}
-
-.tx-category-chip .chip-cat {
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
-.tx-category-chip .chip-val {
-  color: var(--text-primary);
-  font-weight: 800;
-  font-family: var(--font-display);
+  letter-spacing: -0.01em;
 }
 
 /* ヒーローカード内のApple風クイックアクションボタン */

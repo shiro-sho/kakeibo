@@ -30,9 +30,23 @@ class AppController {
     this.setupForms();
     this.setupSettings();
     this.setupThemeSwitcher();
+    this.setupCalcInsight();
 
     // 初回レンダリング
     this.render(store.getSummary());
+  }
+
+  // --- 計算根拠アコーディオン制御 ---
+  setupCalcInsight() {
+    const btn = document.getElementById('btn-toggle-calc-insight');
+    const drawer = document.getElementById('calc-insight-drawer');
+    const chevron = document.getElementById('insight-chevron-icon');
+
+    btn?.addEventListener('click', () => {
+      const isOpen = drawer?.classList.toggle('open');
+      chevron?.classList.toggle('open', isOpen);
+      btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
   }
 
   // --- テーマ管理システム ---
@@ -183,6 +197,10 @@ class AppController {
     if (elCalcNextFixed) elCalcNextFixed.textContent = `-¥${Math.abs(s.pureFixedTotal).toLocaleString()}`;
     if (elCalcNextSalary) elCalcNextSalary.textContent = `+¥${(s.salaries.nextMonth || 250000).toLocaleString()}`;
 
+    // ゴール行ハイライト
+    const elCalcResult = document.getElementById('val-calc-result');
+    if (elCalcResult) elCalcResult.textContent = `¥${forecastVal.toLocaleString()}`;
+
     // 旧内訳互換
     if (elCurrentBalance) elCurrentBalance.textContent = `¥${s.totalCurrentBalance.toLocaleString()}`;
     if (elDeductions) {
@@ -269,7 +287,7 @@ class AppController {
     }
   }
 
-  // 4. 固定費・変動費の2ブロック表示
+  // 4. 固定費・変動費の2ブロック表示 (Apple Wallet Style)
   renderFixedExpenses(s) {
     const varContainer = document.getElementById('home-variable-container');
     const fixContainer = document.getElementById('home-fixed-container');
@@ -277,10 +295,23 @@ class AppController {
     const variableExpenses = s.fixedExpenses.filter((f) => f.id === 'credit_card');
     const fixedExpenses = s.fixedExpenses.filter((f) => f.id !== 'credit_card');
 
+    const getFixedIconSvg = (id) => {
+      if (id === 'credit_card') {
+        return `<svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>`;
+      } else if (id === 'rent') {
+        return `<svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`;
+      } else {
+        return `<svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>`;
+      }
+    };
+
     const createItemHtml = (f) => `
       <div class="fixed-expense-item ${f.settled ? 'settled' : ''}" data-fixed-id="${f.id}">
         <div class="fixed-left">
           <div class="check-circle">${f.settled ? '✓' : ''}</div>
+          <span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: rgba(255,255,255,0.06); color: var(--text-secondary); margin-right: 2px;">
+            ${getFixedIconSvg(f.id)}
+          </span>
           <span class="fixed-name">${f.name}</span>
         </div>
         <span class="fixed-amount">¥${Math.abs(f.amount).toLocaleString()}</span>
@@ -318,31 +349,66 @@ class AppController {
     this.attachTransactionClickEvents(container);
   }
 
-  // 6. 全明細（明細タブ用・合計＆カテゴリ別小計バッジ付き）
+  // 6. 全明細（明細タブ用・Apple Card風合計＆マルチカラーバー＆リッチチップ）
   renderFullTransactions(s) {
     const container = document.getElementById('full-tx-container');
     const badge = document.getElementById('tx-total-count');
     const elTotal = document.getElementById('tx-summary-total-amount');
+    const multiBar = document.getElementById('category-multi-bar');
     const chipsContainer = document.getElementById('tx-category-chips-container');
 
-    if (badge) badge.textContent = `${s.transactions.length}件`;
-    if (elTotal) elTotal.textContent = `¥${s.totalSpent.toLocaleString()}`;
+    const catColors = {
+      '食費': '#f59e0b',
+      '日用品': '#06b6d4',
+      '固定費': '#8b5cf6',
+      '娯楽': '#ec4899',
+      '交際費': '#f43f5e',
+      '交通費': '#3b82f6',
+      '衣服・美容': '#a855f7',
+      '健康・医療': '#10b981',
+      'その他': '#94a3b8'
+    };
 
-    // カテゴリ別小計バッジ
+    if (badge) badge.textContent = `${s.transactions.length}件`;
+    if (elTotal) elTotal.textContent = s.totalSpent.toLocaleString();
+
+    // Apple Card風 マルチカラープログレスバー & リッチチップ
+    const categories = Object.keys(s.categoryTotals || {});
+    const totalSpent = s.totalSpent || 1;
+
+    if (multiBar) {
+      if (categories.length === 0 || s.totalSpent === 0) {
+        multiBar.innerHTML = `<div class="category-bar-segment" style="width: 100%; background: rgba(255,255,255,0.1);"></div>`;
+      } else {
+        multiBar.innerHTML = categories
+          .map((cat) => {
+            const amount = s.categoryTotals[cat];
+            const pct = Math.max(2, Math.round((amount / totalSpent) * 100));
+            const color = catColors[cat] || '#94a3b8';
+            return `<div class="category-bar-segment" style="width: ${pct}%; background: ${color};" title="${cat}: ¥${amount.toLocaleString()} (${pct}%)"></div>`;
+          })
+          .join('');
+      }
+    }
+
     if (chipsContainer) {
-      const categories = Object.keys(s.categoryTotals || {});
       if (categories.length === 0) {
-        chipsContainer.innerHTML = `<span style="font-size: 0.72rem; color: var(--text-muted);">まだ利用明細がありません</span>`;
+        chipsContainer.innerHTML = `<span style="font-size: 0.72rem; color: var(--text-muted); padding: 6px;">まだ利用明細がありません</span>`;
       } else {
         chipsContainer.innerHTML = categories
-          .map(
-            (cat) => `
-          <div class="tx-category-chip">
-            <span class="chip-cat">${cat}</span>
-            <span class="chip-val">¥${s.categoryTotals[cat].toLocaleString()}</span>
-          </div>
-        `
-          )
+          .map((cat) => {
+            const amount = s.categoryTotals[cat];
+            const color = catColors[cat] || '#94a3b8';
+            return `
+              <div class="tx-cat-chip-card">
+                <span class="chip-color-dot" style="background: ${color}; color: ${color};"></span>
+                <div class="chip-content">
+                  <span class="chip-name">${cat}</span>
+                  <span class="chip-amount">¥${amount.toLocaleString()}</span>
+                </div>
+              </div>
+            `;
+          })
           .join('');
       }
     }
