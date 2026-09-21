@@ -714,7 +714,12 @@ class AppController {
     // アイコン着せ替え
     const savedIcon = localStorage.getItem('kakeibo_icon') || './icons/cow-cute.png';
     const logoImg = document.getElementById('app-logo');
+    const touchIcon = document.getElementById('dynamic-touch-icon');
+    const favicon = document.getElementById('dynamic-favicon');
+
     if (logoImg) logoImg.src = savedIcon;
+    if (touchIcon) touchIcon.href = savedIcon;
+    if (favicon) favicon.href = savedIcon;
 
     document.querySelectorAll('.icon-choice-card').forEach((card) => {
       const src = card.dataset.iconSrc;
@@ -730,6 +735,8 @@ class AppController {
       card.addEventListener('click', () => {
         const newSrc = card.dataset.iconSrc;
         if (logoImg) logoImg.src = newSrc;
+        if (touchIcon) touchIcon.href = newSrc;
+        if (favicon) favicon.href = newSrc;
         localStorage.setItem('kakeibo_icon', newSrc);
 
         document.querySelectorAll('.icon-choice-card').forEach((c) => {
