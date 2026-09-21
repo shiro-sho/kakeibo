@@ -52,6 +52,7 @@
       <!-- 1. HOME VIEW -->
       <section id="view-home" class="view-panel active">
         <!-- Hero: Forecast Available Amount (主役・最重要コンポーネント) -->
+        <!-- Hero: Forecast Available Amount (主役・最重要コンポーネント) -->
         <div class="glass-card credit-hero" id="credit-hero-card">
           <div class="hero-subtitle">来月引落後の使えるお金（推定自由資金）</div>
           
@@ -62,19 +63,43 @@
             </div>
           </div>
 
-          <!-- 計算の内訳ブレークダウン (現在残高・引落合計・来月給料) -->
-          <div class="limit-breakdown-row">
-            <div class="breakdown-box">
-              <span class="breakdown-label">現在の全残高</span>
-              <span class="breakdown-val" id="val-hero-current-balance">¥0</span>
+          <!-- 計算の内訳ブレークダウン (なぜこの金額になるかの計算式・根拠) -->
+          <div class="calc-breakdown-container">
+            <div class="calc-breakdown-title">
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              <span>自由資金の計算内訳</span>
             </div>
-            <div class="breakdown-box">
-              <span class="breakdown-label">引落予定(未引落)</span>
-              <span class="breakdown-val" id="val-hero-deductions" style="color: var(--accent-rose);">¥0</span>
-            </div>
-            <div class="breakdown-box">
-              <span class="breakdown-label">来月給料見込み</span>
-              <span class="breakdown-val" id="val-hero-next-salary" style="color: var(--accent-primary);">+¥250,000</span>
+            <div class="calc-breakdown-grid">
+              <!-- 1. 現在の所持金合計 -->
+              <div class="calc-item">
+                <span class="calc-label">現在の所持金</span>
+                <span class="calc-val" id="val-calc-current">¥0</span>
+              </div>
+              <!-- 2. 今月未引落（クレカ・固定費） -->
+              <div class="calc-item minus">
+                <span class="calc-label">今月未引落分</span>
+                <span class="calc-val negative" id="val-calc-current-deductions">-¥0</span>
+              </div>
+              <!-- 3. 今月の給料見込み -->
+              <div class="calc-item plus">
+                <span class="calc-label">今月給料見込み</span>
+                <span class="calc-val positive" id="val-calc-current-salary">+¥250,000</span>
+              </div>
+              <!-- 4. 今月クレカ利用（来月引落分） -->
+              <div class="calc-item minus">
+                <span class="calc-label">今月クレカ利用</span>
+                <span class="calc-val negative" id="val-calc-card-spent">-¥0</span>
+              </div>
+              <!-- 5. 来月の固定費（家賃・ローン） -->
+              <div class="calc-item minus">
+                <span class="calc-label">来月固定費</span>
+                <span class="calc-val negative" id="val-calc-next-fixed">-¥111,950</span>
+              </div>
+              <!-- 6. 来月の給料見込み -->
+              <div class="calc-item plus">
+                <span class="calc-label">来月給料見込み</span>
+                <span class="calc-val positive" id="val-calc-next-salary">+¥250,000</span>
+              </div>
             </div>
           </div>
 
@@ -121,40 +146,55 @@
           <span class="total-amount" id="val-total-balance">¥0</span>
         </div>
 
-        <!-- Future Estimates Section -->
+        <!-- 引落後金額（推定） -->
         <div class="section-header">
           <h2 class="section-title">
             <svg class="svg-icon" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-            <span>将来の所持金（推定）</span>
+            <span>引落後金額（推定）</span>
           </h2>
         </div>
         <div class="glass-card forecast-card">
           <div class="forecast-row">
             <div class="forecast-meta">
-              <span class="forecast-title">今月引落後（推定）</span>
+              <span class="forecast-title">今月引落後の所持金</span>
               <span class="forecast-desc">クレカ代・固定費・給与を加味</span>
             </div>
             <span class="forecast-val" id="val-after-current">¥0</span>
           </div>
           <div class="forecast-row">
             <div class="forecast-meta">
-              <span class="forecast-title">来月引落後（推定）</span>
+              <span class="forecast-title">来月引落後の所持金</span>
               <span class="forecast-desc">来月引落（今月クレカ＋固定費）控除後</span>
             </div>
             <span class="forecast-val" id="val-after-next">¥0</span>
           </div>
         </div>
 
-        <!-- Fixed Expenses (Checkable) -->
+        <!-- Fixed & Variable Expenses (Checkable) -->
         <div class="section-header">
           <h2 class="section-title">
             <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <span>毎月確定支払いのもの</span>
           </h2>
         </div>
+
+        <!-- ① 変動引落（先月クレカ利用確定分） -->
+        <div class="expense-group-title">
+          <span>変動引落（先月クレカ確定分）</span>
+        </div>
+        <div class="glass-card" style="margin-bottom: 12px;">
+          <div class="fixed-expenses-list" id="home-variable-container">
+            <!-- Dynamically populated (クレカ引落) -->
+          </div>
+        </div>
+
+        <!-- ② 固定引落（毎月定額の固定費） -->
+        <div class="expense-group-title">
+          <span>固定引落（毎月定額）</span>
+        </div>
         <div class="glass-card">
           <div class="fixed-expenses-list" id="home-fixed-container">
-            <!-- Dynamically populated -->
+            <!-- Dynamically populated (家賃、医療ローン) -->
           </div>
         </div>
 
@@ -164,7 +204,10 @@
             <svg class="svg-icon" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
             <span>クレカ利用履歴（最新）</span>
           </h2>
-          <button class="section-link" id="link-to-transactions">すべて見る</button>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="badge-mini" id="home-tx-total-badge">当月計: ¥0</span>
+            <button class="section-link" id="link-to-transactions">すべて見る</button>
+          </div>
         </div>
         <div class="timeline-list" id="home-recent-tx-container">
           <!-- Dynamically populated -->
@@ -180,6 +223,22 @@
           </h2>
           <span class="month-badge" id="tx-total-count">0件</span>
         </div>
+
+        <!-- 当月利用合計 & カテゴリ別小計サマリーカード -->
+        <div class="glass-card tx-summary-hero">
+          <div class="tx-summary-top">
+            <div>
+              <div class="tx-summary-label">当月クレカ利用合計</div>
+              <div class="tx-summary-total" id="tx-summary-total-amount">¥0</div>
+            </div>
+            <div class="tx-summary-badge" id="tx-summary-month-badge">2026年9月分</div>
+          </div>
+          <!-- カテゴリ別小計バッジ -->
+          <div class="tx-category-chips" id="tx-category-chips-container">
+            <!-- Dynamically populated: 食費 ¥12,000, 日用品 ¥5,000 ... -->
+          </div>
+        </div>
+
         <div class="timeline-list" id="full-tx-container">
           <!-- Dynamically populated -->
         </div>

@@ -408,18 +408,86 @@ body {
   letter-spacing: -0.02em;
 }
 
-/* 内訳ブレークダウン (3カラムグリッド) */
+/* 内訳ブレークダウン（自由資金の計算内訳 6項目グリッド） */
+.calc-breakdown-container {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin: 16px 0 10px;
+}
+
+[data-theme="white"] .calc-breakdown-container,
+[data-theme="light"] .calc-breakdown-container {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+.calc-breakdown-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.calc-breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.calc-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 4px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+}
+
+[data-theme="white"] .calc-item,
+[data-theme="light"] .calc-item {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.04);
+}
+
+.calc-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calc-val {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.calc-val.negative {
+  color: var(--accent-rose);
+}
+
+.calc-val.positive {
+  color: var(--accent-primary);
+}
+
+/* 旧内訳互換スタイル */
 .limit-breakdown-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 8px;
   padding-top: 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-[data-theme="white"] .limit-breakdown-row,
-[data-theme="light"] .limit-breakdown-row {
-  border-top-color: rgba(0, 0, 0, 0.06);
 }
 
 .breakdown-box {
@@ -430,12 +498,6 @@ body {
   border-radius: var(--radius-sm);
   background: rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-[data-theme="white"] .breakdown-box,
-[data-theme="light"] .breakdown-box {
-  background: rgba(0, 0, 0, 0.03);
-  border-color: rgba(0, 0, 0, 0.05);
 }
 
 .breakdown-label {
@@ -450,6 +512,116 @@ body {
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-primary);
+}
+
+/* 固定費・変動費グループ見出し */
+.expense-group-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin: 12px 6px 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ミニバッジ */
+.badge-mini {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* クレジット利用明細サマリーカード */
+.tx-summary-hero {
+  background: var(--surface-card);
+  border: 1px solid var(--border-glow);
+  padding: 18px 20px;
+  border-radius: var(--radius-md);
+  margin-bottom: 18px;
+}
+
+.tx-summary-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 12px;
+}
+
+.tx-summary-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.tx-summary-total {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.tx-summary-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border-glass);
+}
+
+[data-theme="white"] .tx-summary-badge,
+[data-theme="light"] .tx-summary-badge {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.tx-category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="white"] .tx-category-chips,
+[data-theme="light"] .tx-category-chips {
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+.tx-category-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-glass);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+}
+
+[data-theme="white"] .tx-category-chip,
+[data-theme="light"] .tx-category-chip {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.tx-category-chip .chip-cat {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.tx-category-chip .chip-val {
+  color: var(--text-primary);
+  font-weight: 800;
+  font-family: var(--font-display);
 }
 
 /* ヒーローカード内のApple風クイックアクションボタン */

@@ -161,12 +161,34 @@ class AppController {
       }
     }
 
-    // 内訳
+    // 計算内訳 (6項目)
+    const elCalcCurrent = document.getElementById('val-calc-current');
+    const elCalcCurDeduct = document.getElementById('val-calc-current-deductions');
+    const elCalcCurSalary = document.getElementById('val-calc-current-salary');
+    const elCalcCardSpent = document.getElementById('val-calc-card-spent');
+    const elCalcNextFixed = document.getElementById('val-calc-next-fixed');
+    const elCalcNextSalary = document.getElementById('val-calc-next-salary');
+
+    // 今月未引落額（クレカ未引落＋未引落固定費）
+    const curUnsettledFixed = s.fixedExpenses
+      .filter((f) => f.id !== 'credit_card' && !f.settled)
+      .reduce((sum, f) => sum + Number(f.amount || 0), 0);
+    const curUnsettledCard = s.cardSettled ? 0 : s.currentMonthCardBill;
+    const curUnsettledTotal = Math.abs(curUnsettledCard + curUnsettledFixed);
+
+    if (elCalcCurrent) elCalcCurrent.textContent = `¥${s.totalCurrentBalance.toLocaleString()}`;
+    if (elCalcCurDeduct) elCalcCurDeduct.textContent = `-¥${curUnsettledTotal.toLocaleString()}`;
+    if (elCalcCurSalary) elCalcCurSalary.textContent = `+¥${(s.salaries.currentMonth || 250000).toLocaleString()}`;
+    if (elCalcCardSpent) elCalcCardSpent.textContent = `-¥${s.totalSpent.toLocaleString()}`;
+    if (elCalcNextFixed) elCalcNextFixed.textContent = `-¥${Math.abs(s.pureFixedTotal).toLocaleString()}`;
+    if (elCalcNextSalary) elCalcNextSalary.textContent = `+¥${(s.salaries.nextMonth || 250000).toLocaleString()}`;
+
+    // 旧内訳互換
     if (elCurrentBalance) elCurrentBalance.textContent = `¥${s.totalCurrentBalance.toLocaleString()}`;
-    
-    // 来月までの引落予定額（今月未引落カード・固定費＋来月引落の今月利用分＋来月固定費）
-    const totalDeductions = Math.abs((s.cardSettled ? 0 : s.currentMonthCardBill) + s.pureFixedTotal - s.totalSpent + s.pureFixedTotal);
-    if (elDeductions) elDeductions.textContent = `-¥${totalDeductions.toLocaleString()}`;
+    if (elDeductions) {
+      const totalDeductions = Math.abs(curUnsettledTotal + s.totalSpent + Math.abs(s.pureFixedTotal));
+      elDeductions.textContent = `-¥${totalDeductions.toLocaleString()}`;
+    }
     if (elNextSalary) elNextSalary.textContent = `+¥${(s.salaries.nextMonth || 250000).toLocaleString()}`;
 
     // クレカ枠ステータス
@@ -232,7 +254,7 @@ class AppController {
     if (elTotal) elTotal.textContent = `¥${s.totalCurrentBalance.toLocaleString()}`;
   }
 
-  // 3. 将来予測
+  // 3. 将来予測（引落後金額）
   renderForecast(s) {
     const elAfterCurrent = document.getElementById('val-after-current');
     const elAfterNext = document.getElementById('val-after-next');
@@ -247,14 +269,15 @@ class AppController {
     }
   }
 
-  // 4. 固定費
+  // 4. 固定費・変動費の2ブロック表示
   renderFixedExpenses(s) {
-    const container = document.getElementById('home-fixed-container');
-    if (!container) return;
+    const varContainer = document.getElementById('home-variable-container');
+    const fixContainer = document.getElementById('home-fixed-container');
 
-    container.innerHTML = s.fixedExpenses
-      .map(
-        (f) => `
+    const variableExpenses = s.fixedExpenses.filter((f) => f.id === 'credit_card');
+    const fixedExpenses = s.fixedExpenses.filter((f) => f.id !== 'credit_card');
+
+    const createItemHtml = (f) => `
       <div class="fixed-expense-item ${f.settled ? 'settled' : ''}" data-fixed-id="${f.id}">
         <div class="fixed-left">
           <div class="check-circle">${f.settled ? '✓' : ''}</div>
@@ -262,21 +285,32 @@ class AppController {
         </div>
         <span class="fixed-amount">¥${Math.abs(f.amount).toLocaleString()}</span>
       </div>
-    `
-      )
-      .join('');
+    `;
 
-    container.querySelectorAll('.fixed-expense-item').forEach((item) => {
-      item.addEventListener('click', () => {
-        const id = item.dataset.fixedId;
-        store.toggleFixedExpenseSettled(id);
+    if (varContainer) {
+      varContainer.innerHTML = variableExpenses.map(createItemHtml).join('');
+      varContainer.querySelectorAll('.fixed-expense-item').forEach((item) => {
+        item.addEventListener('click', () => {
+          store.toggleFixedExpenseSettled(item.dataset.fixedId);
+        });
       });
-    });
+    }
+
+    if (fixContainer) {
+      fixContainer.innerHTML = fixedExpenses.map(createItemHtml).join('');
+      fixContainer.querySelectorAll('.fixed-expense-item').forEach((item) => {
+        item.addEventListener('click', () => {
+          store.toggleFixedExpenseSettled(item.dataset.fixedId);
+        });
+      });
+    }
   }
 
   // 5. 直近の明細（ホーム用）
   renderRecentTransactions(s) {
     const container = document.getElementById('home-recent-tx-container');
+    const badge = document.getElementById('home-tx-total-badge');
+    if (badge) badge.textContent = `当月計: ¥${s.totalSpent.toLocaleString()}`;
     if (!container) return;
 
     const recent = s.transactions.slice(0, 5);
@@ -284,13 +318,36 @@ class AppController {
     this.attachTransactionClickEvents(container);
   }
 
-  // 6. 全明細（明細タブ用）
+  // 6. 全明細（明細タブ用・合計＆カテゴリ別小計バッジ付き）
   renderFullTransactions(s) {
     const container = document.getElementById('full-tx-container');
     const badge = document.getElementById('tx-total-count');
-    if (badge) badge.textContent = `${s.transactions.length}件`;
-    if (!container) return;
+    const elTotal = document.getElementById('tx-summary-total-amount');
+    const chipsContainer = document.getElementById('tx-category-chips-container');
 
+    if (badge) badge.textContent = `${s.transactions.length}件`;
+    if (elTotal) elTotal.textContent = `¥${s.totalSpent.toLocaleString()}`;
+
+    // カテゴリ別小計バッジ
+    if (chipsContainer) {
+      const categories = Object.keys(s.categoryTotals || {});
+      if (categories.length === 0) {
+        chipsContainer.innerHTML = `<span style="font-size: 0.72rem; color: var(--text-muted);">まだ利用明細がありません</span>`;
+      } else {
+        chipsContainer.innerHTML = categories
+          .map(
+            (cat) => `
+          <div class="tx-category-chip">
+            <span class="chip-cat">${cat}</span>
+            <span class="chip-val">¥${s.categoryTotals[cat].toLocaleString()}</span>
+          </div>
+        `
+          )
+          .join('');
+      }
+    }
+
+    if (!container) return;
     container.innerHTML = s.transactions.map((tx) => this.createTransactionHtml(tx)).join('');
     this.attachTransactionClickEvents(container);
   }
