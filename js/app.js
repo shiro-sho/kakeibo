@@ -776,19 +776,29 @@ class AppController {
       }
     });
 
-    // ヘッダーの同期ボタン
+    // ヘッダーの同期ボタン（回転アニメーション対応）
     document.getElementById('btn-sync-quick')?.addEventListener('click', async () => {
+      const btn = document.getElementById('btn-sync-quick');
+      if (!btn) return;
+
       if (!this.api.isConfigured()) {
-        alert('設定画面でGAS Web AppのURLを設定してください。\n現在はローカルデータが最新です。');
+        btn.classList.add('spinning');
+        setTimeout(() => {
+          btn.classList.remove('spinning');
+          alert('設定画面でGAS Web AppのURLを設定してください。\n現在はローカルデータが最新です。');
+        }, 600);
         return;
       }
+
+      btn.classList.add('spinning');
       try {
-        const btn = document.getElementById('btn-sync-quick');
-        btn.style.transform = 'rotate(360deg)';
-        btn.style.transition = 'transform 0.6s ease';
-        const data = await this.api.fetchMonthData(store.data.currentMonth);
-        alert('最新データを同期しました！');
+        await this.api.fetchMonthData(store.data.currentMonth);
+        setTimeout(() => {
+          btn.classList.remove('spinning');
+          alert('最新データを同期しました！');
+        }, 400);
       } catch (e) {
+        btn.classList.remove('spinning');
         alert('同期エラー: ' + e.message);
       }
     });
