@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>家計簿アプリ - クレジット枠・口座残高管理</title>
+  <meta name="description" content="GmailのVpassメール自動連携に対応した、クレジット利用可能枠・銀行口座残高・将来の資金繰りを一元管理するリッチな家計簿PWA">
+  
+  <!-- PWA & iOS Meta Tags -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="家計簿アプリ">
+  <link rel="apple-touch-icon" href="./icons/icon.png">
+  <meta name="theme-color" content="#090d16">
+
+  <!-- Stylesheet (キャッシュバスター付き) -->
+  <link rel="stylesheet" href="./css/style.css?v=20260921_3">
+
+  <!-- Chart.js CDN for interactive beautiful charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-section">
+        <img src="./icons/icon.png" alt="家計簿アプリ" class="app-icon" id="app-logo">
+        <div class="app-title-wrap">
+          <h1>家計簿アプリ</h1>
+          <span class="month-badge" id="header-month-badge">2026年9月</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <!-- 支出クイック追加ボタン (SVG Plus) -->
+        <button class="icon-btn" id="btn-add-quick" title="支出を登録">
+          <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <!-- デザイン変更ボタン (SVG Palette) -->
+        <button class="icon-btn" id="btn-theme-switcher" title="チタニウムテーマ切替">
+          <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.21-.64-1.67-.08-.1-.13-.21-.13-.33 0-.28.22-.5.5-.5H16c3.31 0 6-2.69 6-6 0-4.96-4.49-9-10-9z"></path></svg>
+        </button>
+        <!-- 更新ボタン (SVG Refresh) -->
+        <button class="icon-btn" id="btn-sync-quick" title="スプレッドシートと同期">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Views -->
+    <main id="main-content">
+      <!-- 1. HOME VIEW -->
+      <section id="view-home" class="view-panel active">
+        <!-- Hero: Forecast Available Amount (主役・最重要コンポーネント) -->
+        <div class="glass-card credit-hero" id="credit-hero-card">
+          <div class="hero-subtitle">来月引落後の使えるお金（推定自由資金）</div>
+          
+          <div class="hero-amount-display">
+            <div class="available-amount-wrap">
+              <span class="currency-symbol">¥</span>
+              <span class="available-amount" id="val-forecast-available">---</span>
+            </div>
+          </div>
+
+          <!-- 計算の内訳ブレークダウン (現在残高・引落合計・来月給料) -->
+          <div class="limit-breakdown-row">
+            <div class="breakdown-box">
+              <span class="breakdown-label">現在の全残高</span>
+              <span class="breakdown-val" id="val-hero-current-balance">¥0</span>
+            </div>
+            <div class="breakdown-box">
+              <span class="breakdown-label">引落予定(未引落)</span>
+              <span class="breakdown-val" id="val-hero-deductions" style="color: var(--accent-rose);">¥0</span>
+            </div>
+            <div class="breakdown-box">
+              <span class="breakdown-label">来月給料見込み</span>
+              <span class="breakdown-val" id="val-hero-next-salary" style="color: var(--accent-primary);">+¥250,000</span>
+            </div>
+          </div>
+
+          <!-- クレジットカード利用枠ステータスバー -->
+          <div class="hero-card-status-bar">
+            <div class="card-status-left">
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+              <span>クレカ枠残: <strong id="val-hero-card-available">¥0</strong> / ¥1,000,000</span>
+            </div>
+            <span class="card-status-spent">今月利用: <span id="val-hero-card-spent">¥0</span></span>
+          </div>
+
+          <!-- スマート支出登録アクション -->
+          <div style="text-align: center; margin-top: 14px;">
+            <button class="hero-quick-action-btn" id="btn-hero-add-tx">
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>支出を登録</span>
+            </button>
+          </div>
+
+          <!-- Warning Banner (Conditional) -->
+          <div class="warning-banner" id="card-warning-banner" style="display: none;">
+            <svg class="svg-icon" viewBox="0 0 24 24" style="stroke: #f43f5e;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <span class="warning-text" id="warning-banner-text">所持金またはカード利用枠が警告ラインを下回っています</span>
+          </div>
+        </div>
+
+        <!-- Bank Accounts Section -->
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="3" y1="21" x2="21" y2="21"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="5 6 12 3 19 6"></polyline><line x1="4" y1="10" x2="4" y2="21"></line><line x1="20" y1="10" x2="20" y2="21"></line><line x1="8" y1="14" x2="8" y2="17"></line><line x1="12" y1="14" x2="12" y2="17"></line><line x1="16" y1="14" x2="16" y2="17"></line></svg>
+            <span>銀行口座残高</span>
+          </h2>
+          <div style="display: flex; gap: 8px;">
+            <button class="section-link" id="btn-add-transfer-home">＋ 入出金</button>
+            <button class="section-link" id="link-to-accounts">詳細</button>
+          </div>
+        </div>
+        <div class="accounts-grid" id="home-accounts-container">
+          <!-- Dynamically populated -->
+        </div>
+        <div class="total-balance-bar">
+          <span class="total-label">所持金 合計</span>
+          <span class="total-amount" id="val-total-balance">¥0</span>
+        </div>
+
+        <!-- Future Estimates Section -->
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+            <span>将来の所持金（推定）</span>
+          </h2>
+        </div>
+        <div class="glass-card forecast-card">
+          <div class="forecast-row">
+            <div class="forecast-meta">
+              <span class="forecast-title">今月引落後（推定）</span>
+              <span class="forecast-desc">クレカ代・固定費・給与を加味</span>
+            </div>
+            <span class="forecast-val" id="val-after-current">¥0</span>
+          </div>
+          <div class="forecast-row">
+            <div class="forecast-meta">
+              <span class="forecast-title">来月引落後（推定）</span>
+              <span class="forecast-desc">来月引落（今月クレカ＋固定費）控除後</span>
+            </div>
+            <span class="forecast-val" id="val-after-next">¥0</span>
+          </div>
+        </div>
+
+        <!-- Fixed Expenses (Checkable) -->
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <span>毎月確定支払いのもの</span>
+          </h2>
+        </div>
+        <div class="glass-card">
+          <div class="fixed-expenses-list" id="home-fixed-container">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+            <span>クレカ利用履歴（最新）</span>
+          </h2>
+          <button class="section-link" id="link-to-transactions">すべて見る</button>
+        </div>
+        <div class="timeline-list" id="home-recent-tx-container">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+
+      <!-- 2. TRANSACTIONS VIEW -->
+      <section id="view-transactions" class="view-panel">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+            <span>クレジット利用明細</span>
+          </h2>
+          <span class="month-badge" id="tx-total-count">0件</span>
+        </div>
+        <div class="timeline-list" id="full-tx-container">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+
+      <!-- 3. ACCOUNTS VIEW -->
+      <section id="view-accounts" class="view-panel">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="3" y1="21" x2="21" y2="21"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="5 6 12 3 19 6"></polyline><line x1="4" y1="10" x2="4" y2="21"></line><line x1="20" y1="10" x2="20" y2="21"></line><line x1="8" y1="14" x2="8" y2="17"></line><line x1="12" y1="14" x2="12" y2="17"></line><line x1="16" y1="14" x2="16" y2="17"></line></svg>
+            <span>各口座の出納・振込履歴</span>
+          </h2>
+          <button class="section-link" id="btn-add-transfer">＋ 出入金登録</button>
+        </div>
+        <div id="accounts-detail-container">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+
+      <!-- 4. ANALYTICS VIEW (リッチ横棒グラフ＆ランキング) -->
+      <section id="view-analytics" class="view-panel">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            <span>カテゴリ別支出グラフ</span>
+          </h2>
+        </div>
+        <div class="glass-card">
+          <div class="chart-container">
+            <canvas id="category-bar-chart"></canvas>
+          </div>
+        </div>
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+            <span>支出ランキング詳細</span>
+          </h2>
+        </div>
+        <div class="rich-bars-container" id="category-ranking-container">
+          <!-- Dynamically populated rich bars -->
+        </div>
+      </section>
+
+      <!-- 5. SETTINGS VIEW -->
+      <section id="view-settings" class="view-panel">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>設定・スプレッドシート連携</span>
+          </h2>
+        </div>
+        <div class="glass-card">
+          <h3 style="font-size: 0.95rem; margin-bottom: 8px;">アプリアイコンの着せ替え</h3>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px;">
+            お好みの牛アイコンをタップして切り替えられます。
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;" id="icon-selector-grid">
+            <!-- ① キュート牛 -->
+            <div class="icon-choice-card active" data-icon-src="./icons/cow-cute.png" style="text-align: center; cursor: pointer;">
+              <img src="./icons/cow-cute.png" style="width: 100%; border-radius: 12px; border: 2px solid var(--accent-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.3);" alt="キュート牛">
+              <span style="font-size: 0.7rem; font-weight: 600; display: block; margin-top: 4px;">キュート</span>
+            </div>
+            <!-- ② ゴールド牛 -->
+            <div class="icon-choice-card" data-icon-src="./icons/cow-gold.png" style="text-align: center; cursor: pointer;">
+              <img src="./icons/cow-gold.png" style="width: 100%; border-radius: 12px; border: 2px solid var(--border-glass);" alt="ゴールド牛">
+              <span style="font-size: 0.7rem; font-weight: 600; display: block; margin-top: 4px;">ゴールド</span>
+            </div>
+            <!-- ③ ウォレット牛 (NEW) -->
+            <div class="icon-choice-card" data-icon-src="./icons/cow-wallet.png" style="text-align: center; cursor: pointer;">
+              <img src="./icons/cow-wallet.png" style="width: 100%; border-radius: 12px; border: 2px solid var(--border-glass);" alt="ウォレット牛">
+              <span style="font-size: 0.7rem; font-weight: 600; display: block; margin-top: 4px;">ウォレット</span>
+            </div>
+            <!-- ④ ロイヤル牛 (NEW) -->
+            <div class="icon-choice-card" data-icon-src="./icons/cow-royal.png" style="text-align: center; cursor: pointer;">
+              <img src="./icons/cow-royal.png" style="width: 100%; border-radius: 12px; border: 2px solid var(--border-glass);" alt="ロイヤル牛">
+              <span style="font-size: 0.7rem; font-weight: 600; display: block; margin-top: 4px;">ロイヤル</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="form-group">
+            <label class="form-label" for="setting-gas-url">GAS Web App URL</label>
+            <input type="url" id="setting-gas-url" class="form-input" placeholder="https://script.google.com/macros/s/.../exec">
+            <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">
+              スプレッドシート側で「ウェブアプリとしてデプロイ」したURLを貼り付けると自動同期します。
+            </p>
+          </div>
+          <button class="btn-primary" id="btn-save-settings">設定を保存 & 接続テスト</button>
+        </div>
+
+        <div class="glass-card">
+          <h3 style="font-size: 0.95rem; margin-bottom: 12px;">給料（推定見込み額）の設定</h3>
+          <div class="form-group">
+            <label class="form-label" for="setting-salary-current">今月の給料（みずほ銀行想定）</label>
+            <input type="number" id="setting-salary-current" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="setting-salary-next">来月の給料（みずほ銀行想定）</label>
+            <input type="number" id="setting-salary-next" class="form-input">
+          </div>
+          <button class="btn-primary" id="btn-save-salaries">給料設定を保存</button>
+        </div>
+
+        <div class="glass-card">
+          <h3 style="font-size: 0.95rem; margin-bottom: 8px;">データ管理</h3>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 14px;">
+            スプレッドシートから読み取った初期状態（2026年9月分）にデータをリセットできます。
+          </p>
+          <button class="btn-danger" id="btn-reset-data">初期データに戻す</button>
+        </div>
+      </section>
+    </main>
+
+
+    <!-- Bottom Navigation Bar (5項目すべて洗練されたデザインSVG) -->
+    <nav class="bottom-nav">
+      <!-- 1. ホーム -->
+      <button class="nav-item active" data-view="home" id="nav-home">
+        <div class="nav-icon-wrap">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        </div>
+        <span class="nav-label">ホーム</span>
+      </button>
+
+      <!-- 2. 明細 -->
+      <button class="nav-item" data-view="transactions" id="nav-transactions">
+        <div class="nav-icon-wrap">
+          <svg class="svg-icon" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+        </div>
+        <span class="nav-label">明細</span>
+      </button>
+
+      <!-- 3. 口座 -->
+      <button class="nav-item" data-view="accounts" id="nav-accounts">
+        <div class="nav-icon-wrap">
+          <svg class="svg-icon" viewBox="0 0 24 24"><line x1="3" y1="21" x2="21" y2="21"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="5 6 12 3 19 6"></polyline><line x1="4" y1="10" x2="4" y2="21"></line><line x1="20" y1="10" x2="20" y2="21"></line><line x1="8" y1="14" x2="8" y2="17"></line><line x1="12" y1="14" x2="12" y2="17"></line><line x1="16" y1="14" x2="16" y2="17"></line></svg>
+        </div>
+        <span class="nav-label">口座</span>
+      </button>
+
+      <!-- 4. 分析 -->
+      <button class="nav-item" data-view="analytics" id="nav-analytics">
+        <div class="nav-icon-wrap">
+          <svg class="svg-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        </div>
+        <span class="nav-label">分析</span>
+      </button>
+
+      <!-- 5. 設定 -->
+      <button class="nav-item" data-view="settings" id="nav-settings">
+        <div class="nav-icon-wrap">
+          <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </div>
+        <span class="nav-label">設定</span>
+      </button>
+    </nav>
+
+    <!-- MODAL: Quick Add Expense -->
+    <div class="modal-overlay" id="modal-add-tx">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">出費を登録</h3>
+          <button class="close-btn" id="btn-close-add-tx">✕</button>
+        </div>
+        <form id="form-add-tx">
+          <div class="form-group">
+            <label class="form-label" for="input-tx-name">お店・内容</label>
+            <input type="text" id="input-tx-name" class="form-input" placeholder="例: セブン-イレブン" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-tx-amount">金額 (¥)</label>
+            <input type="number" id="input-tx-amount" class="form-input" placeholder="1000" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-tx-category">ジャンル（カテゴリ）</label>
+            <select id="input-tx-category" class="form-select">
+              <option value="食費">食費</option>
+              <option value="飲み物代">飲み物代</option>
+              <option value="交際費">交際費</option>
+              <option value="日用品">日用品</option>
+              <option value="交通費">交通費</option>
+              <option value="趣味・娯楽">趣味・娯楽</option>
+              <option value="月額課金">月額課金</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-tx-date">利用日</label>
+            <input type="date" id="input-tx-date" class="form-input">
+          </div>
+          <button type="submit" class="btn-primary">追加する</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: Edit Transaction -->
+    <div class="modal-overlay" id="modal-edit-tx">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">明細の編集</h3>
+          <button class="close-btn" id="btn-close-edit-tx">✕</button>
+        </div>
+        <form id="form-edit-tx">
+          <input type="hidden" id="edit-tx-id">
+          <div class="form-group">
+            <label class="form-label" for="edit-tx-name">利用店名</label>
+            <input type="text" id="edit-tx-name" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-tx-amount">金額 (¥)</label>
+            <input type="number" id="edit-tx-amount" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-tx-category">ジャンル</label>
+            <select id="edit-tx-category" class="form-select">
+              <option value="食費">食費</option>
+              <option value="飲み物代">飲み物代</option>
+              <option value="交際費">交際費</option>
+              <option value="日用品">日用品</option>
+              <option value="交通費">交通費</option>
+              <option value="趣味・娯楽">趣味・娯楽</option>
+              <option value="月額課金">月額課金</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-primary">更新する</button>
+          <button type="button" class="btn-danger" id="btn-delete-tx">この明細を削除</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: Edit Account Balance -->
+    <div class="modal-overlay" id="modal-edit-account">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title" id="edit-account-title">口座残高の更新</h3>
+          <button class="close-btn" id="btn-close-edit-account">✕</button>
+        </div>
+        <form id="form-edit-account">
+          <input type="hidden" id="edit-account-id">
+          <div class="form-group">
+            <label class="form-label" for="edit-account-amount">月初金額 (¥)</label>
+            <input type="number" id="edit-account-amount" class="form-input" required>
+            <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">
+              スプレッドシートの月初設定セル（D9〜D11）に反映されます。
+            </p>
+          </div>
+          <button type="submit" class="btn-primary">残高を更新</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: Add Bank Transfer -->
+    <div class="modal-overlay" id="modal-add-transfer">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">出入金（振込・引出）の登録</h3>
+          <button class="close-btn" id="btn-close-add-transfer">✕</button>
+        </div>
+        <form id="form-add-transfer">
+          <div class="form-group">
+            <label class="form-label" for="input-tf-account">対象口座</label>
+            <select id="input-tf-account" class="form-select">
+              <option value="smbc">三井住友銀行</option>
+              <option value="mufg">三菱UFJ銀行</option>
+              <option value="mizuho">みずほ銀行</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-tf-type">種別</label>
+            <select id="input-tf-type" class="form-select">
+              <option value="income">振込・預け入れ (入金 💰)</option>
+              <option value="expense">引き出し (出金 💸)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-tf-name">内容</label>
+            <input type="text" id="input-tf-name" class="form-input" placeholder="例: paypay出金 / 給料" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-tf-amount">金額 (¥)</label>
+            <input type="number" id="input-tf-amount" class="form-input" placeholder="30000" required>
+          </div>
+          <button type="submit" class="btn-primary">登録する</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: Theme Switcher (デザイン着せ替え) -->
+    <div class="modal-overlay" id="modal-theme-switcher">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">チタニウムデザインの選択</h3>
+          <button class="close-btn" id="btn-close-theme">✕</button>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px;">
+          Apple Pro基準のチタニウム＆リキッドガラスの質感を選択できます。
+        </p>
+        <div class="theme-options-grid">
+          <!-- Theme 1: Black Titanium -->
+          <div class="theme-card active" data-set-theme="cyber">
+            <div class="theme-preview-box">
+              <div class="theme-preview-color" style="background: #000000;"></div>
+              <div class="theme-preview-color" style="background: #10b981;"></div>
+              <div class="theme-preview-color" style="background: #16181d;"></div>
+            </div>
+            <span class="theme-name">ブラック・チタニウム</span>
+            <span class="theme-desc">漆黒チタン × エメラルド</span>
+          </div>
+
+          <!-- Theme 2: Desert Titanium -->
+          <div class="theme-card" data-set-theme="gold">
+            <div class="theme-preview-box">
+              <div class="theme-preview-color" style="background: #020203;"></div>
+              <div class="theme-preview-color" style="background: #d4af37;"></div>
+              <div class="theme-preview-color" style="background: #c5a880;"></div>
+            </div>
+            <span class="theme-name">デザート・チタニウム</span>
+            <span class="theme-desc">高貴なブロンズ＆シャンパン</span>
+          </div>
+
+          <!-- Theme 3: Natural Titanium -->
+          <div class="theme-card" data-set-theme="indigo">
+            <div class="theme-preview-box">
+              <div class="theme-preview-color" style="background: #050608;"></div>
+              <div class="theme-preview-color" style="background: #6366f1;"></div>
+              <div class="theme-preview-color" style="background: #94a3b8;"></div>
+            </div>
+            <span class="theme-name">ナチュラル・チタニウム</span>
+            <span class="theme-desc">削り出しチタン × ネイビー</span>
+          </div>
+
+          <!-- Theme 4: White Titanium -->
+          <div class="theme-card" data-set-theme="light">
+            <div class="theme-preview-box">
+              <div class="theme-preview-color" style="background: #ffffff; border: 1px solid #e2e8f0;"></div>
+              <div class="theme-preview-color" style="background: #059669;"></div>
+              <div class="theme-preview-color" style="background: #f5f5f7;"></div>
+            </div>
+            <span class="theme-name">ホワイト・チタニウム</span>
+            <span class="theme-desc">清潔な最高峰ライトモード</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Scripts (キャッシュバスター付き) -->
+  <script type="module" src="./js/app.js?v=20260921_3"></script>
+
+  <!-- PWA Service Worker Registration & Cache Purge -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (let reg of registrations) {
+            reg.update();
+          }
+        });
+        navigator.serviceWorker.register('./sw.js?v=20260921_3').catch((err) => {
+          console.log('SW registration skipped:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

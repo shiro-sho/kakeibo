@@ -1,0 +1,17 @@
+{
+  "name": "家計簿アプリ",
+  "short_name": "家計簿",
+  "description": "クレジット枠・銀行残高・将来予測をリアルタイム管理するリッチな家計簿アプリ",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b0f19",
+  "theme_color": "#0b0f19",
+  "icons": [
+    {
+      "src": "./icons/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
