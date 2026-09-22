@@ -562,14 +562,11 @@ class AppController {
 
     if (!container) return;
 
-    // group 未設定データの自動補完
+    // group 未設定データのフォールバック（行100以降のみrecurring、それ以外は通常クレカ）
     s.transactions.forEach(tx => {
       if (!tx.group) {
-        const isRec = tx.category === '月額課金' ||
-          (String(tx.id).match(/tx-(\d+)/) && Number(RegExp.$1) >= 101) ||
-          String(tx.name).includes('引落') || String(tx.category).includes('引落') ||
-          String(tx.category).includes('課金');
-        tx.group = isRec ? 'recurring' : 'card';
+        const rowNum = String(tx.id).match(/tx-(\d+)/) ? Number(RegExp.$1) : 0;
+        tx.group = (rowNum >= 100) ? 'recurring' : 'card';
       }
     });
 
