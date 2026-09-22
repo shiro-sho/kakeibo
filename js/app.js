@@ -21,11 +21,29 @@ function showToast(msg, type = 'success') {
   }, 3500);
 }
 
+// クレジットカード明細を日付の降順（最新日付が一番上）でソートする関数
+function sortTransactionsDesc(list) {
+  if (!Array.isArray(list)) return [];
+  return [...list].sort((a, b) => {
+    if (!a.date && !b.date) return 0;
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    const timeA = new Date(String(a.date).replace(/-/g, '/')).getTime();
+    const timeB = new Date(String(b.date).replace(/-/g, '/')).getTime();
+    if (isNaN(timeA) && isNaN(timeB)) return String(b.date).localeCompare(String(a.date));
+    if (isNaN(timeA)) return 1;
+    if (isNaN(timeB)) return -1;
+    if (timeB !== timeA) return timeB - timeA;
+    return String(b.id || '').localeCompare(String(a.id || ''));
+  });
+}
+
 class AppController {
   constructor() {
     this.api = new GasApiClient(store);
     this.chartRenderer = null;
     this.currentView = 'home';
+    this.currentTxGroupFilter = 'all';
     this.init();
   }
 
@@ -41,6 +59,7 @@ class AppController {
 
     // イベントリスナーのセットアップ
     this.setupNavigation();
+    this.setupTransactionsSegment();
     this.setupModals();
     this.setupForms();
     this.setupSettings();
@@ -123,6 +142,18 @@ class AppController {
     // クイックリンク
     document.getElementById('link-to-accounts')?.addEventListener('click', () => this.switchView('accounts'));
     document.getElementById('link-to-transactions')?.addEventListener('click', () => this.switchView('transactions'));
+  }
+
+  // クレカ明細のグループ切り替えタブ制御 (すべて / 💳 クレカ明細 / 🔄 引落系・課金系)
+  setupTransactionsSegment() {
+    document.querySelectorAll('#tx-segment-control .tx-segment-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#tx-segment-control .tx-segment-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.currentTxGroupFilter = btn.dataset.group || 'all';
+        this.renderFullTransactions(store.getSummary());
+      });
+    });
   }
 
   switchView(viewName) {
@@ -354,19 +385,20 @@ class AppController {
     }
   }
 
-  // 5. 直近の明細（ホーム用）
+  // 5. 直近の明細（ホーム用 - 日付降順の最新5件）
   renderRecentTransactions(s) {
     const container = document.getElementById('home-recent-tx-container');
     const badge = document.getElementById('home-tx-total-badge');
     if (badge) badge.textContent = `当月計: ¥${s.totalSpent.toLocaleString()}`;
     if (!container) return;
 
-    const recent = s.transactions.slice(0, 5);
+    const sortedAll = sortTransactionsDesc(s.transactions);
+    const recent = sortedAll.slice(0, 5);
     container.innerHTML = recent.map((tx) => this.createTransactionHtml(tx)).join('');
     this.attachTransactionClickEvents(container);
   }
 
-  // 6. 全明細（明細タブ用・Apple Card風合計＆マルチカラーバー＆リッチチップ）
+  // 6. 全明細（明細タブ用・日付降順ソート & 「クレカの明細」「引落系、課金系」グループ分割）
   renderFullTransactions(s) {
     const container = document.getElementById('full-tx-container');
     const badge = document.getElementById('tx-total-count');
@@ -431,21 +463,114 @@ class AppController {
     }
 
     if (!container) return;
-    container.innerHTML = s.transactions.map((tx) => this.createTransactionHtml(tx)).join('');
+
+    // group 未設定データの自動補完
+    s.transactions.forEach(tx => {
+      if (!tx.group) {
+        const isRec = tx.category === '月額課金' ||
+                      (String(tx.id).match(/tx-(\d+)/) && Number(RegExp.$1) >= 101) ||
+                      String(tx.name).includes('引落') || String(tx.category).includes('引落') ||
+                      String(tx.category).includes('課金');
+        tx.group = isRec ? 'recurring' : 'card';
+      }
+    });
+
+    const cardTxList = sortTransactionsDesc(s.transactions.filter(t => t.group !== 'recurring'));
+    const recurringTxList = sortTransactionsDesc(s.transactions.filter(t => t.group === 'recurring'));
+
+    const cardTotal = cardTxList.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+    const recurringTotal = recurringTxList.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+
+    // セグメントバッジの件数更新
+    const badgeAll = document.getElementById('badge-count-all');
+    const badgeCard = document.getElementById('badge-count-card');
+    const badgeRecurring = document.getElementById('badge-count-recurring');
+    if (badgeAll) badgeAll.textContent = s.transactions.length;
+    if (badgeCard) badgeCard.textContent = cardTxList.length;
+    if (badgeRecurring) badgeRecurring.textContent = recurringTxList.length;
+
+    const renderListHtml = (list) => {
+      if (!list || list.length === 0) {
+        return `<div style="text-align: center; color: var(--text-muted); padding: 18px; font-size: 0.85rem;">該当の明細はありません</div>`;
+      }
+      return list.map((tx) => this.createTransactionHtml(tx)).join('');
+    };
+
+    if (this.currentTxGroupFilter === 'all') {
+      container.innerHTML = `
+        <div class="tx-group-section">
+          <div class="tx-group-header">
+            <div class="tx-group-title-wrap">
+              <span class="tx-group-title">💳 クレカ明細（通常利用）</span>
+              <span class="tx-group-count">${cardTxList.length}件</span>
+            </div>
+            <span class="tx-group-total">¥${cardTotal.toLocaleString()}</span>
+          </div>
+          <div class="timeline-list">
+            ${renderListHtml(cardTxList)}
+          </div>
+        </div>
+
+        <div class="tx-group-section">
+          <div class="tx-group-header recurring">
+            <div class="tx-group-title-wrap">
+              <span class="tx-group-title">🔄 引落系、課金系（サブスク・固定費等）</span>
+              <span class="tx-group-count">${recurringTxList.length}件</span>
+            </div>
+            <span class="tx-group-total">¥${recurringTotal.toLocaleString()}</span>
+          </div>
+          <div class="timeline-list">
+            ${renderListHtml(recurringTxList)}
+          </div>
+        </div>
+      `;
+    } else if (this.currentTxGroupFilter === 'card') {
+      container.innerHTML = `
+        <div class="tx-group-section">
+          <div class="tx-group-header">
+            <div class="tx-group-title-wrap">
+              <span class="tx-group-title">💳 クレカ明細（通常利用）</span>
+              <span class="tx-group-count">${cardTxList.length}件</span>
+            </div>
+            <span class="tx-group-total">¥${cardTotal.toLocaleString()}</span>
+          </div>
+          <div class="timeline-list">
+            ${renderListHtml(cardTxList)}
+          </div>
+        </div>
+      `;
+    } else if (this.currentTxGroupFilter === 'recurring') {
+      container.innerHTML = `
+        <div class="tx-group-section">
+          <div class="tx-group-header recurring">
+            <div class="tx-group-title-wrap">
+              <span class="tx-group-title">🔄 引落系、課金系（サブスク・固定費等）</span>
+              <span class="tx-group-count">${recurringTxList.length}件</span>
+            </div>
+            <span class="tx-group-total">¥${recurringTotal.toLocaleString()}</span>
+          </div>
+          <div class="timeline-list">
+            ${renderListHtml(recurringTxList)}
+          </div>
+        </div>
+      `;
+    }
+
     this.attachTransactionClickEvents(container);
   }
 
   createTransactionHtml(tx) {
+    const isRec = tx.group === 'recurring';
     return `
       <div class="timeline-item" data-tx-id="${tx.id}">
         <div class="tx-main">
-          <span class="tx-category-badge">${tx.category}</span>
+          <span class="tx-category-badge ${isRec ? 'tx-badge-recurring' : ''}">${tx.category || (isRec ? '引落系、課金系' : '未分類')}</span>
           <div class="tx-info">
             <span class="tx-name">${tx.name}</span>
-            <span class="tx-date">${tx.date}</span>
+            <span class="tx-date">${tx.date || '日付未定'}</span>
           </div>
         </div>
-        <span class="tx-amount">¥${tx.amount.toLocaleString()}</span>
+        <span class="tx-amount">¥${Number(tx.amount || 0).toLocaleString()}</span>
       </div>
     `;
   }
@@ -467,7 +592,13 @@ class AppController {
 
     container.innerHTML = s.accounts
       .map((acc) => {
-        const transfers = s.bankTransfers.filter((t) => t.accountId === acc.id);
+        const transfers = s.bankTransfers
+          .filter((t) => t.accountId === acc.id)
+          .sort((a, b) => {
+            const da = new Date(a.date ? a.date.replace(/-/g, '/') : '1970/01/01').getTime();
+            const db = new Date(b.date ? b.date.replace(/-/g, '/') : '1970/01/01').getTime();
+            return da - db;
+          });
         return `
         <div class="glass-card" style="border-top: 3px solid ${acc.color}; margin-bottom: 16px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -739,7 +870,7 @@ class AppController {
       const rawDate = document.getElementById('input-tx-date').value;
       const date = rawDate ? rawDate.replace(/-/g, '/') : new Date().toISOString().slice(0, 10).replace(/-/g, '/');
 
-      store.addTransaction({ name, amount, category, date });
+      store.addTransaction({ name, amount, category, date, group: 'card' });
       document.getElementById('modal-add-tx')?.classList.remove('active');
       document.getElementById('form-add-tx')?.reset();
     });

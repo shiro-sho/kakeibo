@@ -827,7 +827,8 @@ class KakeiboStore {
       category: tx.category || '未分類',
       amount: Number(tx.amount || 0),
       status: tx.status || 'unsettled',
-      emailId: tx.emailId || ''
+      emailId: tx.emailId || '',
+      group: tx.group || 'card'
     };
     this.data.transactions.unshift(newTx);
     this.saveData();

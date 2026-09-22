@@ -319,6 +319,22 @@
           </div>
         </div>
 
+        <!-- 明細グループ切り替えタブ (すべて / 💳 クレカ明細 / 🔄 引落系・課金系) -->
+        <div class="tx-segment-control" id="tx-segment-control">
+          <button class="tx-segment-btn active" data-group="all">
+            <span>すべて</span>
+            <span class="segment-badge" id="badge-count-all">0</span>
+          </button>
+          <button class="tx-segment-btn" data-group="card">
+            <span>💳 クレカ明細</span>
+            <span class="segment-badge" id="badge-count-card">0</span>
+          </button>
+          <button class="tx-segment-btn" data-group="recurring">
+            <span>🔄 引落系・課金系</span>
+            <span class="segment-badge" id="badge-count-recurring">0</span>
+          </button>
+        </div>
+
         <div class="timeline-list" id="full-tx-container">
           <!-- Dynamically populated -->
         </div>

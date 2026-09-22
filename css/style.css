@@ -1889,3 +1889,124 @@ body {
   flex-shrink: 0;
 }
 
+/* ========================================================
+   クレジットカード明細: セグメントコントロール & グループ分けUI
+   ======================================================== */
+.tx-segment-control {
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 18px;
+}
+
+.tx-segment-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  white-space: nowrap;
+}
+
+.tx-segment-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.tx-segment-btn.active {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.segment-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.tx-segment-btn.active .segment-badge {
+  background: var(--accent-primary);
+  color: #0d1117;
+}
+
+/* グループ別セクションコンテナ */
+.tx-group-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.tx-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid var(--accent-primary);
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+
+.tx-group-header.recurring {
+  border-left-color: #a855f7;
+}
+
+.tx-group-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tx-group-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tx-group-count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.tx-group-total {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tx-group-header.recurring .tx-group-total {
+  color: #d8b4fe;
+}
+
+/* サブスク・引落系用のバッジアクセント */
+.tx-badge-recurring {
+  background: rgba(168, 85, 247, 0.18) !important;
+  color: #d8b4fe !important;
+  border: 1px solid rgba(168, 85, 247, 0.35) !important;
+}
+
+
