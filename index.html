@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>家計簿アプリ - クレジット枠・口座残高管理</title>
   <meta name="description" content="GmailのVpassメール自動連携に対応した、クレジット利用可能枠・銀行口座残高・将来の資金繰りを一元管理するリッチな家計簿PWA">
-  
+
   <!-- PWA & iOS Meta Tags -->
   <link rel="manifest" href="./manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -21,6 +23,7 @@
   <!-- Chart.js CDN for interactive beautiful charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
+
 <body>
   <div id="app">
     <!-- Header -->
@@ -35,15 +38,28 @@
       <div class="header-actions">
         <!-- 支出クイック追加ボタン (SVG Plus) -->
         <button class="icon-btn" id="btn-add-quick" title="支出を登録">
-          <svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
         </button>
         <!-- デザイン変更ボタン (SVG Palette) -->
         <button class="icon-btn" id="btn-theme-switcher" title="チタニウムテーマ切替">
-          <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.21-.64-1.67-.08-.1-.13-.21-.13-.33 0-.28.22-.5.5-.5H16c3.31 0 6-2.69 6-6 0-4.96-4.49-9-10-9z"></path></svg>
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle>
+            <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle>
+            <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle>
+            <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle>
+            <path
+              d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.21-.64-1.67-.08-.1-.13-.21-.13-.33 0-.28.22-.5.5-.5H16c3.31 0 6-2.69 6-6 0-4.96-4.49-9-10-9z">
+            </path>
+          </svg>
         </button>
         <!-- 更新ボタン (SVG Refresh) -->
         <button class="icon-btn" id="btn-sync-quick" title="スプレッドシートと同期">
-          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+          </svg>
         </button>
       </div>
     </header>
@@ -56,7 +72,7 @@
         <!-- Hero: Forecast Available Amount (主役・最重要コンポーネント) -->
         <div class="glass-card credit-hero" id="credit-hero-card">
           <div class="hero-subtitle">来月引落後の使えるお金（推定自由資金）</div>
-          
+
           <div class="hero-amount-display">
             <div class="available-amount-wrap">
               <span class="currency-symbol">¥</span>
@@ -69,25 +85,40 @@
             <button class="calc-insight-trigger" id="btn-toggle-calc-insight" type="button" aria-expanded="false">
               <div class="insight-trigger-left">
                 <span class="insight-sparkle-badge">
-                  <svg class="svg-icon svg-icon-xs" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                  <svg class="svg-icon svg-icon-xs" viewBox="0 0 24 24">
+                    <polygon
+                      points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                    </polygon>
+                  </svg>
                   <span>計算の内訳</span>
                 </span>
                 <span class="insight-trigger-text">自由資金の計算根拠を見る</span>
               </div>
               <div class="insight-trigger-right">
                 <span class="insight-status-tag">6項目</span>
-                <svg class="svg-icon svg-icon-sm insight-chevron" id="insight-chevron-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                <svg class="svg-icon svg-icon-sm insight-chevron" id="insight-chevron-icon" viewBox="0 0 24 24">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
               </div>
             </button>
 
             <!-- 展開される計算ステップリスト -->
             <div class="calc-insight-drawer" id="calc-insight-drawer">
               <div class="calc-flow-timeline">
-                
+
                 <!-- ① スタート地点：全口座残高 -->
                 <div class="flow-step base">
                   <div class="flow-step-icon base">
-                    <svg class="svg-icon svg-icon-xs" viewBox="0 0 24 24"><line x1="3" y1="21" x2="21" y2="21"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="5 6 12 3 19 6"></polyline><line x1="4" y1="10" x2="4" y2="21"></line><line x1="20" y1="10" x2="20" y2="21"></line><line x1="8" y1="14" x2="8" y2="17"></line><line x1="12" y1="14" x2="12" y2="17"></line><line x1="16" y1="14" x2="16" y2="17"></line></svg>
+                    <svg class="svg-icon svg-icon-xs" viewBox="0 0 24 24">
+                      <line x1="3" y1="21" x2="21" y2="21"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                      <polyline points="5 6 12 3 19 6"></polyline>
+                      <line x1="4" y1="10" x2="4" y2="21"></line>
+                      <line x1="20" y1="10" x2="20" y2="21"></line>
+                      <line x1="8" y1="14" x2="8" y2="17"></line>
+                      <line x1="12" y1="14" x2="12" y2="17"></line>
+                      <line x1="16" y1="14" x2="16" y2="17"></line>
+                    </svg>
                   </div>
                   <div class="flow-step-info">
                     <span class="flow-step-label">現在の所持金（全口座）</span>
@@ -163,7 +194,10 @@
           <!-- クレジットカード利用枠ステータスバー -->
           <div class="hero-card-status-bar">
             <div class="card-status-left">
-              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                <line x1="1" y1="10" x2="23" y2="10"></line>
+              </svg>
               <span>クレカ枠残: <strong id="val-hero-card-available">¥0</strong> / ¥1,000,000</span>
             </div>
             <span class="card-status-spent">今月利用: <span id="val-hero-card-spent">¥0</span></span>
@@ -172,14 +206,21 @@
           <!-- スマート支出登録アクション -->
           <div style="text-align: center; margin-top: 14px;">
             <button class="hero-quick-action-btn" id="btn-hero-add-tx">
-              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
               <span>支出を登録</span>
             </button>
           </div>
 
           <!-- Warning Banner (Conditional) -->
           <div class="warning-banner" id="card-warning-banner" style="display: none;">
-            <svg class="svg-icon" viewBox="0 0 24 24" style="stroke: #f43f5e;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <svg class="svg-icon" viewBox="0 0 24 24" style="stroke: #f43f5e;">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
             <span class="warning-text" id="warning-banner-text">所持金またはカード利用枠が警告ラインを下回っています</span>
           </div>
         </div>
@@ -187,7 +228,16 @@
         <!-- Bank Accounts Section -->
         <div class="section-header">
           <h2 class="section-title">
-            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="3" y1="21" x2="21" y2="21"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="5 6 12 3 19 6"></polyline><line x1="4" y1="10" x2="4" y2="21"></line><line x1="20" y1="10" x2="20" y2="21"></line><line x1="8" y1="14" x2="8" y2="17"></line><line x1="12" y1="14" x2="12" y2="17"></line><line x1="16" y1="14" x2="16" y2="17"></line></svg>
+            <svg class="svg-icon" viewBox="0 0 24 24">
+              <line x1="3" y1="21" x2="21" y2="21"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+              <polyline points="5 6 12 3 19 6"></polyline>
+              <line x1="4" y1="10" x2="4" y2="21"></line>
+              <line x1="20" y1="10" x2="20" y2="21"></line>
+              <line x1="8" y1="14" x2="8" y2="17"></line>
+              <line x1="12" y1="14" x2="12" y2="17"></line>
+              <line x1="16" y1="14" x2="16" y2="17"></line>
+            </svg>
             <span>銀行口座残高</span>
           </h2>
           <div style="display: flex; gap: 8px;">
@@ -206,7 +256,10 @@
         <!-- 引落後金額（推定） -->
         <div class="section-header">
           <h2 class="section-title">
-            <svg class="svg-icon" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+            <svg class="svg-icon" viewBox="0 0 24 24">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
             <span>引落後金額（推定）</span>
           </h2>
         </div>
@@ -230,7 +283,13 @@
         <!-- Fixed & Variable Expenses (Checkable) -->
         <div class="section-header">
           <h2 class="section-title">
-            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <svg class="svg-icon" viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
             <span>毎月確定支払いのもの</span>
           </h2>
           <span class="section-subtext">引落完了時にタップ</span>
@@ -240,7 +299,10 @@
         <div class="glass-card expense-segment-card mb-16">
           <div class="segment-card-header">
             <div class="segment-pill cyan">
-              <svg class="svg-icon svg-icon-xs" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+              <svg class="svg-icon svg-icon-xs" viewBox="0 0 24 24">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                <line x1="1" y1="10" x2="23" y2="10"></line>
+              </svg>
               <span>変動引落</span>
             </div>
             <span class="segment-header-desc">先月クレカの確定引落額</span>
@@ -254,7 +316,10 @@
         <div class="glass-card expense-segment-card">
           <div class="segment-card-header">
             <div class="segment-pill purple">
-              <svg class="svg-icon svg-icon-xs" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <svg class="svg-icon svg-icon-xs" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
               <span>固定引落</span>
             </div>
             <span class="segment-header-desc">毎月定額（家賃・医療ローン）</span>
@@ -267,7 +332,10 @@
         <!-- Recent Transactions -->
         <div class="section-header">
           <h2 class="section-title">
-            <svg class="svg-icon" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+            <svg class="svg-icon" viewBox="0 0 24 24">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
             <span>クレカ利用履歴（最新）</span>
           </h2>
           <div style="display: flex; align-items: center; gap: 8px;">
@@ -284,7 +352,10 @@
       <section id="view-transactions" class="view-panel">
         <div class="section-header">
           <h2 class="section-title">
-            <svg class="svg-icon" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+            <svg class="svg-icon" viewBox="0 0 24 24">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
             <span>クレジット利用明細</span>
           </h2>
           <span class="month-badge" id="tx-total-count">0件</span>
@@ -294,12 +365,15 @@
         <div class="glass-card tx-apple-card-hero">
           <div class="apple-card-header">
             <div class="apple-card-chip">
-              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                <line x1="1" y1="10" x2="23" y2="10"></line>
+              </svg>
               <span>CREDIT CARD</span>
             </div>
             <span class="apple-card-badge" id="tx-summary-month-badge">2026年9月分</span>
           </div>
-          
+
           <div class="apple-card-body">
             <div class="apple-card-label">当月のご利用総額</div>
             <div class="apple-card-total-wrap">
@@ -312,7 +386,9 @@
           <div class="tx-breakdown-toggle-wrap">
             <button class="tx-breakdown-toggle-btn" id="btn-toggle-tx-breakdown" type="button">
               <span>カテゴリ内訳</span>
-              <svg class="svg-icon svg-icon-xs tx-breakdown-chevron" id="tx-breakdown-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              <svg class="svg-icon svg-icon-xs tx-breakdown-chevron" id="tx-breakdown-chevron" viewBox="0 0 24 24">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </button>
           </div>
 
@@ -337,12 +413,19 @@
             <span class="segment-badge" id="badge-count-all">0</span>
           </button>
           <button class="tx-segment-btn" data-group="card">
-            <svg class="svg-icon svg-icon-xs" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+            <svg class="svg-icon svg-icon-xs" viewBox="0 0 24 24">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
             <span>通常利用</span>
             <span class="segment-badge" id="badge-count-card">0</span>
           </button>
           <button class="tx-segment-btn" data-group="recurring">
-            <svg class="svg-icon svg-icon-xs" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            <svg class="svg-icon svg-icon-xs" viewBox="0 0 24 24">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
             <span>固定・生活引落</span>
             <span class="segment-badge" id="badge-count-recurring">0</span>
           </button>
@@ -357,7 +440,16 @@
       <section id="view-accounts" class="view-panel">
         <div class="section-header">
           <h2 class="section-title">
-            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="3" y1="21" x2="21" y2="21"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="5 6 12 3 19 6"></polyline><line x1="4" y1="10" x2="4" y2="21"></line><line x1="20" y1="10" x2="20" y2="21"></line><line x1="8" y1="14" x2="8" y2="17"></line><line x1="12" y1="14" x2="12" y2="17"></line><line x1="16" y1="14" x2="16" y2="17"></line></svg>
+            <svg class="svg-icon" viewBox="0 0 24 24">
+              <line x1="3" y1="21" x2="21" y2="21"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+              <polyline points="5 6 12 3 19 6"></polyline>
+              <line x1="4" y1="10" x2="4" y2="21"></line>
+              <line x1="20" y1="10" x2="20" y2="21"></line>
+              <line x1="8" y1="14" x2="8" y2="17"></line>
+              <line x1="12" y1="14" x2="12" y2="17"></line>
+              <line x1="16" y1="14" x2="16" y2="17"></line>
+            </svg>
             <span>各口座の入出金履歴</span>
           </h2>
           <button class="section-link" id="btn-add-transfer">＋ 入出金登録</button>
@@ -371,7 +463,11 @@
       <section id="view-analytics" class="view-panel">
         <div class="section-header">
           <h2 class="section-title">
-            <svg class="svg-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            <svg class="svg-icon" viewBox="0 0 24 24">
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
             <span>カテゴリ別支出グラフ</span>
           </h2>
         </div>
@@ -382,7 +478,10 @@
         </div>
         <div class="section-header">
           <h2 class="section-title">
-            <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+            <svg class="svg-icon" viewBox="0 0 24 24">
+              <circle cx="12" cy="8" r="7"></circle>
+              <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+            </svg>
             <span>支出ランキング詳細</span>
           </h2>
         </div>
@@ -395,7 +494,12 @@
       <section id="view-settings" class="view-panel">
         <div class="section-header">
           <h2 class="section-title">
-            <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <svg class="svg-icon" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+              </path>
+            </svg>
             <span>設定・スプレッドシート連携</span>
           </h2>
         </div>
@@ -406,27 +510,37 @@
           </p>
           <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;" id="icon-selector-grid">
             <!-- ① キュート牛 -->
-            <div class="icon-choice-card active" data-icon-src="./icons/cow-cute.png" style="text-align: center; cursor: pointer;">
-              <img src="./icons/cow-cute.png" style="width: 100%; border-radius: 12px; border: 2px solid var(--accent-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.3);" alt="キュート牛">
+            <div class="icon-choice-card active" data-icon-src="./icons/cow-cute.png"
+              style="text-align: center; cursor: pointer;">
+              <img src="./icons/cow-cute.png"
+                style="width: 100%; border-radius: 12px; border: 2px solid var(--accent-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.3);"
+                alt="キュート牛">
               <span style="font-size: 0.7rem; font-weight: 600; display: block; margin-top: 4px;">キュート</span>
             </div>
             <!-- ② ゴールド牛 -->
-            <div class="icon-choice-card" data-icon-src="./icons/cow-gold.png" style="text-align: center; cursor: pointer;">
-              <img src="./icons/cow-gold.png" style="width: 100%; border-radius: 12px; border: 2px solid var(--border-glass);" alt="ゴールド牛">
+            <div class="icon-choice-card" data-icon-src="./icons/cow-gold.png"
+              style="text-align: center; cursor: pointer;">
+              <img src="./icons/cow-gold.png"
+                style="width: 100%; border-radius: 12px; border: 2px solid var(--border-glass);" alt="ゴールド牛">
               <span style="font-size: 0.7rem; font-weight: 600; display: block; margin-top: 4px;">ゴールド</span>
             </div>
             <!-- ③ ウォレット牛 (NEW) -->
-            <div class="icon-choice-card" data-icon-src="./icons/cow-wallet.png" style="text-align: center; cursor: pointer;">
-              <img src="./icons/cow-wallet.png" style="width: 100%; border-radius: 12px; border: 2px solid var(--border-glass);" alt="ウォレット牛">
+            <div class="icon-choice-card" data-icon-src="./icons/cow-wallet.png"
+              style="text-align: center; cursor: pointer;">
+              <img src="./icons/cow-wallet.png"
+                style="width: 100%; border-radius: 12px; border: 2px solid var(--border-glass);" alt="ウォレット牛">
               <span style="font-size: 0.7rem; font-weight: 600; display: block; margin-top: 4px;">ウォレット</span>
             </div>
             <!-- ④ ロイヤル牛 (NEW) -->
-            <div class="icon-choice-card" data-icon-src="./icons/cow-royal.png" style="text-align: center; cursor: pointer;">
-              <img src="./icons/cow-royal.png" style="width: 100%; border-radius: 12px; border: 2px solid var(--border-glass);" alt="ロイヤル牛">
+            <div class="icon-choice-card" data-icon-src="./icons/cow-royal.png"
+              style="text-align: center; cursor: pointer;">
+              <img src="./icons/cow-royal.png"
+                style="width: 100%; border-radius: 12px; border: 2px solid var(--border-glass);" alt="ロイヤル牛">
               <span style="font-size: 0.7rem; font-weight: 600; display: block; margin-top: 4px;">ロイヤル</span>
             </div>
           </div>
-          <div style="margin-top: 14px; padding: 10px 12px; background: rgba(255,255,255,0.04); border-radius: 8px; font-size: 0.72rem; color: var(--text-secondary); line-height: 1.45;">
+          <div
+            style="margin-top: 14px; padding: 10px 12px; background: rgba(255,255,255,0.04); border-radius: 8px; font-size: 0.72rem; color: var(--text-secondary); line-height: 1.45;">
             💡 <b>スマホのホーム画面アイコンを変更する方法</b><br>
             iPhone/Androidの仕様上、すでにホーム画面に配置されたアイコンはWebから自動更新できません。<br>
             好きな牛アイコンを選択後、<b>現在のホーム画面アイコンを一旦削除し、Safariで再度「ホーム画面に追加」</b>を行ってください。
@@ -436,7 +550,8 @@
         <div class="glass-card">
           <div class="form-group">
             <label class="form-label" for="setting-gas-url">GAS Web App URL</label>
-            <input type="url" id="setting-gas-url" class="form-input" placeholder="https://script.google.com/macros/s/.../exec">
+            <input type="url" id="setting-gas-url" class="form-input"
+              placeholder="https://script.google.com/macros/s/.../exec">
             <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">
               スプレッドシート側で「ウェブアプリとしてデプロイ」したURLを貼り付けると自動同期します。
             </p>
@@ -473,7 +588,10 @@
       <!-- 1. ホーム -->
       <button class="nav-item active" data-view="home" id="nav-home">
         <div class="nav-icon-wrap">
-          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
         </div>
         <span class="nav-label">ホーム</span>
       </button>
@@ -481,7 +599,10 @@
       <!-- 2. 明細 -->
       <button class="nav-item" data-view="transactions" id="nav-transactions">
         <div class="nav-icon-wrap">
-          <svg class="svg-icon" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+            <line x1="1" y1="10" x2="23" y2="10"></line>
+          </svg>
         </div>
         <span class="nav-label">明細</span>
       </button>
@@ -489,7 +610,16 @@
       <!-- 3. 口座 -->
       <button class="nav-item" data-view="accounts" id="nav-accounts">
         <div class="nav-icon-wrap">
-          <svg class="svg-icon" viewBox="0 0 24 24"><line x1="3" y1="21" x2="21" y2="21"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="5 6 12 3 19 6"></polyline><line x1="4" y1="10" x2="4" y2="21"></line><line x1="20" y1="10" x2="20" y2="21"></line><line x1="8" y1="14" x2="8" y2="17"></line><line x1="12" y1="14" x2="12" y2="17"></line><line x1="16" y1="14" x2="16" y2="17"></line></svg>
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <line x1="3" y1="21" x2="21" y2="21"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+            <polyline points="5 6 12 3 19 6"></polyline>
+            <line x1="4" y1="10" x2="4" y2="21"></line>
+            <line x1="20" y1="10" x2="20" y2="21"></line>
+            <line x1="8" y1="14" x2="8" y2="17"></line>
+            <line x1="12" y1="14" x2="12" y2="17"></line>
+            <line x1="16" y1="14" x2="16" y2="17"></line>
+          </svg>
         </div>
         <span class="nav-label">口座</span>
       </button>
@@ -497,7 +627,11 @@
       <!-- 4. 分析 -->
       <button class="nav-item" data-view="analytics" id="nav-analytics">
         <div class="nav-icon-wrap">
-          <svg class="svg-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
         </div>
         <span class="nav-label">分析</span>
       </button>
@@ -505,7 +639,12 @@
       <!-- 5. 設定 -->
       <button class="nav-item" data-view="settings" id="nav-settings">
         <div class="nav-icon-wrap">
-          <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+            </path>
+          </svg>
         </div>
         <span class="nav-label">設定</span>
       </button>
@@ -597,7 +736,8 @@
           <div class="form-group">
             <label class="form-label" for="edit-account-amount">月初の預金残高 (¥)</label>
             <input type="number" id="edit-account-amount" class="form-input" required>
-            <p style="font-size: 0.74rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.4; background: rgba(255,255,255,0.04); padding: 8px 10px; border-radius: 6px;">
+            <p
+              style="font-size: 0.74rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.4; background: rgba(255,255,255,0.04); padding: 8px 10px; border-radius: 6px;">
               💡 <b>月初（1日）時点</b>の預金残高を入力します。<br>
               現在の口座残高は、この月初残高に日々の「出入金記録（振込・引出）」が自動加減算されてリアルタイムに算出されます（スプシ D9〜D11 に連動）。
             </p>
@@ -773,4 +913,5 @@
     }
   </script>
 </body>
+
 </html>

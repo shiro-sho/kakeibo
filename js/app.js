@@ -110,44 +110,45 @@ class AppController {
 
   // --- アイコン管理システム ---
   initIcon() {
-    const savedIcon = localStorage.getItem('kakeibo_icon_key') || 'cute';
+    const savedIcon = localStorage.getItem('kakeibo_icon') || './icons/cow-cute.png';
     this.applyAppIcon(savedIcon);
 
-    document.querySelectorAll('#icon-selector-grid .icon-choice-card').forEach((card) => {
+    document.querySelectorAll('.icon-choice-card').forEach((card) => {
       card.addEventListener('click', () => {
-        const k = card.dataset.iconKey;
-        this.applyAppIcon(k);
+        const src = card.dataset.iconSrc;
+        if (src) this.applyAppIcon(src);
       });
     });
   }
 
-  applyAppIcon(key) {
-    const APP_ICONS = {
-      cute: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=192&auto=format&fit=crop&q=80',
-      dark: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=192&auto=format&fit=crop&q=80',
-      pop: 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=192&auto=format&fit=crop&q=80',
-      luxury: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=192&auto=format&fit=crop&q=80'
-    };
-    const iconData = APP_ICONS[key] || APP_ICONS.cute;
-    const logoEl = document.getElementById('app-logo');
-    if (logoEl) logoEl.src = iconData;
+  applyAppIcon(src) {
+    if (!src) return;
+    const logoImg = document.getElementById('app-logo');
+    const touchIcon = document.getElementById('dynamic-touch-icon');
+    const favicon = document.getElementById('dynamic-favicon');
 
-    // 全 apple-touch-icon および favicon タグを更新
-    document.querySelectorAll('link[rel="apple-touch-icon"], link[rel="icon"], #dynamic-touch-icon, #dynamic-favicon').forEach((el) => {
-      el.href = iconData;
+    if (logoImg) logoImg.src = src;
+    if (touchIcon) touchIcon.href = src;
+    if (favicon) favicon.href = src;
+
+    // ページ内のすべての apple-touch-icon および favicon link タグを更新
+    document.querySelectorAll('link[rel="apple-touch-icon"], link[rel="icon"]').forEach((el) => {
+      el.href = src;
     });
 
-    localStorage.setItem('kakeibo_icon_key', key);
+    localStorage.setItem('kakeibo_icon', src);
 
-    // URL に ?icon=key を同期（Safariホーム画面追加対策）
+    // URL に ?icon=... を同期（Safariホーム画面追加対策）
     try {
       const u = new URL(window.location.href);
-      u.searchParams.set('icon', key);
+      const filename = src.split('/').pop().replace('.png', '');
+      u.searchParams.set('icon', filename);
       window.history.replaceState({}, '', u.toString());
     } catch (e) {}
 
-    document.querySelectorAll('#icon-selector-grid .icon-choice-card').forEach((card) => {
-      const isMatch = card.dataset.iconKey === key;
+    // グリッド内のアクティブ枠ハイライト
+    document.querySelectorAll('.icon-choice-card').forEach((card) => {
+      const isMatch = card.dataset.iconSrc === src;
       const img = card.querySelector('img');
       if (isMatch) {
         card.classList.add('active');
@@ -544,9 +545,9 @@ class AppController {
     s.transactions.forEach(tx => {
       if (!tx.group) {
         const isRec = tx.category === '月額課金' ||
-                      (String(tx.id).match(/tx-(\d+)/) && Number(RegExp.$1) >= 101) ||
-                      String(tx.name).includes('引落') || String(tx.category).includes('引落') ||
-                      String(tx.category).includes('課金');
+          (String(tx.id).match(/tx-(\d+)/) && Number(RegExp.$1) >= 101) ||
+          String(tx.name).includes('引落') || String(tx.category).includes('引落') ||
+          String(tx.category).includes('課金');
         tx.group = isRec ? 'recurring' : 'card';
       }
     });
@@ -674,12 +675,11 @@ class AppController {
               </div>
               <button class="section-link btn-card-add-tf" data-account-id="${acc.id}" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 6px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.35); cursor: pointer; color: #4ade80; font-weight: 700;">＋ 入出金</button>
             </div>
-            ${
-              transfers.length === 0
-                ? '<div style="font-size: 0.78rem; color: var(--text-muted); text-align: center; padding: 14px 0;">入出金の記録はありません</div>'
-                : transfers
-                    .map(
-                      (tf) => `
+            ${transfers.length === 0
+            ? '<div style="font-size: 0.78rem; color: var(--text-muted); text-align: center; padding: 14px 0;">入出金の記録はありません</div>'
+            : transfers
+              .map(
+                (tf) => `
                 <div class="transfer-item-row" data-tf-id="${tf.id}" title="タップでこの入出金を編集">
                   <div class="transfer-item-left">
                     <span class="transfer-item-date">${tf.date}</span>
@@ -700,9 +700,9 @@ class AppController {
                   </div>
                 </div>
               `
-                    )
-                    .join('')
-            }
+              )
+              .join('')
+          }
           </div>
         </div>
       `;
@@ -1076,43 +1076,6 @@ class AppController {
 
   // --- 設定画面の制御 ---
   setupSettings() {
-    // アイコン着せ替え
-    const savedIcon = localStorage.getItem('kakeibo_icon') || './icons/cow-cute.png';
-    const logoImg = document.getElementById('app-logo');
-    const touchIcon = document.getElementById('dynamic-touch-icon');
-    const favicon = document.getElementById('dynamic-favicon');
-
-    if (logoImg) logoImg.src = savedIcon;
-    if (touchIcon) touchIcon.href = savedIcon;
-    if (favicon) favicon.href = savedIcon;
-
-    document.querySelectorAll('.icon-choice-card').forEach((card) => {
-      const src = card.dataset.iconSrc;
-      const img = card.querySelector('img');
-      if (src === savedIcon) {
-        card.classList.add('active');
-        if (img) img.style.borderColor = 'var(--accent-primary)';
-      } else {
-        card.classList.remove('active');
-        if (img) img.style.borderColor = 'var(--border-glass)';
-      }
-
-      card.addEventListener('click', () => {
-        const newSrc = card.dataset.iconSrc;
-        if (logoImg) logoImg.src = newSrc;
-        if (touchIcon) touchIcon.href = newSrc;
-        if (favicon) favicon.href = newSrc;
-        localStorage.setItem('kakeibo_icon', newSrc);
-
-        document.querySelectorAll('.icon-choice-card').forEach((c) => {
-          c.classList.remove('active');
-          const cImg = c.querySelector('img');
-          if (cImg) cImg.style.borderColor = 'var(--border-glass)';
-        });
-        card.classList.add('active');
-        if (img) img.style.borderColor = 'var(--accent-primary)';
-      });
-    });
 
     // GAS設定保存
     document.getElementById('btn-save-settings')?.addEventListener('click', async () => {
