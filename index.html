@@ -602,6 +602,10 @@
             </select>
           </div>
           <div class="form-group">
+            <label class="form-label" for="input-tf-date">日付</label>
+            <input type="date" id="input-tf-date" class="form-input" required>
+          </div>
+          <div class="form-group">
             <label class="form-label" for="input-tf-name">内容</label>
             <input type="text" id="input-tf-name" class="form-input" placeholder="例: paypay出金 / 給料" required>
           </div>
@@ -609,7 +613,52 @@
             <label class="form-label" for="input-tf-amount">金額 (¥)</label>
             <input type="number" id="input-tf-amount" class="form-input" placeholder="30000" required>
           </div>
-          <button type="submit" class="btn-primary">登録する</button>
+          <button type="submit" class="btn-primary" id="btn-submit-add-transfer">登録する</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: Edit Bank Transfer (出入金の編集・削除) -->
+    <div class="modal-overlay" id="modal-edit-transfer">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">出入金の編集</h3>
+          <button class="close-btn" id="btn-close-edit-transfer">✕</button>
+        </div>
+        <form id="form-edit-transfer">
+          <input type="hidden" id="edit-tf-id">
+          <input type="hidden" id="edit-tf-row">
+          <input type="hidden" id="edit-tf-old-name">
+          <input type="hidden" id="edit-tf-old-amount">
+          <div class="form-group">
+            <label class="form-label" for="edit-tf-account">対象口座</label>
+            <select id="edit-tf-account" class="form-select">
+              <option value="smbc">三井住友銀行</option>
+              <option value="mufg">三菱UFJ銀行</option>
+              <option value="mizuho">みずほ銀行</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-tf-type">種別</label>
+            <select id="edit-tf-type" class="form-select">
+              <option value="income">振込・預け入れ (入金 💰)</option>
+              <option value="expense">引き出し (出金 💸)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-tf-date">日付</label>
+            <input type="date" id="edit-tf-date" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-tf-name">内容</label>
+            <input type="text" id="edit-tf-name" class="form-input" placeholder="例: paypay出金 / 給料" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-tf-amount">金額 (¥)</label>
+            <input type="number" id="edit-tf-amount" class="form-input" placeholder="30000" required>
+          </div>
+          <button type="submit" class="btn-primary" id="btn-submit-edit-transfer">変更を保存する</button>
+          <button type="button" class="btn-danger" id="btn-delete-transfer">この出入金記録を削除</button>
         </form>
       </div>
     </div>
@@ -672,6 +721,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Toast Notifications Container -->
+  <div class="toast-container" id="toast-container"></div>
 
   <!-- App Scripts (キャッシュバスター付き) -->
   <script type="module" src="./js/app.js?v=20260922_2"></script>

@@ -46,6 +46,18 @@ export class GasApiClient {
     return this.postRequest('addTransfer', tf);
   }
 
+  // 銀行出入金の更新
+  async updateTransfer(tf) {
+    if (!this.isConfigured()) return;
+    return this.postRequest('updateTransfer', tf);
+  }
+
+  // 銀行出入金の削除
+  async deleteTransfer(tf) {
+    if (!this.isConfigured()) return;
+    return this.postRequest('deleteTransfer', tf);
+  }
+
   // 口座残高の更新
   async updateBalance(accountId, amount) {
     if (!this.isConfigured()) return;

@@ -6,6 +6,21 @@ import { store } from './store.js';
 import { ChartRenderer } from './charts.js';
 import { GasApiClient } from './api.js';
 
+function showToast(msg, type = 'success') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const t = document.createElement('div');
+  t.className = `toast-msg ${type}`;
+  const icon = type === 'success' ? '✓' : '⚠';
+  t.innerHTML = `<span class="toast-icon">${icon}</span><span>${msg}</span>`;
+  container.appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => {
+    t.classList.remove('show');
+    setTimeout(() => t.remove(), 300);
+  }, 3500);
+}
+
 class AppController {
   constructor() {
     this.api = new GasApiClient(store);
@@ -454,7 +469,7 @@ class AppController {
       .map((acc) => {
         const transfers = s.bankTransfers.filter((t) => t.accountId === acc.id);
         return `
-        <div class="glass-card" style="border-top: 3px solid ${acc.color};">
+        <div class="glass-card" style="border-top: 3px solid ${acc.color}; margin-bottom: 16px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <div style="display: flex; align-items: center; gap: 10px;">
               <div class="account-icon-wrap" style="color: ${acc.color};">
@@ -465,27 +480,43 @@ class AppController {
                 <span style="font-size: 0.75rem; color: var(--text-muted);">現在残高: ¥${acc.currentBalance.toLocaleString()}</span>
               </div>
             </div>
-            <button class="icon-btn edit-acc-btn" data-acc-id="${acc.id}" title="残高変更">
+            <button class="icon-btn edit-acc-btn" data-acc-id="${acc.id}" title="月初残高設定">
               <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
             </button>
           </div>
 
-          <div style="background: rgba(0,0,0,0.15); border-radius: var(--radius-sm); padding: 12px; margin-top: 8px;">
-            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
-              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
-              <span>出納記録 (${transfers.length}件)</span>
+          <div style="background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); padding: 12px 14px; margin-top: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary);">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+                <span>出納記録 (${transfers.length}件)</span>
+              </div>
+              <button class="section-link btn-card-add-tf" data-account-id="${acc.id}" style="font-size: 0.72rem; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); cursor: pointer; color: var(--text-primary);">＋ 出入金</button>
             </div>
             ${
               transfers.length === 0
-                ? '<div style="font-size: 0.75rem; color: var(--text-muted); text-align: center; padding: 6px 0;">出納記録はありません</div>'
+                ? '<div style="font-size: 0.78rem; color: var(--text-muted); text-align: center; padding: 12px 0;">出納記録はありません</div>'
                 : transfers
                     .map(
                       (tf) => `
-                <div style="display: flex; justify-content: space-between; font-size: 0.82rem; padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.06);">
-                  <span>${tf.date} ${tf.name}</span>
-                  <span style="font-weight: 700; color: ${tf.type === 'income' ? 'var(--accent-primary)' : 'var(--accent-rose)'};">
-                    ${tf.type === 'income' ? '+' : '-'}¥${tf.amount.toLocaleString()}
-                  </span>
+                <div class="transfer-item-row" data-tf-id="${tf.id}">
+                  <div class="transfer-item-left">
+                    <span class="transfer-item-date">${tf.date}</span>
+                    <span class="transfer-item-name">${tf.name}</span>
+                  </div>
+                  <div class="transfer-item-right">
+                    <span class="transfer-item-amount ${tf.type}">
+                      ${tf.type === 'income' ? '+' : '-'}¥${tf.amount.toLocaleString()}
+                    </span>
+                    <div class="transfer-actions">
+                      <button class="transfer-btn edit btn-edit-tf" data-tf-id="${tf.id}" title="編集">
+                        <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                      </button>
+                      <button class="transfer-btn delete btn-delete-tf" data-tf-id="${tf.id}" title="削除">
+                        <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               `
                     )
@@ -503,6 +534,34 @@ class AppController {
         const id = btn.dataset.accId;
         const acc = s.accounts.find((a) => a.id === id);
         if (acc) this.openEditAccountModal(acc);
+      });
+    });
+
+    container.querySelectorAll('.btn-card-add-tf').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const accId = btn.dataset.accountId;
+        const sel = document.getElementById('input-tf-account');
+        if (sel) sel.value = accId;
+        document.getElementById('modal-add-transfer')?.classList.add('active');
+      });
+    });
+
+    container.querySelectorAll('.btn-edit-tf').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const tfId = btn.dataset.tfId;
+        const tf = s.bankTransfers.find((t) => t.id === tfId);
+        if (tf) this.openEditTransferModal(tf);
+      });
+    });
+
+    container.querySelectorAll('.btn-delete-tf').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const tfId = btn.dataset.tfId;
+        const tf = s.bankTransfers.find((t) => t.id === tfId);
+        if (tf) this.deleteTransferItem(tf);
       });
     });
   }
@@ -618,6 +677,11 @@ class AppController {
       document.getElementById('modal-add-transfer')?.classList.remove('active');
     });
 
+    // 出入金モーダル閉じる
+    document.getElementById('btn-close-edit-transfer')?.addEventListener('click', () => {
+      document.getElementById('modal-edit-transfer')?.classList.remove('active');
+    });
+
     // 背景タップで閉じる
     document.querySelectorAll('.modal-overlay').forEach((modal) => {
       modal.addEventListener('click', (e) => {
@@ -639,6 +703,29 @@ class AppController {
     document.getElementById('edit-account-title').textContent = `${acc.name}の月初金額`;
     document.getElementById('edit-account-amount').value = acc.initialBalance;
     document.getElementById('modal-edit-account')?.classList.add('active');
+  }
+
+  openEditTransferModal(tf) {
+    const m = document.getElementById('modal-edit-transfer');
+    if (!m) return;
+    document.getElementById('edit-tf-id').value = tf.id || '';
+    document.getElementById('edit-tf-row').value = tf.row || '';
+    document.getElementById('edit-tf-old-name').value = tf.name || '';
+    document.getElementById('edit-tf-old-amount').value = tf.amount || 0;
+    document.getElementById('edit-tf-account').value = tf.accountId;
+    document.getElementById('edit-tf-type').value = tf.type;
+
+    let dateInputVal = "";
+    if (tf.date) {
+      dateInputVal = tf.date.replace(/\//g, '-');
+    } else {
+      dateInputVal = new Date().toISOString().slice(0, 10);
+    }
+    document.getElementById('edit-tf-date').value = dateInputVal;
+    document.getElementById('edit-tf-name').value = tf.name || '';
+    document.getElementById('edit-tf-amount').value = tf.amount || 0;
+
+    m.classList.add('active');
   }
 
   // --- フォーム送信制御 ---
@@ -691,22 +778,109 @@ class AppController {
     // 出入金登録
     document.getElementById('form-add-transfer')?.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const btnSubmit = document.getElementById('btn-submit-add-transfer');
+      if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.textContent = '保存中...';
+      }
+
       const accountId = document.getElementById('input-tf-account').value;
       const type = document.getElementById('input-tf-type').value;
       const name = document.getElementById('input-tf-name').value.trim();
       const amount = Number(document.getElementById('input-tf-amount').value);
+      const rawDate = document.getElementById('input-tf-date')?.value;
+      const date = rawDate ? rawDate.replace(/-/g, '/') : new Date().toISOString().slice(0, 10).replace(/-/g, '/');
 
-      const newBt = store.addBankTransfer({ accountId, type, name, amount });
+      const newBt = store.addBankTransfer({ accountId, type, name, amount, date });
       document.getElementById('modal-add-transfer')?.classList.remove('active');
       document.getElementById('form-add-transfer')?.reset();
 
       // スプレッドシートAPIへ送信
       try {
-        await this.api.addTransfer(newBt);
+        const res = await this.api.addTransfer(newBt);
+        if (res && res.status === 'success') {
+          if (res.row) {
+            newBt.row = res.row;
+            newBt.id = res.id || `bt-${accountId}-${res.row}`;
+            store.saveData();
+          }
+          showToast(`出入金をスプレッドシートに保存しました（¥${amount.toLocaleString()}）`, 'success');
+        } else {
+          showToast(`出入金を登録しました（API警告: ${res?.message || '不明'}）`, 'error');
+        }
       } catch (err) {
         console.warn('スプレッドシートへの出入金保存エラー:', err);
+        showToast(`出入金を登録しました（API未設定またはエラー）`, 'success');
+      } finally {
+        if (btnSubmit) {
+          btnSubmit.disabled = false;
+          btnSubmit.textContent = '登録する';
+        }
       }
     });
+
+    // 出入金編集フォーム
+    document.getElementById('form-edit-transfer')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btnSave = document.getElementById('btn-submit-edit-transfer');
+      if (btnSave) {
+        btnSave.disabled = true;
+        btnSave.textContent = '保存中...';
+      }
+
+      const id = document.getElementById('edit-tf-id').value;
+      const row = document.getElementById('edit-tf-row').value;
+      const oldName = document.getElementById('edit-tf-old-name').value;
+      const oldAmount = Number(document.getElementById('edit-tf-old-amount').value);
+      const accountId = document.getElementById('edit-tf-account').value;
+      const type = document.getElementById('edit-tf-type').value;
+      const rawDate = document.getElementById('edit-tf-date').value;
+      const date = rawDate ? rawDate.replace(/-/g, '/') : new Date().toISOString().slice(0, 10).replace(/-/g, '/');
+      const name = document.getElementById('edit-tf-name').value.trim();
+      const amount = Number(document.getElementById('edit-tf-amount').value);
+
+      const updated = store.updateBankTransfer({ id, row, accountId, type, date, name, amount });
+      document.getElementById('modal-edit-transfer')?.classList.remove('active');
+      showToast('出入金を更新しました', 'success');
+
+      try {
+        await this.api.updateTransfer({ id, row, oldName, oldAmount, accountId, type, date, name, amount });
+        showToast('スプレッドシートを更新しました', 'success');
+      } catch (err) {
+        console.warn('スプレッドシートへの出入金更新エラー:', err);
+      } finally {
+        if (btnSave) {
+          btnSave.disabled = false;
+          btnSave.textContent = '変更を保存する';
+        }
+      }
+    });
+
+    // モーダル内の出入金削除ボタン
+    document.getElementById('btn-delete-transfer')?.addEventListener('click', () => {
+      const id = document.getElementById('edit-tf-id').value;
+      const tf = store.data.bankTransfers.find((t) => t.id === id);
+      if (tf) {
+        this.deleteTransferItem(tf);
+        document.getElementById('modal-edit-transfer')?.classList.remove('active');
+      }
+    });
+  }
+
+  // 出入金レコードの削除
+  async deleteTransferItem(tf) {
+    if (!confirm(`「${tf.name}」(¥${(tf.amount || 0).toLocaleString()}) の出入金記録を削除しますか？`)) {
+      return;
+    }
+    store.deleteBankTransfer(tf.id);
+    showToast('出入金記録を削除しました', 'success');
+
+    try {
+      await this.api.deleteTransfer(tf);
+      showToast('スプレッドシートからも削除しました', 'success');
+    } catch (err) {
+      console.warn('スプレッドシートへの出入金削除エラー:', err);
+    }
   }
 
   // --- 設定画面の制御 ---

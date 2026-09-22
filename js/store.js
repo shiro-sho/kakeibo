@@ -852,7 +852,8 @@ class KakeiboStore {
   // 銀行の出入金追加
   addBankTransfer(transfer) {
     const newBt = {
-      id: 'bt-' + Date.now(),
+      id: transfer.id || 'bt-' + Date.now(),
+      row: transfer.row,
       accountId: transfer.accountId,
       type: transfer.type, // 'income' or 'expense'
       date: transfer.date || new Date().toISOString().slice(0, 10).replace(/-/g, '/'),
@@ -862,6 +863,29 @@ class KakeiboStore {
     this.data.bankTransfers.unshift(newBt);
     this.saveData();
     return newBt;
+  }
+
+  // 銀行の出入金更新
+  updateBankTransfer(transfer) {
+    const idx = this.data.bankTransfers.findIndex((t) => t.id === transfer.id);
+    if (idx !== -1) {
+      this.data.bankTransfers[idx] = {
+        ...this.data.bankTransfers[idx],
+        ...transfer,
+        amount: Number(transfer.amount || 0)
+      };
+      this.saveData();
+      return this.data.bankTransfers[idx];
+    }
+    return null;
+  }
+
+  // 銀行の出入金削除
+  deleteBankTransfer(id) {
+    const target = this.data.bankTransfers.find((t) => t.id === id);
+    this.data.bankTransfers = this.data.bankTransfers.filter((t) => t.id !== id);
+    this.saveData();
+    return target;
   }
 
   // 給料や固定費の金額更新

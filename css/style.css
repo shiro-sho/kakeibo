@@ -1741,3 +1741,151 @@ body {
   opacity: 0.85;
   box-shadow: 0 0 16px var(--accent-glow);
 }
+
+/* 出入金アイテム・操作ボタン */
+.transfer-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.84rem;
+  padding: 8px 4px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+  transition: background 0.15s ease;
+}
+.transfer-item-row:last-child {
+  border-bottom: none;
+}
+.transfer-item-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.transfer-item-date {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.transfer-item-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.transfer-item-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.transfer-item-amount {
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+.transfer-item-amount.income {
+  color: var(--accent-primary);
+}
+.transfer-item-amount.expense {
+  color: var(--accent-rose);
+}
+.transfer-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.transfer-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+.transfer-btn:active {
+  transform: scale(0.92);
+}
+.transfer-btn.edit:hover {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+.transfer-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+/* 危険ボタン（削除用） */
+.btn-danger {
+  width: 100%;
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  border: none;
+  color: #ffffff;
+  padding: 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  margin-top: 10px;
+}
+.btn-danger:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+}
+
+/* トースト通知 */
+.toast-container {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+  width: calc(100% - 32px);
+  max-width: 400px;
+}
+.toast-msg {
+  background: rgba(20, 24, 33, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: auto;
+}
+.toast-msg.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.toast-msg.success {
+  border-left: 4px solid var(--accent-primary);
+}
+.toast-msg.error {
+  border-left: 4px solid #ef4444;
+}
+.toast-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
