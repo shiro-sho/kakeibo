@@ -60,11 +60,13 @@ class AppController {
     // イベントリスナーのセットアップ
     this.setupNavigation();
     this.setupTransactionsSegment();
+    this.setupTxBreakdown();
     this.setupModals();
     this.setupForms();
     this.setupSettings();
     this.setupThemeSwitcher();
     this.setupCalcInsight();
+    this.initIcon();
 
     // 初回レンダリング
     this.render(store.getSummary());
@@ -80,6 +82,69 @@ class AppController {
       const isOpen = drawer?.classList.toggle('open');
       chevron?.classList.toggle('open', isOpen);
       btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+  }
+
+  // --- クレカ明細カテゴリ内訳アコーディオン制御 ---
+  setupTxBreakdown() {
+    const btn = document.getElementById('btn-toggle-tx-breakdown');
+    const drawer = document.getElementById('tx-breakdown-drawer');
+    const chevron = document.getElementById('tx-breakdown-chevron');
+
+    btn?.addEventListener('click', () => {
+      const isOpen = drawer?.classList.toggle('open');
+      chevron?.classList.toggle('open', isOpen);
+    });
+  }
+
+  // --- アイコン管理システム ---
+  initIcon() {
+    const savedIcon = localStorage.getItem('kakeibo_icon_key') || 'cute';
+    this.applyAppIcon(savedIcon);
+
+    document.querySelectorAll('#icon-selector-grid .icon-choice-card').forEach((card) => {
+      card.addEventListener('click', () => {
+        const k = card.dataset.iconKey;
+        this.applyAppIcon(k);
+      });
+    });
+  }
+
+  applyAppIcon(key) {
+    const APP_ICONS = {
+      cute: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=192&auto=format&fit=crop&q=80',
+      dark: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=192&auto=format&fit=crop&q=80',
+      pop: 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=192&auto=format&fit=crop&q=80',
+      luxury: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=192&auto=format&fit=crop&q=80'
+    };
+    const iconData = APP_ICONS[key] || APP_ICONS.cute;
+    const logoEl = document.getElementById('app-logo');
+    if (logoEl) logoEl.src = iconData;
+
+    // 全 apple-touch-icon および favicon タグを更新
+    document.querySelectorAll('link[rel="apple-touch-icon"], link[rel="icon"], #dynamic-touch-icon, #dynamic-favicon').forEach((el) => {
+      el.href = iconData;
+    });
+
+    localStorage.setItem('kakeibo_icon_key', key);
+
+    // URL に ?icon=key を同期（Safariホーム画面追加対策）
+    try {
+      const u = new URL(window.location.href);
+      u.searchParams.set('icon', key);
+      window.history.replaceState({}, '', u.toString());
+    } catch (e) {}
+
+    document.querySelectorAll('#icon-selector-grid .icon-choice-card').forEach((card) => {
+      const isMatch = card.dataset.iconKey === key;
+      const img = card.querySelector('img');
+      if (isMatch) {
+        card.classList.add('active');
+        if (img) img.style.borderColor = 'var(--accent-primary)';
+      } else {
+        card.classList.remove('active');
+        if (img) img.style.borderColor = 'var(--border-glass)';
+      }
     });
   }
 
@@ -496,29 +561,39 @@ class AppController {
       return list.map((tx) => this.createTransactionHtml(tx)).join('');
     };
 
+    const cardHeaderHtml = `
+      <div class="tx-group-header">
+        <div class="tx-group-title-wrap">
+          <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+          <span class="tx-group-title">カード決済（通常利用）</span>
+          <span class="tx-group-count">${cardTxList.length}件</span>
+        </div>
+        <span class="tx-group-total">¥${cardTotal.toLocaleString()}</span>
+      </div>
+    `;
+
+    const recurringHeaderHtml = `
+      <div class="tx-group-header recurring">
+        <div class="tx-group-title-wrap">
+          <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          <span class="tx-group-title">固定費・生活引落（光熱費・サブスク等）</span>
+          <span class="tx-group-count">${recurringTxList.length}件</span>
+        </div>
+        <span class="tx-group-total">¥${recurringTotal.toLocaleString()}</span>
+      </div>
+    `;
+
     if (this.currentTxGroupFilter === 'all') {
       container.innerHTML = `
         <div class="tx-group-section">
-          <div class="tx-group-header">
-            <div class="tx-group-title-wrap">
-              <span class="tx-group-title">💳 クレカ明細（通常利用）</span>
-              <span class="tx-group-count">${cardTxList.length}件</span>
-            </div>
-            <span class="tx-group-total">¥${cardTotal.toLocaleString()}</span>
-          </div>
+          ${cardHeaderHtml}
           <div class="timeline-list">
             ${renderListHtml(cardTxList)}
           </div>
         </div>
 
         <div class="tx-group-section">
-          <div class="tx-group-header recurring">
-            <div class="tx-group-title-wrap">
-              <span class="tx-group-title">🔄 引落系、課金系（サブスク・固定費等）</span>
-              <span class="tx-group-count">${recurringTxList.length}件</span>
-            </div>
-            <span class="tx-group-total">¥${recurringTotal.toLocaleString()}</span>
-          </div>
+          ${recurringHeaderHtml}
           <div class="timeline-list">
             ${renderListHtml(recurringTxList)}
           </div>
@@ -527,13 +602,7 @@ class AppController {
     } else if (this.currentTxGroupFilter === 'card') {
       container.innerHTML = `
         <div class="tx-group-section">
-          <div class="tx-group-header">
-            <div class="tx-group-title-wrap">
-              <span class="tx-group-title">💳 クレカ明細（通常利用）</span>
-              <span class="tx-group-count">${cardTxList.length}件</span>
-            </div>
-            <span class="tx-group-total">¥${cardTotal.toLocaleString()}</span>
-          </div>
+          ${cardHeaderHtml}
           <div class="timeline-list">
             ${renderListHtml(cardTxList)}
           </div>
@@ -542,13 +611,7 @@ class AppController {
     } else if (this.currentTxGroupFilter === 'recurring') {
       container.innerHTML = `
         <div class="tx-group-section">
-          <div class="tx-group-header recurring">
-            <div class="tx-group-title-wrap">
-              <span class="tx-group-title">🔄 引落系、課金系（サブスク・固定費等）</span>
-              <span class="tx-group-count">${recurringTxList.length}件</span>
-            </div>
-            <span class="tx-group-total">¥${recurringTotal.toLocaleString()}</span>
-          </div>
+          ${recurringHeaderHtml}
           <div class="timeline-list">
             ${renderListHtml(recurringTxList)}
           </div>
@@ -559,78 +622,54 @@ class AppController {
     this.attachTransactionClickEvents(container);
   }
 
-  createTransactionHtml(tx) {
-    const isRec = tx.group === 'recurring';
-    return `
-      <div class="timeline-item" data-tx-id="${tx.id}">
-        <div class="tx-main">
-          <span class="tx-category-badge ${isRec ? 'tx-badge-recurring' : ''}">${tx.category || (isRec ? '引落系、課金系' : '未分類')}</span>
-          <div class="tx-info">
-            <span class="tx-name">${tx.name}</span>
-            <span class="tx-date">${tx.date || '日付未定'}</span>
-          </div>
-        </div>
-        <span class="tx-amount">¥${Number(tx.amount || 0).toLocaleString()}</span>
-      </div>
-    `;
-  }
-
-  attachTransactionClickEvents(container) {
-    container.querySelectorAll('.timeline-item').forEach((item) => {
-      item.addEventListener('click', () => {
-        const id = item.dataset.txId;
-        const tx = store.data.transactions.find((t) => t.id === id);
-        if (tx) this.openEditTxModal(tx);
-      });
-    });
-  }
-
-  // 7. 口座詳細ビュー
+  // 7. 口座詳細（各口座カード & 入出金履歴）
   renderAccountsDetail(s) {
     const container = document.getElementById('accounts-detail-container');
     if (!container) return;
 
     container.innerHTML = s.accounts
       .map((acc) => {
-        const transfers = s.bankTransfers
-          .filter((t) => t.accountId === acc.id)
+        const transfers = [...(s.bankTransfers || [])]
+          .filter((tf) => tf.accountId === acc.id)
           .sort((a, b) => {
             const da = new Date(a.date ? a.date.replace(/-/g, '/') : '1970/01/01').getTime();
             const db = new Date(b.date ? b.date.replace(/-/g, '/') : '1970/01/01').getTime();
             return da - db;
           });
+
         return `
         <div class="glass-card" style="border-top: 3px solid ${acc.color}; margin-bottom: 16px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <div class="account-icon-wrap" style="color: ${acc.color};">
-                <svg class="svg-icon" viewBox="0 0 24 24"><line x1="3" y1="21" x2="21" y2="21"></line><line x1="3" y1="10" x2="21" y2="10"></line><polyline points="5 6 12 3 19 6"></polyline><line x1="4" y1="10" x2="4" y2="21"></line><line x1="20" y1="10" x2="20" y2="21"></line><line x1="8" y1="14" x2="8" y2="17"></line><line x1="12" y1="14" x2="12" y2="17"></line><line x1="16" y1="14" x2="16" y2="17"></line></svg>
-              </div>
-              <div>
-                <h3 style="font-size: 1.05rem; font-weight: 700;">${acc.name}</h3>
-                <span style="font-size: 0.75rem; color: var(--text-muted);">現在残高: ¥${acc.currentBalance.toLocaleString()}</span>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+            <div>
+              <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 3px;">${acc.name}</h3>
+              <!-- 月初残高を小さく控えめに表示（タップで設定モーダル） -->
+              <div class="initial-balance-mini edit-acc-btn" data-acc-id="${acc.id}" title="月初残高を設定・変更">
+                <span class="mini-tag">月初:</span>
+                <span class="mini-amount">¥${acc.initialBalance.toLocaleString()}</span>
+                <span class="mini-edit">✎ 変更</span>
               </div>
             </div>
-            <button class="icon-btn edit-acc-btn" data-acc-id="${acc.id}" title="月初残高設定">
-              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-            </button>
+            <div style="text-align: right;">
+              <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">現在残高</span>
+              <span style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary);">¥${acc.currentBalance.toLocaleString()}</span>
+            </div>
           </div>
 
           <div style="background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); padding: 12px 14px; margin-top: 10px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary);">
               <div style="display: flex; align-items: center; gap: 6px;">
                 <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
-                <span>出納記録 (${transfers.length}件)</span>
+                <span>入出金履歴 (${transfers.length}件)</span>
               </div>
-              <button class="section-link btn-card-add-tf" data-account-id="${acc.id}" style="font-size: 0.72rem; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); cursor: pointer; color: var(--text-primary);">＋ 出入金</button>
+              <button class="section-link btn-card-add-tf" data-account-id="${acc.id}" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 6px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.35); cursor: pointer; color: #4ade80; font-weight: 700;">＋ 入出金</button>
             </div>
             ${
               transfers.length === 0
-                ? '<div style="font-size: 0.78rem; color: var(--text-muted); text-align: center; padding: 12px 0;">出納記録はありません</div>'
+                ? '<div style="font-size: 0.78rem; color: var(--text-muted); text-align: center; padding: 14px 0;">入出金の記録はありません</div>'
                 : transfers
                     .map(
                       (tf) => `
-                <div class="transfer-item-row" data-tf-id="${tf.id}">
+                <div class="transfer-item-row" data-tf-id="${tf.id}" title="タップでこの入出金を編集">
                   <div class="transfer-item-left">
                     <span class="transfer-item-date">${tf.date}</span>
                     <span class="transfer-item-name">${tf.name}</span>
@@ -675,6 +714,16 @@ class AppController {
         const sel = document.getElementById('input-tf-account');
         if (sel) sel.value = accId;
         document.getElementById('modal-add-transfer')?.classList.add('active');
+      });
+    });
+
+    // 入出金行全体のタップで編集モーダルを開く
+    container.querySelectorAll('.transfer-item-row').forEach((row) => {
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('.btn-delete-tf')) return; // 削除時は開かない
+        const tfId = row.dataset.tfId;
+        const tf = s.bankTransfers.find((t) => t.id === tfId);
+        if (tf) this.openEditTransferModal(tf);
       });
     });
 

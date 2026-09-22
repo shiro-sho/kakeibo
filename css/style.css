@@ -1892,33 +1892,45 @@ body {
 /* ========================================================
    クレジットカード明細: セグメントコントロール & グループ分けUI
    ======================================================== */
+/* ========================================================
+   クレジットカード明細: セグメントコントロール & グループ分けUI
+   ======================================================== */
 .tx-segment-control {
   display: flex;
+  width: 100%;
+  box-sizing: border-box;
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
   padding: 4px;
-  gap: 4px;
+  gap: 3px;
   margin-bottom: 18px;
+  overflow: hidden;
 }
 
 .tx-segment-btn {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 10px 8px;
+  gap: 4px;
+  padding: 9px 4px;
   background: transparent;
   border: none;
   border-radius: 10px;
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.76rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
   white-space: nowrap;
+}
+
+.tx-segment-btn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tx-segment-btn:hover {
@@ -1934,18 +1946,114 @@ body {
 }
 
 .segment-badge {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
-  padding: 2px 7px;
+  padding: 1px 6px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.1);
   color: var(--text-secondary);
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .tx-segment-btn.active .segment-badge {
   background: var(--accent-primary);
   color: #0d1117;
+}
+
+/* カテゴリ内訳（棒グラフ＆小計）の折りたたみアコーディオン */
+.tx-breakdown-toggle-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+.tx-breakdown-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.tx-breakdown-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.tx-breakdown-chevron {
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.tx-breakdown-chevron.open {
+  transform: rotate(180deg);
+}
+
+.tx-breakdown-drawer {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease;
+}
+
+.tx-breakdown-drawer.open {
+  max-height: 500px;
+  opacity: 1;
+}
+
+/* 口座カード内の控えめな月初残高表示 */
+.initial-balance-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.initial-balance-mini:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.initial-balance-mini .mini-tag {
+  color: var(--text-muted);
+}
+
+.initial-balance-mini .mini-amount {
+  font-family: var(--font-display);
+  color: var(--text-secondary);
+}
+
+.initial-balance-mini .mini-edit {
+  color: var(--accent-primary);
+  font-size: 0.68rem;
+}
+
+/* 入出金行のクリッカブル表示 */
+.transfer-item-row {
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.transfer-item-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.transfer-item-row:active {
+  transform: scale(0.99);
 }
 
 /* グループ別セクションコンテナ */

@@ -16,22 +16,32 @@ export class GasApiClient {
     return !!url && url.startsWith('https://script.google.com/');
   }
 
-  // スプレッドシートから最新データを取得
+  // スプレッドシートから最新データを取得（POST通信でCORSエラーを回避）
   async fetchMonthData(monthStr) {
     if (!this.isConfigured()) {
       throw new Error('GAS Web App URLが設定されていません');
     }
 
-    const url = `${this.getUrl()}?action=getMonthData&month=${encodeURIComponent(monthStr)}`;
-    const res = await fetch(url, { method: 'GET' });
-    if (!res.ok) {
-      throw new Error(`データ取得エラー: ${res.statusText}`);
+    try {
+      const result = await this.postRequest('getMonthData', { month: monthStr });
+      if (result && result.status === 'success') {
+        return result.data;
+      } else if (result && result.status === 'error') {
+        throw new Error(result.message || 'データ取得エラー');
+      }
+    } catch (postErr) {
+      // フォールバックGET
+      try {
+        const url = `${this.getUrl()}?action=getMonthData&month=${encodeURIComponent(monthStr)}`;
+        const res = await fetch(url, { method: 'GET' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const result = await res.json();
+        if (result.status === 'error') throw new Error(result.message);
+        return result.data;
+      } catch (getErr) {
+        throw new Error(postErr.message || getErr.message);
+      }
     }
-    const result = await res.json();
-    if (result.status === 'error') {
-      throw new Error(result.message);
-    }
-    return result.data;
   }
 
   // 新規明細の追加
