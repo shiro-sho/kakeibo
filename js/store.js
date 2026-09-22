@@ -43,10 +43,10 @@ const DEFAULT_DATA_202609 = {
     }
   ],
 
-  // 給料見込み（Row 22, 26）
+  // 給料見込み（Row 22, 26）- 三井住友銀行振り込み
   salaries: {
-    currentMonth: 250000, // みずほ銀行
-    nextMonth: 250000     // みずほ銀行
+    currentMonth: 250000, // 三井住友銀行
+    nextMonth: 250000     // 三井住友銀行
   },
 
   // 銀行個別の出入金記録（Row 117以降）
@@ -738,24 +738,26 @@ class KakeiboStore {
     const totalCurrentBalance = currentAccounts.reduce((sum, a) => sum + a.currentBalance, 0);
 
     // 8. 今月引落後の所持金（推定） (Row 19-23)
-    // 三井住友: B9 + D20 + B17 - SUMIF(B4:B6, "〇", C4:C6)
-    // みずほ: B11 + D22(給料25万)
+    // 給料（currentSalary）は三井住友銀行に振り込み加算
+    // 三井住友: B9 + D20 + B17 - SUMIF(B4:B6, "〇", C4:C6) + 給料
     // 三菱UFJ: B10
+    // みずほ: B11
     const smbcCurrent = currentAccounts.find((a) => a.id === 'smbc')?.currentBalance || 0;
     const mufgCurrent = currentAccounts.find((a) => a.id === 'mufg')?.currentBalance || 0;
     const mizuhoCurrent = currentAccounts.find((a) => a.id === 'mizuho')?.currentBalance || 0;
 
-    const smbcAfterCurrent = smbcCurrent + d.currentMonthCardBill + pureFixedTotal - settledDeduction;
-    const mizuhoAfterCurrent = mizuhoCurrent + d.salaries.currentMonth;
+    const smbcAfterCurrent = smbcCurrent + d.currentMonthCardBill + pureFixedTotal - settledDeduction + Number(d.salaries.currentMonth || 0);
+    const mizuhoAfterCurrent = mizuhoCurrent;
     const mufgAfterCurrent = mufgCurrent;
     const totalAfterCurrent = smbcAfterCurrent + mizuhoAfterCurrent + mufgAfterCurrent;
 
     // 9. 来月引落後の所持金（推定） (Row 25-29)
-    // 三井住友: 今月引落後SMBC - G33(今月クレカ合計) + B17(固定費)
-    // みずほ: 今月引落後みずほ + D26(来月給料25万)
+    // 来月の給料（nextSalary）も三井住友銀行に振り込み加算
+    // 三井住友: 今月引落後SMBC - G33(今月クレカ合計) + B17(固定費) + 来月給料
     // 三菱UFJ: 三菱UFJ
-    const smbcAfterNext = smbcAfterCurrent - totalSpent + pureFixedTotal;
-    const mizuhoAfterNext = mizuhoAfterCurrent + d.salaries.nextMonth;
+    // みずほ: みずほ
+    const smbcAfterNext = smbcAfterCurrent - totalSpent + pureFixedTotal + Number(d.salaries.nextMonth || 0);
+    const mizuhoAfterNext = mizuhoAfterCurrent;
     const mufgAfterNext = mufgAfterCurrent;
     const totalAfterNext = smbcAfterNext + mizuhoAfterNext + mufgAfterNext;
 
@@ -895,6 +897,84 @@ class KakeiboStore {
       this.data.salaries[type] = Number(amount);
       this.saveData();
     }
+  }
+
+  // スプレッドシートから取得した最新データを適用・保存
+  applyMonthData(apiData) {
+    if (!apiData) return;
+
+    if (apiData.currentMonth) {
+      this.data.currentMonth = apiData.currentMonth;
+    }
+    if (Array.isArray(apiData.transactions) && apiData.transactions.length > 0) {
+      this.data.transactions = apiData.transactions;
+    }
+    if (Array.isArray(apiData.accounts) && apiData.accounts.length > 0) {
+      // 銀行残高と出入金履歴の反映
+      apiData.accounts.forEach((apiAcc) => {
+        const acc = this.data.accounts.find((a) => a.id === apiAcc.id);
+        if (acc) {
+          if (apiAcc.initial !== undefined) acc.initialBalance = Number(apiAcc.initial);
+          if (apiAcc.current !== undefined) acc.currentBalance = Number(apiAcc.current);
+        }
+      });
+
+      // bankTransfers を抽出・統合
+      const allTransfers = [];
+      apiData.accounts.forEach((apiAcc) => {
+        if (Array.isArray(apiAcc.transfers)) {
+          apiAcc.transfers.forEach((tf) => {
+            allTransfers.push({
+              id: tf.id || `bt-${apiAcc.id}-${Date.now()}-${Math.random()}`,
+              accountId: apiAcc.id,
+              type: tf.type,
+              name: tf.name,
+              amount: Number(tf.amount),
+              date: tf.date || '',
+              row: tf.row
+            });
+          });
+        }
+      });
+      this.data.bankTransfers = allTransfers;
+    }
+
+    if (apiData.currentMonthCardBill !== undefined) {
+      this.data.currentMonthCardBill = Number(apiData.currentMonthCardBill);
+    }
+    if (apiData.cardSettled !== undefined) {
+      this.data.cardSettled = !!apiData.cardSettled;
+      const cc = this.data.fixedExpenses.find((f) => f.id === 'credit_card');
+      if (cc) cc.settled = this.data.cardSettled;
+    }
+    if (apiData.rentSettled !== undefined) {
+      this.data.rentSettled = !!apiData.rentSettled;
+      const r = this.data.fixedExpenses.find((f) => f.id === 'rent');
+      if (r) r.settled = this.data.rentSettled;
+    }
+    if (apiData.loanSettled !== undefined) {
+      this.data.loanSettled = !!apiData.loanSettled;
+      const l = this.data.fixedExpenses.find((f) => f.id === 'loan');
+      if (l) l.settled = this.data.loanSettled;
+    }
+    if (apiData.rentAmount !== undefined) {
+      this.data.rentAmount = Number(apiData.rentAmount);
+      const r = this.data.fixedExpenses.find((f) => f.id === 'rent');
+      if (r) r.amount = this.data.rentAmount;
+    }
+    if (apiData.loanAmount !== undefined) {
+      this.data.loanAmount = Number(apiData.loanAmount);
+      const l = this.data.fixedExpenses.find((f) => f.id === 'loan');
+      if (l) l.amount = this.data.loanAmount;
+    }
+    if (apiData.currentSalary !== undefined && this.data.salaries) {
+      this.data.salaries.currentMonth = Number(apiData.currentSalary);
+    }
+    if (apiData.nextSalary !== undefined && this.data.salaries) {
+      this.data.salaries.nextMonth = Number(apiData.nextSalary);
+    }
+
+    this.saveData();
   }
 
   // 初期データへのリセット（デモ用）

@@ -70,6 +70,17 @@ class AppController {
 
     // 初回レンダリング
     this.render(store.getSummary());
+
+    // GAS URL設定済みの場合はバックグラウンドで最新データを同期
+    if (this.api.isConfigured()) {
+      this.api.fetchMonthData(store.data.currentMonth || '202609')
+        .then((data) => {
+          if (data) store.applyMonthData(data);
+        })
+        .catch((err) => {
+          console.warn('自動データ同期スキップ:', err);
+        });
+    }
   }
 
   // --- 計算根拠アコーディオン制御 ---
@@ -1111,9 +1122,12 @@ class AppController {
       if (url) {
         alert('設定を保存しました！スプレッドシートへの通信テストを行います。');
         try {
-          // 通信テスト
-          const data = await this.api.fetchMonthData(store.data.currentMonth);
-          alert('スプレッドシートとの接続に成功しました！🎉');
+          // 通信テスト＆データ取得反映
+          const data = await this.api.fetchMonthData(store.data.currentMonth || '202609');
+          if (data) {
+            store.applyMonthData(data);
+          }
+          alert('スプレッドシートとの接続・データ同期に成功しました！🎉');
         } catch (err) {
           alert('接続テスト結果: ' + err.message + '\n（GASのデプロイ設定をご確認ください）');
         }
@@ -1155,10 +1169,13 @@ class AppController {
 
       btn.classList.add('spinning');
       try {
-        await this.api.fetchMonthData(store.data.currentMonth);
+        const data = await this.api.fetchMonthData(store.data.currentMonth || '202609');
+        if (data) {
+          store.applyMonthData(data);
+        }
         setTimeout(() => {
           btn.classList.remove('spinning');
-          alert('最新データを同期しました！');
+          alert('スプレッドシートから最新データを同期しました！');
         }, 400);
       } catch (e) {
         btn.classList.remove('spinning');
