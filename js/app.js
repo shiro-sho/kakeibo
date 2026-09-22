@@ -462,6 +462,27 @@ class AppController {
     }
   }
 
+  // 明細アイテムのHTML生成
+  createTransactionHtml(tx) {
+    const isRec = tx.group === 'recurring';
+    return `
+      <div class="timeline-item" data-tx-id="${tx.id}">
+        <div class="tx-main">
+          <span class="tx-category-badge ${isRec ? 'tx-badge-recurring' : ''}">${tx.category || (isRec ? '引落系、課金系' : '未分類')}</span>
+          <div class="tx-info">
+            <span class="tx-name">${tx.name}</span>
+            <span class="tx-date">${tx.date || '日付未定'}</span>
+          </div>
+        </div>
+        <span class="tx-amount">¥${(tx.amount || 0).toLocaleString()}</span>
+      </div>
+    `;
+  }
+
+  attachTransactionClickEvents(container) {
+    if (!container) return;
+  }
+
   // 5. 直近の明細（ホーム用 - 日付降順の最新5件）
   renderRecentTransactions(s) {
     const container = document.getElementById('home-recent-tx-container');

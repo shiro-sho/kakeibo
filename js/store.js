@@ -737,25 +737,27 @@ class KakeiboStore {
 
     const totalCurrentBalance = currentAccounts.reduce((sum, a) => sum + a.currentBalance, 0);
 
-    // 8. 今月引落後の所持金（推定） (Row 19-23)
-    // 給料（currentSalary）は三井住友銀行に振り込み加算
-    // 三井住友: B9 + D20 + B17 - SUMIF(B4:B6, "〇", C4:C6) + 給料
-    // 三菱UFJ: B10
-    // みずほ: B11
+    // 8. 今月引落後の所持金（推定） (スプレッドシート Row 19-23)
+    // ※給料設定（salaries）は口座の実残高や入出金記録には一切書き込まれません。
+    // ※将来シミュレーション（今月引落後・来月引落後の使えるお金）の「計算上のみ」で使用されます。
+    // ※スプレッドシート数式（Row 22: IF(SUMIF(入出金,"給料")=0, 残高+給料見込, 残高)）に完全準拠：
+    //   実際に入出金記録に「給料」が登録されていれば通帳残高に含まれているため見込みは加算せず、未登録の場合のみ見込みを加算。
     const smbcCurrent = currentAccounts.find((a) => a.id === 'smbc')?.currentBalance || 0;
     const mufgCurrent = currentAccounts.find((a) => a.id === 'mufg')?.currentBalance || 0;
     const mizuhoCurrent = currentAccounts.find((a) => a.id === 'mizuho')?.currentBalance || 0;
 
-    const smbcAfterCurrent = smbcCurrent + d.currentMonthCardBill + pureFixedTotal - settledDeduction + Number(d.salaries.currentMonth || 0);
+    const actualSalary = (d.bankTransfers || [])
+      .filter((tf) => tf.type === 'income' && tf.name && tf.name.includes('給料'))
+      .reduce((sum, tf) => sum + Number(tf.amount || 0), 0);
+    const effectiveCurrentSalary = actualSalary > 0 ? 0 : Number(d.salaries.currentMonth || 0);
+
+    const smbcAfterCurrent = smbcCurrent + d.currentMonthCardBill + pureFixedTotal - settledDeduction + effectiveCurrentSalary;
     const mizuhoAfterCurrent = mizuhoCurrent;
     const mufgAfterCurrent = mufgCurrent;
     const totalAfterCurrent = smbcAfterCurrent + mizuhoAfterCurrent + mufgAfterCurrent;
 
-    // 9. 来月引落後の所持金（推定） (Row 25-29)
-    // 来月の給料（nextSalary）も三井住友銀行に振り込み加算
-    // 三井住友: 今月引落後SMBC - G33(今月クレカ合計) + B17(固定費) + 来月給料
-    // 三菱UFJ: 三菱UFJ
-    // みずほ: みずほ
+    // 9. 来月引落後の所持金（推定） (スプレッドシート Row 25-29)
+    // 来月の給料（nextSalary）も将来予測シミュレーションの計算上でのみ加算
     const smbcAfterNext = smbcAfterCurrent - totalSpent + pureFixedTotal + Number(d.salaries.nextMonth || 0);
     const mizuhoAfterNext = mizuhoAfterCurrent;
     const mufgAfterNext = mufgAfterCurrent;
