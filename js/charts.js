@@ -29,14 +29,63 @@ export class ChartRenderer {
       }
 
       // テーマに合わせたカラー設定
-      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'cyber';
+      const isLight = currentTheme === 'platinum' || currentTheme === 'starlight' || currentTheme === 'light' || currentTheme === 'white';
       const textColor = isLight ? '#475569' : '#94a3b8';
+      const valueLabelColor = isLight ? '#0f172a' : '#f8fafc';
       const gridColor = isLight ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.06)';
 
       // グラデーションバーの作成
-      const gradient = this.ctx.createLinearGradient(0, 0, 300, 0);
-      gradient.addColorStop(0, '#10b981');
-      gradient.addColorStop(1, '#3b82f6');
+      const gradient = this.ctx.createLinearGradient(0, 0, 320, 0);
+      if (isLight) {
+        if (currentTheme === 'starlight') {
+          gradient.addColorStop(0, '#f59e0b');
+          gradient.addColorStop(1, '#d97706');
+        } else {
+          gradient.addColorStop(0, '#3b82f6');
+          gradient.addColorStop(1, '#0284c7');
+        }
+      } else {
+        if (currentTheme === 'onyx' || currentTheme === 'black') {
+          gradient.addColorStop(0, '#94a3b8');
+          gradient.addColorStop(1, '#f8fafc');
+        } else {
+          gradient.addColorStop(0, '#10b981');
+          gradient.addColorStop(1, '#3b82f6');
+        }
+      }
+
+      // 最大値に応じてX軸に余裕を持たせる（各棒の横の金額ラベルが切れないようにする）
+      const maxVal = Math.max(...data, 0);
+      const suggestedMax = Math.ceil(maxVal * 1.25);
+
+      // 各棒の横に金額を表示するカスタムChart.jsプラグイン
+      const barValueLabelsPlugin = {
+        id: 'barValueLabels',
+        afterDatasetsDraw(chart) {
+          const { ctx } = chart;
+          const meta = chart.getDatasetMeta(0);
+          if (!meta || !meta.data) return;
+
+          ctx.save();
+          ctx.font = 'bold 11px -apple-system, BlinkMacSystemFont, "Outfit", sans-serif';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = valueLabelColor;
+
+          meta.data.forEach((bar, index) => {
+            const val = data[index];
+            if (val === undefined || val === null) return;
+            const text = '¥' + Number(val).toLocaleString();
+
+            // 横棒の右端のX座標 + 少しの余白
+            const x = bar.x + 8;
+            const y = bar.y;
+            ctx.fillText(text, x, y);
+          });
+
+          ctx.restore();
+        }
+      };
 
       this.chartInstance = new window.Chart(this.ctx, {
         type: 'bar',
@@ -54,18 +103,29 @@ export class ChartRenderer {
             }
           ]
         },
+        plugins: [barValueLabelsPlugin],
         options: {
           indexAxis: 'y', // 横棒グラフ（スマホで見やすい！）
           responsive: true,
           maintainAspectRatio: false,
+          layout: {
+            padding: {
+              right: 28, // 金額ラベル表示用の右側マージン
+              left: 4,
+              top: 4,
+              bottom: 4
+            }
+          },
           plugins: {
             legend: {
               display: false
             },
             tooltip: {
-              backgroundColor: '#1e293b',
-              titleColor: '#f8fafc',
-              bodyColor: '#10b981',
+              backgroundColor: isLight ? '#ffffff' : '#1e293b',
+              titleColor: isLight ? '#0f172a' : '#f8fafc',
+              bodyColor: isLight ? '#2563eb' : '#10b981',
+              borderColor: isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
+              borderWidth: 1,
               padding: 10,
               cornerRadius: 8,
               callbacks: {
@@ -77,6 +137,7 @@ export class ChartRenderer {
           },
           scales: {
             x: {
+              suggestedMax,
               grid: {
                 color: gridColor
               },

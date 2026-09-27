@@ -97,6 +97,8 @@ class AppController {
     this.setupSettings();
     this.setupThemeSwitcher();
     this.setupCalcInsight();
+    this.setupPullToRefresh();
+    this.setupEmailSync();
     this.initIcon();
 
     // 初回レンダリング
@@ -141,7 +143,7 @@ class AppController {
 
   // --- アイコン管理システム ---
   initIcon() {
-    const savedIcon = localStorage.getItem('kakeibo_icon') || './icons/cow-cute.png';
+    const savedIcon = localStorage.getItem('kakeibo_icon') || './icons/cow-gold.png';
     this.applyAppIcon(savedIcon);
 
     document.querySelectorAll('.icon-choice-card').forEach((card) => {
@@ -191,9 +193,14 @@ class AppController {
     });
   }
 
-  // --- テーマ管理システム ---
+  // --- テーマ管理システム (ダーク2種 / ライト2種) ---
   initTheme() {
-    const savedTheme = localStorage.getItem('kakeibo_theme') || 'cyber';
+    let savedTheme = localStorage.getItem('kakeibo_theme') || 'cyber';
+    // 旧テーマから新4テーマへの自動移行
+    if (savedTheme === 'gold' || savedTheme === 'desert' || savedTheme === 'space') savedTheme = 'cyber';
+    if (savedTheme === 'indigo' || savedTheme === 'natural' || savedTheme === 'midnight') savedTheme = 'onyx';
+    if (savedTheme === 'light' || savedTheme === 'white') savedTheme = 'platinum';
+    if (savedTheme === 'aurora' || savedTheme === 'purple') savedTheme = 'starlight';
     this.applyTheme(savedTheme);
   }
 
@@ -861,7 +868,7 @@ class AppController {
 
         return `
         <div class="glass-card" style="border-top: 3px solid ${acc.color}; margin-bottom: 16px;">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: ${transfers.length > 0 ? '12px' : '0'};">
             <div>
               <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 3px;">${acc.name}</h3>
               <!-- 月初残高を小さく控えめに表示（タップで設定モーダル） -->
@@ -871,23 +878,19 @@ class AppController {
                 <span class="mini-edit">✎ 変更</span>
               </div>
             </div>
-            <div style="text-align: right;">
+            <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end;">
               <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">現在残高</span>
-              <span style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary);">¥${acc.currentBalance.toLocaleString()}</span>
+              <span style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em;">¥${acc.currentBalance.toLocaleString()}</span>
+              <button class="btn-card-add-tf" data-account-id="${acc.id}" style="margin-top: 5px; font-size: 0.72rem; padding: 3px 9px; border-radius: var(--radius-full); background: var(--surface-glass); border: 1px solid var(--border-glass); color: var(--text-secondary); cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 3px;" title="この口座に入出金を登録">
+                <span>＋ 入出金</span>
+              </button>
             </div>
           </div>
 
-          <div style="background: rgba(0,0,0,0.2); border-radius: var(--radius-sm); padding: 12px 14px; margin-top: 10px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary);">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
-                <span>入出金履歴 (${transfers.length}件)</span>
-              </div>
-              <button class="section-link btn-card-add-tf" data-account-id="${acc.id}" style="font-size: 0.76rem; padding: 4px 10px; border-radius: 6px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.35); cursor: pointer; color: #4ade80; font-weight: 700;">＋ 入出金</button>
-            </div>
-            ${transfers.length === 0
-            ? '<div style="font-size: 0.78rem; color: var(--text-muted); text-align: center; padding: 14px 0;">入出金の記録はありません</div>'
-            : transfers
+          ${transfers.length > 0
+            ? `
+          <div class="account-transfers-box" style="margin-top: 8px;">
+            ${transfers
               .map(
                 (tf) => `
                 <div class="transfer-item-row" data-tf-id="${tf.id}" title="タップでこの入出金を編集">
@@ -912,8 +915,11 @@ class AppController {
               `
               )
               .join('')
-          }
+            }
           </div>
+          `
+            : ''
+          }
         </div>
       `;
       })
@@ -1365,35 +1371,171 @@ class AppController {
 
     // ヘッダーの同期ボタン（回転アニメーション対応）
     document.getElementById('btn-sync-quick')?.addEventListener('click', async () => {
-      const btn = document.getElementById('btn-sync-quick');
-      if (!btn) return;
+      await this.triggerSync(false);
+    });
+  }
 
-      if (!this.api.isConfigured()) {
-        btn.classList.add('spinning');
-        setTimeout(() => {
-          btn.classList.remove('spinning');
-          alert('設定画面でGAS Web AppのURLを設定してください。\n現在はローカルデータが最新です。');
-        }, 600);
-        return;
+  // --- スプレッドシート同期処理（ヘッダーボタン & Pull-to-Refresh共通） ---
+  async triggerSync(isPull = false) {
+    const btn = document.getElementById('btn-sync-quick');
+    btn?.classList.add('spinning');
+
+    if (!this.api.isConfigured()) {
+      await new Promise(r => setTimeout(r, 600));
+      btn?.classList.remove('spinning');
+      showToast('設定画面でGAS Web AppのURLを設定してください（現在はローカル最新）', 'warning');
+      return;
+    }
+
+    try {
+      const data = await this.api.fetchMonthData(store.data.currentMonth || '202609');
+      if (data) {
+        store.applyMonthData(data);
       }
+      btn?.classList.remove('spinning');
+      showToast('スプレッドシートから最新データを同期しました！');
+    } catch (e) {
+      btn?.classList.remove('spinning');
+      console.error('同期エラー:', e);
+      showToast('同期エラー: ' + e.message, 'warning');
+    }
+  }
 
-      btn.classList.add('spinning');
-      try {
-        const data = await this.api.fetchMonthData(store.data.currentMonth || '202609');
-        if (data) {
-          store.applyMonthData(data);
+  // --- 下にスライドして更新 (Pull-to-Refresh) ---
+  setupPullToRefresh() {
+    const indicator = document.getElementById('ptr-indicator');
+    const label = document.getElementById('ptr-text');
+    const spinner = indicator?.querySelector('.ptr-spinner');
+    if (!indicator || !label) return;
+
+    let startY = 0;
+    let isPulling = false;
+    let isRefreshing = false;
+    const threshold = 65; // 更新がトリガーされる引き下げ量 (px)
+    const maxPull = 95;   // 最大引き下げ量
+
+    const getScrollTop = () => {
+      const activePanel = document.querySelector('.view-panel.active');
+      return Math.max(window.scrollY || 0, document.documentElement.scrollTop || 0, activePanel?.scrollTop || 0);
+    };
+
+    const handleStart = (pageY) => {
+      if (isRefreshing) return;
+      if (getScrollTop() <= 2) {
+        startY = pageY;
+        isPulling = true;
+        indicator.classList.add('pulling');
+      }
+    };
+
+    const handleMove = (pageY, e) => {
+      if (!isPulling || isRefreshing) return;
+      const diff = pageY - startY;
+
+      if (diff > 0 && getScrollTop() <= 2) {
+        if (e && e.cancelable) e.preventDefault();
+
+        // 抵抗（ラバーバンド）計算
+        const pullDist = Math.min(diff * 0.48, maxPull);
+        indicator.style.height = `${pullDist}px`;
+        indicator.style.maxHeight = `${pullDist}px`;
+        indicator.style.opacity = `${Math.min(pullDist / (threshold * 0.7), 1)}`;
+
+        // スピナーを回転
+        const rotateDeg = (pullDist / threshold) * 280;
+        if (spinner) spinner.style.transform = `rotate(${rotateDeg}deg)`;
+
+        if (pullDist >= threshold) {
+          indicator.classList.add('release');
+          label.textContent = '指を離して更新';
+        } else {
+          indicator.classList.remove('release');
+          label.textContent = '下にスライドして更新';
         }
+      } else {
+        indicator.style.height = '0px';
+        indicator.style.maxHeight = '0px';
+        indicator.style.opacity = '0';
+      }
+    };
+
+    const handleEnd = async () => {
+      if (!isPulling || isRefreshing) return;
+      isPulling = false;
+      indicator.classList.remove('pulling');
+
+      const currentH = parseFloat(indicator.style.height) || 0;
+      if (currentH >= threshold) {
+        // 更新実行
+        isRefreshing = true;
+        indicator.classList.add('active', 'refreshing');
+        indicator.classList.remove('release');
+        indicator.style.height = '64px';
+        indicator.style.maxHeight = '64px';
+        indicator.style.opacity = '1';
+        label.textContent = 'データを同期中...';
+
+        await this.triggerSync(true);
+
+        label.textContent = '同期完了！';
         setTimeout(() => {
-          btn.classList.remove('spinning');
-          alert('スプレッドシートから最新データを同期しました！');
-        }, 400);
-      } catch (e) {
-        btn.classList.remove('spinning');
-        alert('同期エラー: ' + e.message);
+          indicator.classList.remove('active', 'refreshing');
+          indicator.style.height = '0px';
+          indicator.style.maxHeight = '0px';
+          indicator.style.opacity = '0';
+          setTimeout(() => {
+            isRefreshing = false;
+            label.textContent = '下にスライドして更新';
+            if (spinner) spinner.style.transform = '';
+          }, 250);
+        }, 600);
+      } else {
+        // キャンセル
+        indicator.style.height = '0px';
+        indicator.style.maxHeight = '0px';
+        indicator.style.opacity = '0';
+        setTimeout(() => {
+          if (spinner) spinner.style.transform = '';
+          label.textContent = '下にスライドして更新';
+        }, 200);
+      }
+    };
+
+    // タッチイベント (モバイル)
+    window.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches.length === 1) handleStart(e.touches[0].pageY);
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches && e.touches.length === 1) handleMove(e.touches[0].pageY, e);
+    }, { passive: false });
+
+    window.addEventListener('touchend', () => handleEnd(), { passive: true });
+    window.addEventListener('touchcancel', () => handleEnd(), { passive: true });
+
+    // マウスドラッグ (PCブラウザ検証用)
+    let isMouseDown = false;
+    window.addEventListener('mousedown', (e) => {
+      if (e.button === 0 && e.clientY < 260) {
+        isMouseDown = true;
+        handleStart(e.pageY);
       }
     });
 
-    // クレカ利用通知メールの同期ボタン（明細タブ & 設定タブ）
+    window.addEventListener('mousemove', (e) => {
+      if (isMouseDown) handleMove(e.pageY, e);
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isMouseDown) {
+        isMouseDown = false;
+        handleEnd();
+      }
+    });
+  }
+
+  // --- クレカ利用通知メール同期イベント ---
+  setupEmailSync() {
     const btnSyncEmails = document.getElementById('btn-sync-emails');
     const btnRunEmailSync = document.getElementById('btn-run-email-sync');
 
@@ -1459,5 +1601,5 @@ class AppController {
 
 // アプリ起動
 window.addEventListener('DOMContentLoaded', () => {
-  new AppController();
+  window.app = new AppController();
 });
