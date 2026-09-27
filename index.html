@@ -18,7 +18,7 @@
   <meta name="theme-color" content="#090d16">
 
   <!-- Stylesheet (キャッシュバスター付き) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260922_2">
+  <link rel="stylesheet" href="./css/style.css?v=20260927_1">
 
   <!-- Chart.js CDN for interactive beautiful charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -95,7 +95,7 @@
                 <span class="insight-trigger-text">自由資金の計算根拠を見る</span>
               </div>
               <div class="insight-trigger-right">
-                <span class="insight-status-tag">6項目</span>
+                <span class="insight-status-tag" id="val-calc-item-count">6項目</span>
                 <svg class="svg-icon svg-icon-sm insight-chevron" id="insight-chevron-icon" viewBox="0 0 24 24">
                   <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
@@ -140,7 +140,7 @@
                 </div>
 
                 <!-- ③ 今月給料 -->
-                <div class="flow-step plus">
+                <div class="flow-step plus" id="step-calc-cur-salary">
                   <div class="flow-step-icon plus">＋</div>
                   <div class="flow-step-info">
                     <span class="flow-step-label">今月給料見込み</span>
@@ -358,7 +358,16 @@
             </svg>
             <span>クレジット利用明細</span>
           </h2>
-          <span class="month-badge" id="tx-total-count">0件</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button class="btn-email-sync" id="btn-sync-emails" type="button" title="Gmailからクレカ利用通知メールを取得してスプレッドシートに反映">
+              <svg class="svg-icon svg-icon-xs" viewBox="0 0 24 24">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+              <span>メール取込</span>
+            </button>
+            <span class="month-badge" id="tx-total-count">0件</span>
+          </div>
         </div>
 
         <!-- 当月利用合計 & カテゴリ別小計サマリーカード (Apple Card Titanium 風) -->
@@ -560,16 +569,46 @@
         </div>
 
         <div class="glass-card">
-          <h3 style="font-size: 0.95rem; margin-bottom: 12px;">給料（推定見込み額）の設定</h3>
+          <h3 style="font-size: 0.95rem; margin-bottom: 12px;">給料の設定</h3>
           <div class="form-group">
-            <label class="form-label" for="setting-salary-current">今月の給料</label>
+            <div class="form-label-row">
+              <label class="form-label" for="setting-salary-current">今月の給料</label>
+              <span class="salary-status-badge badge-estimate" id="badge-salary-current">推定</span>
+            </div>
             <input type="number" id="setting-salary-current" class="form-input">
           </div>
           <div class="form-group">
-            <label class="form-label" for="setting-salary-next">来月の給料</label>
+            <div class="form-label-row">
+              <label class="form-label" for="setting-salary-next">来月の給料</label>
+              <span class="salary-status-badge badge-estimate" id="badge-salary-next">推定</span>
+            </div>
             <input type="number" id="setting-salary-next" class="form-input">
           </div>
           <button class="btn-primary" id="btn-save-salaries">給料設定を保存</button>
+        </div>
+
+        <div class="glass-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h3 style="font-size: 0.95rem; margin-bottom: 0;">クレカ利用通知メール連携</h3>
+            <span class="badge-mini" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">Gmail</span>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5;">
+            GmailからVpass・三井住友カードの利用通知メールを取得し、スプレッドシートの明細枠に反映します。
+          </p>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label" for="setting-email-func-name">実行するGAS関数名（任意）</label>
+            <input type="text" id="setting-email-func-name" class="form-input" placeholder="自動検出（または自作関数名）">
+            <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 4px;">
+              空欄時はプロジェクト内の既存メール関数を自動探索、または標準パーサーで取得します。
+            </p>
+          </div>
+          <button class="btn-primary" id="btn-run-email-sync">
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            <span>利用通知メールを取得 & 反映</span>
+          </button>
         </div>
 
         <div class="glass-card">
@@ -671,12 +710,26 @@
             <select id="input-tx-category" class="form-select">
               <option value="食費">食費</option>
               <option value="飲み物代">飲み物代</option>
+              <option value="昼ご飯">昼ご飯</option>
+              <option value="外食">外食</option>
               <option value="交際費">交際費</option>
-              <option value="日用品">日用品</option>
+              <option value="お菓子代">お菓子代</option>
+              <option value="おやつ">おやつ</option>
+              <option value="夜食代">夜食代</option>
+              <option value="日用品費">日用品費</option>
+              <option value="デート">デート</option>
               <option value="交通費">交通費</option>
-              <option value="趣味・娯楽">趣味・娯楽</option>
+              <option value="Suica">Suica</option>
+              <option value="B/43">B/43</option>
+              <option value="美容費">美容費</option>
+              <option value="医療費">医療費</option>
+              <option value="被服費">被服費</option>
+              <option value="娯楽費">娯楽費</option>
+              <option value="通信費">通信費</option>
+              <option value="水道光熱費">水道光熱費</option>
               <option value="月額課金">月額課金</option>
-              <option value="その他">その他</option>
+              <option value="勉強・資格">勉強・資格</option>
+              <option value="雑費">雑費</option>
             </select>
           </div>
           <div class="form-group">
@@ -710,12 +763,26 @@
             <select id="edit-tx-category" class="form-select">
               <option value="食費">食費</option>
               <option value="飲み物代">飲み物代</option>
+              <option value="昼ご飯">昼ご飯</option>
+              <option value="外食">外食</option>
               <option value="交際費">交際費</option>
-              <option value="日用品">日用品</option>
+              <option value="お菓子代">お菓子代</option>
+              <option value="おやつ">おやつ</option>
+              <option value="夜食代">夜食代</option>
+              <option value="日用品費">日用品費</option>
+              <option value="デート">デート</option>
               <option value="交通費">交通費</option>
-              <option value="趣味・娯楽">趣味・娯楽</option>
+              <option value="Suica">Suica</option>
+              <option value="B/43">B/43</option>
+              <option value="美容費">美容費</option>
+              <option value="医療費">医療費</option>
+              <option value="被服費">被服費</option>
+              <option value="娯楽費">娯楽費</option>
+              <option value="通信費">通信費</option>
+              <option value="水道光熱費">水道光熱費</option>
               <option value="月額課金">月額課金</option>
-              <option value="その他">その他</option>
+              <option value="勉強・資格">勉強・資格</option>
+              <option value="雑費">雑費</option>
             </select>
           </div>
           <button type="submit" class="btn-primary">更新する</button>
@@ -832,6 +899,22 @@
       </div>
     </div>
 
+    <!-- MODAL: Category Picker (テーマ連動・高視認性ジャンル選択シート) -->
+    <div class="modal-overlay" id="modal-select-category">
+      <div class="modal-content modal-category-content">
+        <div class="modal-header">
+          <div>
+            <h3 class="modal-title">ジャンルの変更</h3>
+            <p class="modal-subtitle" id="picker-tx-target-info">利用明細のジャンルを選択</p>
+          </div>
+          <button class="close-btn" id="btn-close-category-picker">✕</button>
+        </div>
+        <div class="category-picker-grid" id="category-picker-grid">
+          <!-- JSで22カテゴリのカードを動的生成 -->
+        </div>
+      </div>
+    </div>
+
     <!-- MODAL: Theme Switcher (デザイン着せ替え) -->
     <div class="modal-overlay" id="modal-theme-switcher">
       <div class="modal-content">
@@ -895,7 +978,7 @@
   <div class="toast-container" id="toast-container"></div>
 
   <!-- App Scripts (キャッシュバスター付き) -->
-  <script type="module" src="./js/app.js?v=20260922_4"></script>
+  <script type="module" src="./js/app.js?v=20260927_1"></script>
 
   <!-- PWA Service Worker Registration & Cache Purge -->
   <script>
@@ -906,7 +989,7 @@
             reg.update();
           }
         });
-        navigator.serviceWorker.register('./sw.js?v=20260922_4').catch((err) => {
+        navigator.serviceWorker.register('./sw.js?v=20260927_1').catch((err) => {
           console.log('SW registration skipped:', err);
         });
       });

@@ -2,6 +2,32 @@
  * 家計簿データストア（計算ロジック・ローカルストレージ・初期データ管理）
  */
 
+// スプレッドシートのプルダウン（データ入力規則）に定義されている全22カテゴリ
+export const SPREADSHEET_CATEGORIES = [
+  'Suica',
+  '飲み物代',
+  '昼ご飯',
+  '外食',
+  '交際費',
+  'お菓子代',
+  '食費',
+  '日用品費',
+  'デート',
+  '夜食代',
+  '交通費',
+  'おやつ',
+  'B/43',
+  '美容費',
+  '医療費',
+  '雑費',
+  '被服費',
+  '娯楽費',
+  '通信費',
+  '水道光熱費',
+  '月額課金',
+  '勉強・資格'
+];
+
 // スプレッドシートから読み取った 202609 の実際の内容に基づく初期データ
 const DEFAULT_DATA_202609 = {
   currentMonth: '202609',
@@ -782,7 +808,11 @@ class KakeiboStore {
       pureFixedTotal,
       accounts: currentAccounts,
       totalCurrentBalance,
-      salaries: d.salaries,
+      salaries: {
+        ...d.salaries,
+        isCurrentSettled: actualSalary > 0,
+        actualSalary: actualSalary
+      },
       currentMonthCardBill: d.currentMonthCardBill,
       afterCurrentMonth: {
         smbc: smbcAfterCurrent,
@@ -837,6 +867,17 @@ class KakeiboStore {
     this.data.transactions.unshift(newTx);
     this.saveData();
     return newTx;
+  }
+
+  // 明細のカテゴリ（ジャンル）を更新
+  updateTransactionCategory(id, newCategory) {
+    const tx = this.data.transactions.find((t) => t.id === id);
+    if (tx) {
+      tx.category = newCategory;
+      this.saveData();
+      return tx;
+    }
+    return null;
   }
 
   // 明細の編集

@@ -80,6 +80,22 @@ export class GasApiClient {
     return this.postRequest('toggleSettled', { fixedId, settled });
   }
 
+  // クレカ明細のカテゴリ（ジャンル）更新
+  async updateTransactionCategory(txId, category, monthStr) {
+    if (!this.isConfigured()) return;
+    const month = monthStr || this.store.data.currentMonth;
+    return this.postRequest('updateTransactionCategory', { txId, category, month });
+  }
+
+  // クレカ利用通知メールの同期実行（スプレッドシート反映）
+  async syncCardEmails(monthStr, functionName) {
+    if (!this.isConfigured()) {
+      throw new Error('GAS Web App URLが設定されていません');
+    }
+    const month = monthStr || this.store.data.currentMonth;
+    return this.postRequest('syncCardEmails', { month, functionName });
+  }
+
   async postRequest(action, payload) {
     const url = this.getUrl();
     const res = await fetch(url, {

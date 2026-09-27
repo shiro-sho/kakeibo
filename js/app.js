@@ -2,7 +2,7 @@
  * アプリメインコントローラー（UIレンダリング・インタラクション）
  */
 
-import { store } from './store.js';
+import { store, SPREADSHEET_CATEGORIES } from './store.js';
 import { ChartRenderer } from './charts.js';
 import { GasApiClient } from './api.js';
 
@@ -38,12 +38,42 @@ function sortTransactionsDesc(list) {
   });
 }
 
+// カテゴリ別アイコン（絵文字）定義
+const CATEGORY_ICONS = {
+  'Suica': '💳',
+  '飲み物代': '☕',
+  '昼ご飯': '🍱',
+  '外食': '🍽️',
+  '交際費': '🍻',
+  'お菓子代': '🍫',
+  '食費': '🍙',
+  '日用品費': '🧴',
+  'デート': '🥂',
+  '夜食代': '🍜',
+  '交通費': '🚃',
+  'おやつ': '🍰',
+  'B/43': '📱',
+  '美容費': '💈',
+  '医療費': '💊',
+  '雑費': '📦',
+  '被服費': '👕',
+  '娯楽費': '🎮',
+  '通信費': '📶',
+  '水道光熱費': '💡',
+  '月額課金': '🔄',
+  '勉強・資格': '📚',
+  '引落系、課金系': '🔄',
+  '未分類': '🏷️'
+};
+
 class AppController {
   constructor() {
     this.api = new GasApiClient(store);
     this.chartRenderer = null;
     this.currentView = 'home';
     this.currentTxGroupFilter = 'all';
+    window.store = store;
+    window.app = this;
     this.init();
   }
 
@@ -62,6 +92,7 @@ class AppController {
     this.setupTransactionsSegment();
     this.setupTxBreakdown();
     this.setupModals();
+    this.setupCategoryPicker();
     this.setupForms();
     this.setupSettings();
     this.setupThemeSwitcher();
@@ -144,7 +175,7 @@ class AppController {
       const filename = src.split('/').pop().replace('.png', '');
       u.searchParams.set('icon', filename);
       window.history.replaceState({}, '', u.toString());
-    } catch (e) {}
+    } catch (e) { }
 
     // グリッド内のアクティブ枠ハイライト
     document.querySelectorAll('.icon-choice-card').forEach((card) => {
@@ -315,7 +346,19 @@ class AppController {
 
     if (elCalcCurrent) elCalcCurrent.textContent = `¥${s.totalCurrentBalance.toLocaleString()}`;
     if (elCalcCurDeduct) elCalcCurDeduct.textContent = `-¥${curUnsettledTotal.toLocaleString()}`;
-    if (elCalcCurSalary) elCalcCurSalary.textContent = `+¥${(s.salaries.currentMonth || 250000).toLocaleString()}`;
+
+    // 給料確定時は「今月給料見込み」のステップを非表示にして5項目に更新（二重加算防止・見やすさ向上）
+    const stepCurSalary = document.getElementById('step-calc-cur-salary');
+    const elItemCount = document.getElementById('val-calc-item-count');
+    if (s.salaries && s.salaries.isCurrentSettled) {
+      if (stepCurSalary) stepCurSalary.style.display = 'none';
+      if (elItemCount) elItemCount.textContent = '5項目';
+    } else {
+      if (stepCurSalary) stepCurSalary.style.display = 'flex';
+      if (elItemCount) elItemCount.textContent = '6項目';
+      if (elCalcCurSalary) elCalcCurSalary.textContent = `+¥${(s.salaries.currentMonth || 250000).toLocaleString()}`;
+    }
+
     if (elCalcCardSpent) elCalcCardSpent.textContent = `-¥${s.totalSpent.toLocaleString()}`;
     if (elCalcNextFixed) elCalcNextFixed.textContent = `-¥${Math.abs(s.pureFixedTotal).toLocaleString()}`;
     if (elCalcNextSalary) elCalcNextSalary.textContent = `+¥${(s.salaries.nextMonth || 250000).toLocaleString()}`;
@@ -462,13 +505,91 @@ class AppController {
     }
   }
 
-  // 明細アイテムのHTML生成
+  // --- ジャンル選択ピッカー（テーマ連動・高視認性モーダル） ---
+  setupCategoryPicker() {
+    const modal = document.getElementById('modal-select-category');
+    const btnClose = document.getElementById('btn-close-category-picker');
+    btnClose?.addEventListener('click', () => modal?.classList.remove('active'));
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('active');
+    });
+  }
+
+  openCategoryPicker(txId, currentCat) {
+    const modal = document.getElementById('modal-select-category');
+    const grid = document.getElementById('category-picker-grid');
+    const targetInfo = document.getElementById('picker-tx-target-info');
+    if (!modal || !grid) return;
+
+    const tx = store.data.transactions?.find((t) => t.id === txId);
+    const txName = tx ? tx.name : '';
+
+    if (targetInfo) {
+      targetInfo.textContent = txName ? `「${txName}」のジャンルを選択` : '利用明細のジャンルを選択';
+    }
+
+    grid.innerHTML = SPREADSHEET_CATEGORIES.map((cat) => {
+      const icon = CATEGORY_ICONS[cat] || '🏷️';
+      const isActive = cat === currentCat ? 'active' : '';
+      return `
+        <button type="button" class="category-picker-card ${isActive}" data-category="${cat}">
+          <span class="category-picker-icon">${icon}</span>
+          <span class="category-picker-name">${cat}</span>
+        </button>
+      `;
+    }).join('');
+
+    grid.querySelectorAll('.category-picker-card').forEach((card) => {
+      card.addEventListener('click', async () => {
+        const newCat = card.dataset.category;
+        modal.classList.remove('active');
+
+        // 1. バッジの表示テキストを即座に更新
+        const badgeName = document.querySelector(`.timeline-item[data-tx-id="${txId}"] .badge-cat-name`);
+        if (badgeName) badgeName.textContent = newCat;
+        const badgeIcon = document.querySelector(`.timeline-item[data-tx-id="${txId}"] .badge-cat-icon`);
+        if (badgeIcon) badgeIcon.textContent = CATEGORY_ICONS[newCat] || '🏷️';
+
+        // 2. ストア更新 & 再集計
+        store.updateTransactionCategory(txId, newCat);
+        showToast(`ジャンルを「${newCat}」に変更しました`);
+
+        // 3. サマリーとグラフ等の再描画
+        this.renderSummary(store.getSummary());
+
+        // 4. GAS（スプレッドシートC列）へ非同期保存
+        try {
+          if (this.api.isConfigured()) {
+            await this.api.updateTransactionCategory(txId, newCat, store.data.currentMonth);
+          }
+        } catch (err) {
+          console.warn('スプレッドシートへのカテゴリ反映警告:', err);
+        }
+      });
+    });
+
+    modal.classList.add('active');
+  }
+
+  // 明細アイテムのHTML生成（テーマ連動ジャンルバッジ & モーダルピッカー対応）
   createTransactionHtml(tx) {
     const isRec = tx.group === 'recurring';
+    const currentCat = tx.category || (isRec ? '引落系、課金系' : '未分類');
+    const catIcon = CATEGORY_ICONS[currentCat] || '🏷️';
+
     return `
       <div class="timeline-item" data-tx-id="${tx.id}">
         <div class="tx-main">
-          <span class="tx-category-badge ${isRec ? 'tx-badge-recurring' : ''}">${tx.category || (isRec ? '引落系、課金系' : '未分類')}</span>
+          <div class="tx-category-wrapper">
+            <button type="button" class="tx-category-badge ${isRec ? 'tx-badge-recurring' : ''}" 
+                    data-tx-id="${tx.id}" 
+                    data-current-cat="${currentCat}"
+                    title="ジャンルを変更する">
+              <span class="badge-cat-icon">${catIcon}</span>
+              <span class="badge-cat-name">${currentCat}</span>
+              <svg class="svg-icon cat-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+          </div>
           <div class="tx-info">
             <span class="tx-name">${tx.name}</span>
             <span class="tx-date">${tx.date || '日付未定'}</span>
@@ -481,6 +602,39 @@ class AppController {
 
   attachTransactionClickEvents(container) {
     if (!container) return;
+
+    // カテゴリバッジクリックで美しいチタンテーマ連動のジャンル選択シートを開く
+    container.querySelectorAll('.tx-category-badge').forEach((badgeBtn) => {
+      badgeBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // 親の明細クリックイベントへの伝播を防ぐ
+        const txId = badgeBtn.dataset.txId;
+        const currentCat = badgeBtn.dataset.currentCat || badgeBtn.querySelector('.badge-cat-name')?.textContent?.trim() || '';
+        this.openCategoryPicker(txId, currentCat);
+      });
+    });
+
+    // 明細行クリックで編集モーダルを開く
+    container.querySelectorAll('.timeline-item').forEach((item) => {
+      item.addEventListener('click', () => {
+        const txId = item.dataset.txId;
+        const tx = store.data.transactions.find((t) => t.id === txId);
+        if (tx) {
+          this.openEditTxModal(tx);
+        }
+      });
+    });
+  }
+
+  // 明細編集モーダルを開く
+  openEditTxModal(tx) {
+    const m = document.getElementById('modal-edit-tx');
+    if (!m) return;
+    document.getElementById('edit-tx-id').value = tx.id;
+    document.getElementById('edit-tx-name').value = tx.name || '';
+    document.getElementById('edit-tx-amount').value = tx.amount || 0;
+    const catSelect = document.getElementById('edit-tx-category');
+    if (catSelect) catSelect.value = tx.category || '食費';
+    m.classList.add('active');
   }
 
   // 5. 直近の明細（ホーム用 - 日付降順の最新5件）
@@ -848,6 +1002,23 @@ class AppController {
     if (salaryNext && !salaryNext.value) {
       salaryNext.value = s.salaries.nextMonth;
     }
+
+    // 給料推定 / 確定バッジの更新
+    const badgeCur = document.getElementById('badge-salary-current');
+    const badgeNext = document.getElementById('badge-salary-next');
+    if (badgeCur) {
+      if (s.salaries && s.salaries.isCurrentSettled) {
+        badgeCur.textContent = '確定';
+        badgeCur.className = 'salary-status-badge badge-settled';
+      } else {
+        badgeCur.textContent = '推定';
+        badgeCur.className = 'salary-status-badge badge-estimate';
+      }
+    }
+    if (badgeNext) {
+      badgeNext.textContent = '推定';
+      badgeNext.className = 'salary-status-badge badge-estimate';
+    }
   }
 
   // --- モーダル制御 ---
@@ -1163,6 +1334,68 @@ class AppController {
         alert('同期エラー: ' + e.message);
       }
     });
+
+    // クレカ利用通知メールの同期ボタン（明細タブ & 設定タブ）
+    const btnSyncEmails = document.getElementById('btn-sync-emails');
+    const btnRunEmailSync = document.getElementById('btn-run-email-sync');
+
+    btnSyncEmails?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.handleSyncCardEmails(btnSyncEmails);
+    });
+
+    btnRunEmailSync?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.handleSyncCardEmails(btnRunEmailSync);
+    });
+  }
+
+  // クレカ利用通知メール取得処理の実行
+  async handleSyncCardEmails(triggerBtn) {
+    if (!this.api.isConfigured()) {
+      alert('設定画面でGAS Web AppのURLを設定してください。\nスプレッドシート連携後に利用通知メールを取得できます。');
+      return;
+    }
+
+    const allButtons = [
+      document.getElementById('btn-sync-emails'),
+      document.getElementById('btn-run-email-sync')
+    ].filter(Boolean);
+
+    allButtons.forEach((b) => b.classList.add('loading'));
+    showToast('Gmailから利用通知メールを検索・同期中...', 'info');
+
+    try {
+      const customFnName = document.getElementById('setting-email-func-name')?.value?.trim() || '';
+      const result = await this.api.syncCardEmails(store.data.currentMonth, customFnName);
+
+      if (result && result.status === 'success') {
+        const addedCount = result.addedCount || 0;
+
+        // 最新のスプレッドシートデータを即座に取得して反映
+        try {
+          const freshData = await this.api.fetchMonthData(store.data.currentMonth);
+          if (freshData) {
+            store.applyMonthData(freshData);
+          }
+        } catch (fetchErr) {
+          console.warn('メール同期後のデータ再取得警告:', fetchErr);
+        }
+
+        if (addedCount > 0) {
+          showToast(`✉ メールから${addedCount}件の利用明細を取り込みました！`, 'success');
+        } else {
+          showToast('新しい利用通知メールはありませんでした（最新状態です）', 'success');
+        }
+      } else {
+        throw new Error(result?.message || 'メール同期処理に失敗しました');
+      }
+    } catch (err) {
+      console.error('メール同期エラー:', err);
+      showToast(`メール取込エラー: ${err.message}`, 'error');
+    } finally {
+      allButtons.forEach((b) => b.classList.remove('loading'));
+    }
   }
 }
 
