@@ -87,6 +87,13 @@ export class GasApiClient {
     return this.postRequest('updateTransactionCategory', { txId, category, month });
   }
 
+  // クレカ明細の更新（金額・店名・ジャンル）
+  async updateTransaction(txId, updates, monthStr) {
+    if (!this.isConfigured()) return;
+    const month = monthStr || this.store.data.currentMonth;
+    return this.postRequest('updateTransaction', { txId, ...updates, month });
+  }
+
   // クレカ利用通知メールの同期実行（スプレッドシート反映）
   async syncCardEmails(monthStr, functionName) {
     if (!this.isConfigured()) {

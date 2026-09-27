@@ -527,29 +527,65 @@ const DEFAULT_DATA_202609 = {
         "emailId":  "1a0ba67641090a7f"
     },
     {
+        "id":  "tx-101",
+        "date":  null,
+        "name":  "水道",
+        "category":  "引落系、課金系",
+        "amount":  0,
+        "amountPending": true,
+        "group": "recurring",
+        "status":  "unsettled",
+        "emailId":  ""
+    },
+    {
         "id":  "tx-102",
         "date":  "2026/06/30",
         "name":  "Times",
         "category":  "月額課金",
         "amount":  880,
+        "group": "recurring",
+        "status":  "unsettled",
+        "emailId":  ""
+    },
+    {
+        "id":  "tx-103",
+        "date":  null,
+        "name":  "月額課金",
+        "category":  "引落系、課金系",
+        "amount":  0,
+        "amountPending": true,
+        "group": "recurring",
         "status":  "unsettled",
         "emailId":  ""
     },
     {
         "id":  "tx-104",
         "date":  "2026/07/08",
-        "name":  "レンタルサーバー",
-        "category":  "月額課金",
+        "name":  "東京ガス",
+        "category":  "引落系、課金系",
         "amount":  2637,
+        "group": "recurring",
         "status":  "unsettled",
         "emailId":  ""
     },
     {
         "id":  "tx-105",
         "date":  "2026/07/08",
-        "name":  "Applecare（安心代）",
+        "name":  "レンタルサーバー",
         "category":  "月額課金",
         "amount":  1280,
+        "group": "recurring",
+        "status":  "unsettled",
+        "emailId":  ""
+    },
+    {
+        "id":  "tx-106",
+        "date":  null,
+        "name":  "Applecare（安心代）",
+        "category":  "月額課金",
+        "amount":  0,
+        "amountPending": true,
+        "group": "recurring",
         "status":  "unsettled",
         "emailId":  ""
     },
@@ -559,6 +595,7 @@ const DEFAULT_DATA_202609 = {
         "name":  "AnyTime",
         "category":  "月額課金",
         "amount":  7900,
+        "group": "recurring",
         "status":  "unsettled",
         "emailId":  "1a09a69aa7dd7dce"
     },
@@ -568,6 +605,7 @@ const DEFAULT_DATA_202609 = {
         "name":  "Apple One",
         "category":  "月額課金",
         "amount":  1200,
+        "group": "recurring",
         "status":  "unsettled",
         "emailId":  ""
     },
@@ -577,6 +615,7 @@ const DEFAULT_DATA_202609 = {
         "name":  "iCloud",
         "category":  "月額課金",
         "amount":  150,
+        "group": "recurring",
         "status":  "unsettled",
         "emailId":  ""
     },
@@ -586,6 +625,7 @@ const DEFAULT_DATA_202609 = {
         "name":  "薬",
         "category":  "医療費",
         "amount":  8797,
+        "group": "recurring",
         "status":  "unsettled",
         "emailId":  ""
     },
@@ -595,6 +635,7 @@ const DEFAULT_DATA_202609 = {
         "name":  "WiFi",
         "category":  "通信費",
         "amount":  3960,
+        "group": "recurring",
         "status":  "unsettled",
         "emailId":  ""
     },
@@ -604,6 +645,7 @@ const DEFAULT_DATA_202609 = {
         "name":  "Amazonprime",
         "category":  "月額課金",
         "amount":  600,
+        "group": "recurring",
         "status":  "unsettled",
         "emailId":  ""
     },
@@ -613,6 +655,7 @@ const DEFAULT_DATA_202609 = {
         "name":  "定期",
         "category":  "交通費",
         "amount":  13120,
+        "group": "recurring",
         "status":  "unsettled",
         "emailId":  "1a05a2fed65d1969"
     },
@@ -622,15 +665,28 @@ const DEFAULT_DATA_202609 = {
         "name":  "Gemini",
         "category":  "月額課金",
         "amount":  2900,
+        "group": "recurring",
         "status":  "unsettled",
         "emailId":  ""
     },
     {
         "id":  "tx-115",
         "date":  null,
-        "name":  "YouTube Premium",
+        "name":  "サブスク",
         "category":  "月額課金",
         "amount":  1100,
+        "group": "recurring",
+        "status":  "unsettled",
+        "emailId":  ""
+    },
+    {
+        "id":  "tx-117",
+        "date":  null,
+        "name":  "YouTube Premium",
+        "category":  "月額課金",
+        "amount":  0,
+        "amountPending": true,
+        "group": "recurring",
         "status":  "unsettled",
         "emailId":  ""
     }
@@ -651,7 +707,17 @@ class KakeiboStore {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // 未確定の固定費項目（tx-101, tx-103, tx-106, tx-117等）が未登録の場合に補完
+        if (Array.isArray(parsed.transactions)) {
+          const existingIds = new Set(parsed.transactions.map(t => t.id));
+          DEFAULT_DATA_202609.transactions.forEach(defTx => {
+            if (!existingIds.has(defTx.id)) {
+              parsed.transactions.push(JSON.parse(JSON.stringify(defTx)));
+            }
+          });
+        }
+        return parsed;
       }
     } catch (e) {
       console.error('LocalStorage読み込み失敗:', e);
@@ -885,6 +951,9 @@ class KakeiboStore {
     const tx = this.data.transactions.find((t) => t.id === id);
     if (tx) {
       Object.assign(tx, updates);
+      if (updates.amount !== undefined && Number(updates.amount) > 0) {
+        tx.amountPending = false;
+      }
       this.saveData();
     }
   }

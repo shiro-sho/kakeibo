@@ -573,14 +573,15 @@ class AppController {
     modal.classList.add('active');
   }
 
-  // 明細アイテムのHTML生成（テーマ連動ジャンルバッジ & モーダルピッカー対応）
+  // 明細アイテムのHTML生成（テーマ連動ジャンルバッジ & 金額未確定バッジ対応）
   createTransactionHtml(tx) {
     const isRec = tx.group === 'recurring';
     const currentCat = tx.category || (isRec ? '引落系、課金系' : '未分類');
     const catColor = CATEGORY_COLORS[currentCat] || '#94a3b8';
+    const isPending = tx.amountPending || (isRec && (!tx.amount || Number(tx.amount) === 0));
 
     return `
-      <div class="timeline-item" data-tx-id="${tx.id}">
+      <div class="timeline-item ${isPending ? 'item-pending' : ''}" data-tx-id="${tx.id}">
         <div class="tx-main">
           <div class="tx-category-wrapper">
             <button type="button" class="tx-category-badge ${isRec ? 'tx-badge-recurring' : ''}" 
@@ -594,10 +595,16 @@ class AppController {
           </div>
           <div class="tx-info">
             <span class="tx-name">${tx.name}</span>
-            <span class="tx-date">${tx.date || '日付未定'}</span>
+            <span class="tx-date">${tx.date || (isRec ? '月末頃引落' : '日付未定')}</span>
           </div>
         </div>
-        <span class="tx-amount">¥${(tx.amount || 0).toLocaleString()}</span>
+        ${isPending
+          ? `<button type="button" class="tx-amount-pending-badge" title="タップして金額を記入">
+               <span class="pending-dot"></span>
+               <span>未確定 (記入する)</span>
+             </button>`
+          : `<span class="tx-amount">¥${(Number(tx.amount) || 0).toLocaleString()}</span>`
+        }
       </div>
     `;
   }
@@ -615,7 +622,7 @@ class AppController {
       });
     });
 
-    // 明細行クリックで編集モーダルを開く
+    // 明細行クリック（または未確定バッジクリック）で編集モーダルを開く
     container.querySelectorAll('.timeline-item').forEach((item) => {
       item.addEventListener('click', () => {
         const txId = item.dataset.txId;
@@ -627,16 +634,39 @@ class AppController {
     });
   }
 
-  // 明細編集モーダルを開く
+  // 明細編集モーダルを開く（未確定項目の金額記入に対応）
   openEditTxModal(tx) {
     const m = document.getElementById('modal-edit-tx');
     if (!m) return;
+    const isRec = tx.group === 'recurring';
+    const isPending = tx.amountPending || (isRec && (!tx.amount || Number(tx.amount) === 0));
+
     document.getElementById('edit-tx-id').value = tx.id;
     document.getElementById('edit-tx-name').value = tx.name || '';
-    document.getElementById('edit-tx-amount').value = tx.amount || 0;
+
+    const amountInput = document.getElementById('edit-tx-amount');
+    if (amountInput) {
+      amountInput.value = isPending ? '' : (tx.amount || 0);
+      amountInput.placeholder = isPending ? '金額を入力 (例: 3500)' : '金額';
+    }
+
     const catSelect = document.getElementById('edit-tx-category');
-    if (catSelect) catSelect.value = tx.category || '食費';
+    if (catSelect) catSelect.value = tx.category || (isRec ? '引落系、課金系' : '未分類');
+
+    const modalTitle = m.querySelector('.modal-title');
+    if (modalTitle) {
+      modalTitle.textContent = isPending ? `「${tx.name}」の金額を入力` : '明細の編集';
+    }
+
     m.classList.add('active');
+
+    // 未確定項目の場合は自動的に金額入力フィールドにフォーカス
+    if (isPending && amountInput) {
+      setTimeout(() => {
+        amountInput.focus();
+        amountInput.select?.();
+      }, 150);
+    }
   }
 
   // 5. 直近の明細（ホーム用 - 日付降順の最新5件）
@@ -758,12 +788,18 @@ class AppController {
       </div>
     `;
 
+    const pendingCount = recurringTxList.filter(t => t.amountPending || (Number(t.amount) === 0)).length;
+    const pendingBadgeHtml = pendingCount > 0 
+      ? `<span class="tx-pending-count-badge" title="${pendingCount}件の金額が未確定です">未確定 ${pendingCount}件</span>` 
+      : '';
+
     const recurringHeaderHtml = `
       <div class="tx-group-header recurring">
         <div class="tx-group-title-wrap">
           <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
           <span class="tx-group-title">固定費・生活引落（光熱費・サブスク等）</span>
           <span class="tx-group-count">${recurringTxList.length}件</span>
+          ${pendingBadgeHtml}
         </div>
         <span class="tx-group-total">¥${recurringTotal.toLocaleString()}</span>
       </div>
@@ -1126,25 +1162,35 @@ class AppController {
       document.getElementById('form-add-tx')?.reset();
     });
 
-    // 明細編集
+    // 明細編集（金額の入力・更新）
     document.getElementById('form-edit-tx')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = document.getElementById('edit-tx-id').value;
       const name = document.getElementById('edit-tx-name').value.trim();
-      const amount = Number(document.getElementById('edit-tx-amount').value);
+      const amountVal = document.getElementById('edit-tx-amount').value;
+      const amount = amountVal === '' ? 0 : Number(amountVal);
       const category = document.getElementById('edit-tx-category').value;
 
-      store.updateTransaction(id, { name, amount, category });
+      store.updateTransaction(id, { 
+        name, 
+        amount, 
+        category, 
+        amountPending: (amount === 0) 
+      });
       document.getElementById('modal-edit-tx')?.classList.remove('active');
-      showToast('明細を更新しました');
+      showToast(amount > 0 ? `「${name}」の金額（¥${amount.toLocaleString()}）を保存しました` : '明細を更新しました');
 
-      // GAS（スプレッドシートC列）へ非同期保存
+      // GAS（スプレッドシートD列・B列・C列）へ非同期保存
       try {
         if (this.api.isConfigured()) {
-          await this.api.updateTransactionCategory(id, category, store.data.currentMonth);
+          const res = await this.api.updateTransaction(id, { name, amount, category }, store.data.currentMonth);
+          if (res && res.status === 'success') {
+            console.log('スプレッドシートへの明細更新成功:', res);
+          }
         }
       } catch (err) {
-        console.warn('スプレッドシートへの明細カテゴリ反映警告:', err);
+        console.warn('スプレッドシートへの明細更新警告:', err);
+        showToast('スプレッドシートへの反映に失敗しました', 'warning');
       }
     });
 
