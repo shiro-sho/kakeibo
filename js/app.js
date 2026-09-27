@@ -530,15 +530,12 @@ class AppController {
 
     grid.innerHTML = SPREADSHEET_CATEGORIES.map((cat) => {
       const color = CATEGORY_COLORS[cat] || '#94a3b8';
-      const isActive = cat === currentCat ? 'active' : '';
+      const isActive = cat === currentCat;
       return `
-        <button type="button" class="category-picker-card ${isActive}" data-category="${cat}">
-          <div class="cat-preview-box">
-            <div class="cat-preview-color" style="background: ${color};"></div>
-            <div class="cat-preview-color" style="background: ${color}; opacity: 0.5;"></div>
-            <div class="cat-preview-color" style="background: rgba(255, 255, 255, 0.08);"></div>
-          </div>
-          <span class="cat-picker-name">${cat}</span>
+        <button type="button" class="category-picker-card category-picker-tab ${isActive ? 'active' : ''}" data-category="${cat}">
+          <span class="cat-tab-dot" style="background: ${color};"></span>
+          <span class="cat-picker-name cat-tab-name">${cat}</span>
+          ${isActive ? '<span class="cat-tab-check">✓</span>' : ''}
         </button>
       `;
     }).join('');
@@ -548,26 +545,27 @@ class AppController {
         const newCat = card.dataset.category;
         modal.classList.remove('active');
 
-        // 1. バッジの表示テキストとドット色を即座に更新
+        // 1. バッジの表示テキストとドット色を即座に更新（体感ラグゼロ）
         const badgeName = document.querySelector(`.timeline-item[data-tx-id="${txId}"] .badge-cat-name`);
         if (badgeName) badgeName.textContent = newCat;
         const badgeDot = document.querySelector(`.timeline-item[data-tx-id="${txId}"] .badge-cat-dot`);
         if (badgeDot) badgeDot.style.background = CATEGORY_COLORS[newCat] || '#94a3b8';
 
-        // 2. ストア更新 & 再集計
+        // 2. ストア更新 & LocalStorage保存（自動で全コンポーネントが再描画されます）
         store.updateTransactionCategory(txId, newCat);
         showToast(`ジャンルを「${newCat}」に変更しました`);
 
-        // 3. サマリーとグラフ等の再描画
-        this.renderSummary(store.getSummary());
-
-        // 4. GAS（スプレッドシートC列）へ非同期保存
+        // 3. GAS（スプレッドシートC列）へ非同期永続化
         try {
           if (this.api.isConfigured()) {
-            await this.api.updateTransactionCategory(txId, newCat, store.data.currentMonth);
+            const res = await this.api.updateTransactionCategory(txId, newCat, store.data.currentMonth);
+            if (res && res.status === 'success') {
+              console.log('スプレッドシート更新成功:', res);
+            }
           }
         } catch (err) {
           console.warn('スプレッドシートへのカテゴリ反映警告:', err);
+          showToast('スプレッドシートへの反映に失敗しました', 'warning');
         }
       });
     });
@@ -1129,7 +1127,7 @@ class AppController {
     });
 
     // 明細編集
-    document.getElementById('form-edit-tx')?.addEventListener('submit', (e) => {
+    document.getElementById('form-edit-tx')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = document.getElementById('edit-tx-id').value;
       const name = document.getElementById('edit-tx-name').value.trim();
@@ -1138,6 +1136,16 @@ class AppController {
 
       store.updateTransaction(id, { name, amount, category });
       document.getElementById('modal-edit-tx')?.classList.remove('active');
+      showToast('明細を更新しました');
+
+      // GAS（スプレッドシートC列）へ非同期保存
+      try {
+        if (this.api.isConfigured()) {
+          await this.api.updateTransactionCategory(id, category, store.data.currentMonth);
+        }
+      } catch (err) {
+        console.warn('スプレッドシートへの明細カテゴリ反映警告:', err);
+      }
     });
 
     // 明細削除

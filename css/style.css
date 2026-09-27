@@ -3169,55 +3169,71 @@ select option,
   background: rgba(0, 0, 0, 0.2);
 }
 
-@media (min-width: 400px) {
+.category-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  max-height: 58vh;
+  overflow-y: auto;
+  padding: 4px 2px;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 580px) {
   .category-picker-grid {
     grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
   }
 }
 
-.category-picker-card {
+/* タブデザイン（セグメントタブ .tx-segment-btn に平仄を合わせた洗練されたデザイン） */
+.category-picker-card,
+.category-picker-tab {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   gap: 8px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1.5px solid var(--border-glass);
-  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
   cursor: pointer;
   position: relative;
   transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
   user-select: none;
   text-align: left;
-}
-
-.category-picker-card:hover {
-  background: rgba(255, 255, 255, 0.09);
-  border-color: var(--accent-primary);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px var(--accent-primary-glow);
-}
-
-.category-picker-card:active {
-  transform: scale(0.97);
-}
-
-.cat-preview-box {
   width: 100%;
-  height: 24px;
-  border-radius: 7px;
-  display: flex;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-sizing: border-box;
 }
 
-.cat-preview-color {
+.category-picker-card:hover,
+.category-picker-tab:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+}
+
+.category-picker-card:active,
+.category-picker-tab:active {
+  transform: scale(0.98);
+}
+
+/* 控えめで上品なカラードット（絵文字なし・大色なし） */
+.cat-tab-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+}
+
+/* ジャンル名テキスト */
+.cat-picker-name,
+.cat-tab-name {
   flex: 1;
-  height: 100%;
-}
-
-.cat-picker-name {
-  font-size: 0.84rem;
-  font-weight: 700;
+  font-size: 0.82rem;
+  font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -3225,51 +3241,61 @@ select option,
   letter-spacing: -0.01em;
 }
 
-/* 選択中のカードのアクティブスタイル */
-.category-picker-card.active {
+/* アクティブタブ（セグメントタブのアクティブ状態に準拠） */
+.category-picker-card.active,
+.category-picker-tab.active {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.08) 100%);
   border-color: var(--accent-primary);
-  background: rgba(16, 185, 129, 0.12);
-  box-shadow: 0 0 16px var(--accent-primary-glow), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.25);
 }
 
-.category-picker-card.active::after {
-  content: '✓';
-  position: absolute;
-  top: 7px;
-  right: 7px;
-  font-size: 0.68rem;
+.category-picker-card.active .cat-tab-name,
+.category-picker-card.active .cat-picker-name,
+.category-picker-tab.active .cat-tab-name {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* チェックマークバッジ（セグメントバッジ風の洗練されたインジケーター） */
+.cat-tab-check {
+  font-size: 0.65rem;
   font-weight: 900;
   color: #ffffff;
   background: var(--accent-primary);
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+  margin-left: auto;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
 }
 
 /* テーマ別：Desert/Gold テーマ */
 [data-theme="desert"] .category-picker-card,
 [data-theme="gold"] .category-picker-card {
-  background: rgba(45, 38, 30, 0.5);
-  border-color: rgba(212, 175, 55, 0.22);
+  background: rgba(45, 38, 30, 0.6);
+  border-color: rgba(212, 175, 55, 0.25);
 }
 [data-theme="desert"] .category-picker-card:hover,
 [data-theme="gold"] .category-picker-card:hover {
-  background: rgba(60, 50, 40, 0.75);
+  background: rgba(60, 50, 40, 0.85);
   border-color: #d4af37;
-  box-shadow: 0 6px 18px rgba(212, 175, 55, 0.25);
 }
 [data-theme="desert"] .category-picker-card.active,
 [data-theme="gold"] .category-picker-card.active {
-  background: rgba(212, 175, 55, 0.16);
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.28) 0%, rgba(212, 175, 55, 0.12) 100%);
   border-color: #d4af37;
-  box-shadow: 0 0 16px rgba(212, 175, 55, 0.3);
+  box-shadow: 0 3px 12px rgba(212, 175, 55, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3);
 }
-[data-theme="desert"] .category-picker-card.active::after,
-[data-theme="gold"] .category-picker-card.active::after {
+[data-theme="desert"] .category-picker-card.active .cat-picker-name,
+[data-theme="gold"] .category-picker-card.active .cat-picker-name {
+  color: #fef08a;
+}
+[data-theme="desert"] .cat-tab-check,
+[data-theme="gold"] .cat-tab-check {
   background: #d4af37;
   color: #1a1610;
 }
@@ -3277,23 +3303,26 @@ select option,
 /* テーマ別：Natural/Indigo テーマ */
 [data-theme="natural"] .category-picker-card,
 [data-theme="indigo"] .category-picker-card {
-  background: rgba(30, 36, 50, 0.5);
-  border-color: rgba(99, 102, 241, 0.22);
+  background: rgba(30, 36, 50, 0.6);
+  border-color: rgba(99, 102, 241, 0.25);
 }
 [data-theme="natural"] .category-picker-card:hover,
 [data-theme="indigo"] .category-picker-card:hover {
-  background: rgba(40, 48, 66, 0.75);
+  background: rgba(40, 48, 66, 0.85);
   border-color: #6366f1;
-  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.25);
 }
 [data-theme="natural"] .category-picker-card.active,
 [data-theme="indigo"] .category-picker-card.active {
-  background: rgba(99, 102, 241, 0.16);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.28) 0%, rgba(99, 102, 241, 0.12) 100%);
   border-color: #6366f1;
-  box-shadow: 0 0 16px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 3px 12px rgba(99, 102, 241, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3);
 }
-[data-theme="natural"] .category-picker-card.active::after,
-[data-theme="indigo"] .category-picker-card.active::after {
+[data-theme="natural"] .category-picker-card.active .cat-picker-name,
+[data-theme="indigo"] .category-picker-card.active .cat-picker-name {
+  color: #ffffff;
+}
+[data-theme="natural"] .cat-tab-check,
+[data-theme="indigo"] .cat-tab-check {
   background: #6366f1;
   color: #ffffff;
 }
@@ -3301,32 +3330,32 @@ select option,
 /* テーマ別：White/Light モード */
 [data-theme="white"] .category-picker-card,
 [data-theme="light"] .category-picker-card {
-  background: #f8fafc;
-  border-color: #e2e8f0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 [data-theme="white"] .category-picker-card:hover,
 [data-theme="light"] .category-picker-card:hover {
-  background: #ffffff;
+  background: #e2e8f0;
   border-color: #059669;
-  box-shadow: 0 6px 18px rgba(5, 150, 105, 0.15);
-}
-[data-theme="white"] .cat-preview-box,
-[data-theme="light"] .cat-preview-box {
-  border-color: rgba(0, 0, 0, 0.1);
 }
 [data-theme="white"] .cat-picker-name,
 [data-theme="light"] .cat-picker-name {
-  color: #1e293b;
+  color: #0f172a;
 }
 [data-theme="white"] .category-picker-card.active,
 [data-theme="light"] .category-picker-card.active {
-  background: rgba(5, 150, 105, 0.08);
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
   border-color: #059669;
-  box-shadow: 0 0 14px rgba(5, 150, 105, 0.18);
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.2);
 }
-[data-theme="white"] .category-picker-card.active::after,
-[data-theme="light"] .category-picker-card.active::after {
+[data-theme="white"] .category-picker-card.active .cat-picker-name,
+[data-theme="light"] .category-picker-card.active .cat-picker-name {
+  color: #065f46;
+  font-weight: 700;
+}
+[data-theme="white"] .cat-tab-check,
+[data-theme="light"] .cat-tab-check {
   background: #059669;
   color: #ffffff;
 }
