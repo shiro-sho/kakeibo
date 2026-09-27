@@ -38,32 +38,32 @@ function sortTransactionsDesc(list) {
   });
 }
 
-// カテゴリ別アイコン（絵文字）定義
-const CATEGORY_ICONS = {
-  'Suica': '💳',
-  '飲み物代': '☕',
-  '昼ご飯': '🍱',
-  '外食': '🍽️',
-  '交際費': '🍻',
-  'お菓子代': '🍫',
-  '食費': '🍙',
-  '日用品費': '🧴',
-  'デート': '🥂',
-  '夜食代': '🍜',
-  '交通費': '🚃',
-  'おやつ': '🍰',
-  'B/43': '📱',
-  '美容費': '💈',
-  '医療費': '💊',
-  '雑費': '📦',
-  '被服費': '👕',
-  '娯楽費': '🎮',
-  '通信費': '📶',
-  '水道光熱費': '💡',
-  '月額課金': '🔄',
-  '勉強・資格': '📚',
-  '引落系、課金系': '🔄',
-  '未分類': '🏷️'
+// カテゴリ別カラーパレット定義（デザインタブと連動した洗練されたチタンカラー）
+const CATEGORY_COLORS = {
+  '食費': '#f59e0b',
+  '飲み物代': '#d97706',
+  '昼ご飯': '#10b981',
+  '外食': '#f97316',
+  '交際費': '#ec4899',
+  'お菓子代': '#f43f5e',
+  'おやつ': '#fb7185',
+  '夜食代': '#8b5cf6',
+  '日用品費': '#06b6d4',
+  'デート': '#a855f7',
+  '交通費': '#3b82f6',
+  'Suica': '#0284c7',
+  'B/43': '#6366f1',
+  '美容費': '#ec4899',
+  '医療費': '#14b8a6',
+  '被服費': '#8b5cf6',
+  '娯楽費': '#e11d48',
+  '通信費': '#0ea5e9',
+  '水道光熱費': '#eab308',
+  '月額課金': '#64748b',
+  '勉強・資格': '#10b981',
+  '雑費': '#94a3b8',
+  '引落系、課金系': '#8b5cf6',
+  '未分類': '#94a3b8'
 };
 
 class AppController {
@@ -529,12 +529,16 @@ class AppController {
     }
 
     grid.innerHTML = SPREADSHEET_CATEGORIES.map((cat) => {
-      const icon = CATEGORY_ICONS[cat] || '🏷️';
+      const color = CATEGORY_COLORS[cat] || '#94a3b8';
       const isActive = cat === currentCat ? 'active' : '';
       return `
         <button type="button" class="category-picker-card ${isActive}" data-category="${cat}">
-          <span class="category-picker-icon">${icon}</span>
-          <span class="category-picker-name">${cat}</span>
+          <div class="cat-preview-box">
+            <div class="cat-preview-color" style="background: ${color};"></div>
+            <div class="cat-preview-color" style="background: ${color}; opacity: 0.5;"></div>
+            <div class="cat-preview-color" style="background: rgba(255, 255, 255, 0.08);"></div>
+          </div>
+          <span class="cat-picker-name">${cat}</span>
         </button>
       `;
     }).join('');
@@ -544,11 +548,11 @@ class AppController {
         const newCat = card.dataset.category;
         modal.classList.remove('active');
 
-        // 1. バッジの表示テキストを即座に更新
+        // 1. バッジの表示テキストとドット色を即座に更新
         const badgeName = document.querySelector(`.timeline-item[data-tx-id="${txId}"] .badge-cat-name`);
         if (badgeName) badgeName.textContent = newCat;
-        const badgeIcon = document.querySelector(`.timeline-item[data-tx-id="${txId}"] .badge-cat-icon`);
-        if (badgeIcon) badgeIcon.textContent = CATEGORY_ICONS[newCat] || '🏷️';
+        const badgeDot = document.querySelector(`.timeline-item[data-tx-id="${txId}"] .badge-cat-dot`);
+        if (badgeDot) badgeDot.style.background = CATEGORY_COLORS[newCat] || '#94a3b8';
 
         // 2. ストア更新 & 再集計
         store.updateTransactionCategory(txId, newCat);
@@ -575,7 +579,7 @@ class AppController {
   createTransactionHtml(tx) {
     const isRec = tx.group === 'recurring';
     const currentCat = tx.category || (isRec ? '引落系、課金系' : '未分類');
-    const catIcon = CATEGORY_ICONS[currentCat] || '🏷️';
+    const catColor = CATEGORY_COLORS[currentCat] || '#94a3b8';
 
     return `
       <div class="timeline-item" data-tx-id="${tx.id}">
@@ -585,7 +589,7 @@ class AppController {
                     data-tx-id="${tx.id}" 
                     data-current-cat="${currentCat}"
                     title="ジャンルを変更する">
-              <span class="badge-cat-icon">${catIcon}</span>
+              <span class="badge-cat-dot" style="background: ${catColor};"></span>
               <span class="badge-cat-name">${currentCat}</span>
               <svg class="svg-icon cat-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </button>

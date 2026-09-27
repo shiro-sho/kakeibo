@@ -1329,12 +1329,15 @@ body {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
-  padding: 16px 18px;
+  padding: 13px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   box-shadow: var(--shadow-card);
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .timeline-item:active {
@@ -1344,47 +1347,47 @@ body {
 .tx-main {
   display: flex;
   align-items: center;
-  gap: 14px;
-}
-
-.tx-category-badge {
-  padding: 5px 12px;
-  border-radius: var(--radius-full);
-  font-size: 0.72rem;
-  font-weight: 700;
-  background: rgba(139, 92, 246, 0.15);
-  color: #c4b5fd;
-  border: 1px solid rgba(139, 92, 246, 0.25);
-  white-space: nowrap;
+  gap: 10px;
+  flex: 1;
+  min-width: 0; /* フレックス縮小を許可 */
+  overflow: hidden;
 }
 
 .tx-info {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  flex: 1;
+  min-width: 0; /* 店名の自動省略を確実に発動 */
+  overflow: hidden;
 }
 
 .tx-name {
-  font-size: 0.92rem;
+  font-size: 0.90rem;
   font-weight: 700;
   color: var(--text-primary);
-  max-width: 170px;
+  width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .tx-date {
-  font-size: 0.72rem;
+  font-size: 0.70rem;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .tx-amount {
   font-family: var(--font-display);
-  font-size: 1.15rem;
+  font-size: 1.10rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-primary);
+  flex-shrink: 0; /* 金額は絶対に縮めずはみ出させない */
+  white-space: nowrap;
+  text-align: right;
+  margin-left: 10px;
 }
 
 /* ==========================================================================
@@ -2967,40 +2970,43 @@ select option,
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
+  gap: 5px;
+  padding: 4px 10px;
   border-radius: var(--radius-full);
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   font-family: var(--font-family);
   font-weight: 700;
-  background: rgba(139, 92, 246, 0.18);
+  background: rgba(139, 92, 246, 0.16);
   color: #c4b5fd;
   border: 1px solid rgba(139, 92, 246, 0.35);
   white-space: nowrap;
   cursor: pointer;
   outline: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
   user-select: none;
+  flex-shrink: 0;
 }
 
-.badge-cat-icon {
-  font-size: 0.82rem;
-  line-height: 1;
+.badge-cat-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .tx-category-badge:hover {
-  background: rgba(139, 92, 246, 0.32);
-  border-color: rgba(139, 92, 246, 0.65);
+  background: rgba(139, 92, 246, 0.28);
+  border-color: rgba(139, 92, 246, 0.6);
   color: #ede9fe;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.28);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
 }
 
 .tx-category-badge .cat-arrow {
-  opacity: 0.75;
-  width: 10px;
-  height: 10px;
+  opacity: 0.7;
+  width: 9px;
+  height: 9px;
   stroke: currentColor;
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
@@ -3171,15 +3177,12 @@ select option,
 
 .category-picker-card {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid var(--border-glass);
   border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  font-size: 0.88rem;
-  font-weight: 600;
   cursor: pointer;
   position: relative;
   transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -3188,116 +3191,111 @@ select option,
 }
 
 .category-picker-card:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.09);
   border-color: var(--accent-primary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 14px var(--accent-primary-glow);
+  box-shadow: 0 6px 18px var(--accent-primary-glow);
 }
 
 .category-picker-card:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
 }
 
-.category-picker-icon {
-  font-size: 1.25rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.06);
-  flex-shrink: 0;
+.cat-preview-box {
+  width: 100%;
+  height: 24px;
+  border-radius: 7px;
+  display: flex;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.category-picker-name {
+.cat-preview-color {
   flex: 1;
+  height: 100%;
+}
+
+.cat-picker-name {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 0.88rem;
   letter-spacing: -0.01em;
 }
 
 /* 選択中のカードのアクティブスタイル */
 .category-picker-card.active {
-  background: rgba(16, 185, 129, 0.18);
-  border-color: #10b981;
-  box-shadow: 0 0 16px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-}
-
-.category-picker-card.active .category-picker-icon {
-  background: #10b981;
-  color: #ffffff;
+  border-color: var(--accent-primary);
+  background: rgba(16, 185, 129, 0.12);
+  box-shadow: 0 0 16px var(--accent-primary-glow), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .category-picker-card.active::after {
   content: '✓';
   position: absolute;
-  top: 6px;
-  right: 8px;
-  font-size: 0.72rem;
+  top: 7px;
+  right: 7px;
+  font-size: 0.68rem;
   font-weight: 900;
-  color: #34d399;
+  color: #ffffff;
+  background: var(--accent-primary);
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 /* テーマ別：Desert/Gold テーマ */
 [data-theme="desert"] .category-picker-card,
 [data-theme="gold"] .category-picker-card {
-  background: rgba(45, 38, 30, 0.6);
+  background: rgba(45, 38, 30, 0.5);
   border-color: rgba(212, 175, 55, 0.22);
 }
 [data-theme="desert"] .category-picker-card:hover,
 [data-theme="gold"] .category-picker-card:hover {
-  background: rgba(60, 50, 40, 0.8);
+  background: rgba(60, 50, 40, 0.75);
   border-color: #d4af37;
-  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.3);
+  box-shadow: 0 6px 18px rgba(212, 175, 55, 0.25);
 }
 [data-theme="desert"] .category-picker-card.active,
 [data-theme="gold"] .category-picker-card.active {
-  background: rgba(212, 175, 55, 0.2);
+  background: rgba(212, 175, 55, 0.16);
   border-color: #d4af37;
-  box-shadow: 0 0 16px rgba(212, 175, 55, 0.35);
-  color: #fff9ed;
-}
-[data-theme="desert"] .category-picker-card.active .category-picker-icon,
-[data-theme="gold"] .category-picker-card.active .category-picker-icon {
-  background: #d4af37;
-  color: #1a1610;
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.3);
 }
 [data-theme="desert"] .category-picker-card.active::after,
 [data-theme="gold"] .category-picker-card.active::after {
-  color: #fde047;
+  background: #d4af37;
+  color: #1a1610;
 }
 
 /* テーマ別：Natural/Indigo テーマ */
 [data-theme="natural"] .category-picker-card,
 [data-theme="indigo"] .category-picker-card {
-  background: rgba(30, 36, 50, 0.6);
+  background: rgba(30, 36, 50, 0.5);
   border-color: rgba(99, 102, 241, 0.22);
 }
 [data-theme="natural"] .category-picker-card:hover,
 [data-theme="indigo"] .category-picker-card:hover {
-  background: rgba(40, 48, 66, 0.8);
+  background: rgba(40, 48, 66, 0.75);
   border-color: #6366f1;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.25);
 }
 [data-theme="natural"] .category-picker-card.active,
 [data-theme="indigo"] .category-picker-card.active {
-  background: rgba(99, 102, 241, 0.2);
+  background: rgba(99, 102, 241, 0.16);
   border-color: #6366f1;
-  box-shadow: 0 0 16px rgba(99, 102, 241, 0.35);
-  color: #ffffff;
-}
-[data-theme="natural"] .category-picker-card.active .category-picker-icon,
-[data-theme="indigo"] .category-picker-card.active .category-picker-icon {
-  background: #6366f1;
-  color: #ffffff;
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.3);
 }
 [data-theme="natural"] .category-picker-card.active::after,
 [data-theme="indigo"] .category-picker-card.active::after {
-  color: #a5b4fc;
+  background: #6366f1;
+  color: #ffffff;
 }
 
 /* テーマ別：White/Light モード */
@@ -3305,35 +3303,32 @@ select option,
 [data-theme="light"] .category-picker-card {
   background: #f8fafc;
   border-color: #e2e8f0;
-  color: #1e293b;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 [data-theme="white"] .category-picker-card:hover,
 [data-theme="light"] .category-picker-card:hover {
   background: #ffffff;
   border-color: #059669;
-  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
-  color: #059669;
+  box-shadow: 0 6px 18px rgba(5, 150, 105, 0.15);
 }
-[data-theme="white"] .category-picker-card .category-picker-icon,
-[data-theme="light"] .category-picker-card .category-picker-icon {
-  background: #e2e8f0;
+[data-theme="white"] .cat-preview-box,
+[data-theme="light"] .cat-preview-box {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+[data-theme="white"] .cat-picker-name,
+[data-theme="light"] .cat-picker-name {
+  color: #1e293b;
 }
 [data-theme="white"] .category-picker-card.active,
 [data-theme="light"] .category-picker-card.active {
-  background: rgba(5, 150, 105, 0.1);
+  background: rgba(5, 150, 105, 0.08);
   border-color: #059669;
-  box-shadow: 0 0 12px rgba(5, 150, 105, 0.2);
-  color: #065f46;
-}
-[data-theme="white"] .category-picker-card.active .category-picker-icon,
-[data-theme="light"] .category-picker-card.active .category-picker-icon {
-  background: #059669;
-  color: #ffffff;
+  box-shadow: 0 0 14px rgba(5, 150, 105, 0.18);
 }
 [data-theme="white"] .category-picker-card.active::after,
 [data-theme="light"] .category-picker-card.active::after {
-  color: #059669;
+  background: #059669;
+  color: #ffffff;
 }
 
 /* ==========================================================================
