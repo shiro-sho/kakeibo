@@ -108,7 +108,10 @@ class AppController {
     if (this.api.isConfigured()) {
       this.api.fetchMonthData(store.data.currentMonth || '202609')
         .then((data) => {
-          if (data) store.applyMonthData(data);
+          if (data) {
+            store.applyMonthData(data);
+            this.render(store.getSummary());
+          }
         })
         .catch((err) => {
           console.warn('自動データ同期スキップ:', err);
@@ -1338,6 +1341,7 @@ class AppController {
           const data = await this.api.fetchMonthData(store.data.currentMonth || '202609');
           if (data) {
             store.applyMonthData(data);
+            this.render(store.getSummary());
           }
           alert('スプレッドシートとの接続・データ同期に成功しました！🎉');
         } catch (err) {
@@ -1362,6 +1366,7 @@ class AppController {
     document.getElementById('btn-reset-data')?.addEventListener('click', () => {
       if (confirm('スプレッドシートから読み取った初期状態にデータを戻しますか？')) {
         store.resetToDefault();
+        this.render(store.getSummary());
         alert('初期データを復元しました。');
       }
     });
@@ -1388,6 +1393,7 @@ class AppController {
       const data = await this.api.fetchMonthData(store.data.currentMonth || '202609');
       if (data) {
         store.applyMonthData(data);
+        this.render(store.getSummary());
       }
       btn?.classList.remove('spinning');
       showToast('スプレッドシートから最新データを同期しました！');
@@ -1574,6 +1580,7 @@ class AppController {
           const freshData = await this.api.fetchMonthData(store.data.currentMonth);
           if (freshData) {
             store.applyMonthData(freshData);
+            this.render(store.getSummary());
           }
         } catch (fetchErr) {
           console.warn('メール同期後のデータ再取得警告:', fetchErr);

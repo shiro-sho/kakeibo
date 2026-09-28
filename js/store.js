@@ -735,6 +735,33 @@ class KakeiboStore {
             }
           });
         }
+
+        // 固定費（fixedExpenses）の整合性担保
+        if (Array.isArray(parsed.fixedExpenses)) {
+          // medical_loan の ID 互換性補正
+          const oldLoan = parsed.fixedExpenses.find(f => f.id === 'loan');
+          if (oldLoan && !parsed.fixedExpenses.some(f => f.id === 'medical_loan')) {
+            oldLoan.id = 'medical_loan';
+            oldLoan.name = '医療ローン';
+          }
+          // クレカ代の金額同期
+          if (parsed.currentMonthCardBill !== undefined) {
+            const cc = parsed.fixedExpenses.find(f => f.id === 'credit_card');
+            if (cc && cc.amount !== parsed.currentMonthCardBill) {
+              cc.amount = parsed.currentMonthCardBill;
+            }
+          }
+          // 家賃の金額同期
+          if (parsed.rentAmount !== undefined) {
+            const r = parsed.fixedExpenses.find(f => f.id === 'rent');
+            if (r) r.amount = parsed.rentAmount;
+          }
+          // 医療ローンの金額同期
+          if (parsed.loanAmount !== undefined) {
+            const l = parsed.fixedExpenses.find(f => f.id === 'medical_loan');
+            if (l) l.amount = parsed.loanAmount;
+          }
+        }
         return parsed;
       }
     } catch (e) {
@@ -1083,38 +1110,50 @@ class KakeiboStore {
       this.data.bankTransfers = allTransfers;
     }
 
+    // 1. 今月引落のクレカ代（手入力 D20 / C4）
     if (apiData.currentMonthCardBill !== undefined) {
       this.data.currentMonthCardBill = Number(apiData.currentMonthCardBill);
+      const cc = this.data.fixedExpenses.find((f) => f.id === 'credit_card');
+      if (cc) cc.amount = this.data.currentMonthCardBill;
     }
     if (apiData.cardSettled !== undefined) {
       this.data.cardSettled = !!apiData.cardSettled;
       const cc = this.data.fixedExpenses.find((f) => f.id === 'credit_card');
       if (cc) cc.settled = this.data.cardSettled;
     }
-    if (apiData.rentSettled !== undefined) {
-      this.data.rentSettled = !!apiData.rentSettled;
-      const r = this.data.fixedExpenses.find((f) => f.id === 'rent');
-      if (r) r.settled = this.data.rentSettled;
-    }
-    if (apiData.loanSettled !== undefined) {
-      this.data.loanSettled = !!apiData.loanSettled;
-      const l = this.data.fixedExpenses.find((f) => f.id === 'loan');
-      if (l) l.settled = this.data.loanSettled;
-    }
+
+    // 2. 家賃（手入力 B15 / C5）
     if (apiData.rentAmount !== undefined) {
       this.data.rentAmount = Number(apiData.rentAmount);
       const r = this.data.fixedExpenses.find((f) => f.id === 'rent');
       if (r) r.amount = this.data.rentAmount;
     }
+    if (apiData.rentSettled !== undefined) {
+      this.data.rentSettled = !!apiData.rentSettled;
+      const r = this.data.fixedExpenses.find((f) => f.id === 'rent');
+      if (r) r.settled = this.data.rentSettled;
+    }
+
+    // 3. 医療ローン（手入力 B16 / C6）※id: medical_loan
     if (apiData.loanAmount !== undefined) {
       this.data.loanAmount = Number(apiData.loanAmount);
-      const l = this.data.fixedExpenses.find((f) => f.id === 'loan');
+      const l = this.data.fixedExpenses.find((f) => f.id === 'medical_loan' || f.id === 'loan');
       if (l) l.amount = this.data.loanAmount;
     }
-    if (apiData.currentSalary !== undefined && this.data.salaries) {
+    if (apiData.loanSettled !== undefined) {
+      this.data.loanSettled = !!apiData.loanSettled;
+      const l = this.data.fixedExpenses.find((f) => f.id === 'medical_loan' || f.id === 'loan');
+      if (l) l.settled = this.data.loanSettled;
+    }
+
+    // 4. 給与見込み（手入力 D22 / D26）
+    if (!this.data.salaries) {
+      this.data.salaries = { currentMonth: 250000, nextMonth: 250000 };
+    }
+    if (apiData.currentSalary !== undefined) {
       this.data.salaries.currentMonth = Number(apiData.currentSalary);
     }
-    if (apiData.nextSalary !== undefined && this.data.salaries) {
+    if (apiData.nextSalary !== undefined) {
       this.data.salaries.nextMonth = Number(apiData.nextSalary);
     }
 
