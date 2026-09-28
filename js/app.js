@@ -2,9 +2,9 @@
  * アプリメインコントローラー（UIレンダリング・インタラクション）
  */
 
-import { store, SPREADSHEET_CATEGORIES } from './store.js';
-import { ChartRenderer } from './charts.js';
-import { GasApiClient } from './api.js';
+import { store, SPREADSHEET_CATEGORIES } from './store.js?v=20260928_4';
+import { ChartRenderer } from './charts.js?v=20260928_4';
+import { GasApiClient } from './api.js?v=20260928_4';
 
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toast-container');
@@ -291,7 +291,10 @@ class AppController {
     if (viewName === 'analytics') {
       setTimeout(() => {
         this.chartRenderer.renderCategoryBarChart(store.getSummary().categoryTotals);
-      }, 100);
+      }, 50);
+      setTimeout(() => {
+        this.chartRenderer.renderCategoryBarChart(store.getSummary().categoryTotals);
+      }, 250);
     }
 
     // 画面トップへスクロール
@@ -354,16 +357,38 @@ class AppController {
     if (elCalcCurrent) elCalcCurrent.textContent = `¥${s.totalCurrentBalance.toLocaleString()}`;
     if (elCalcCurDeduct) elCalcCurDeduct.textContent = `-¥${curUnsettledTotal.toLocaleString()}`;
 
-    // 給料確定時は「今月給料見込み」のステップを非表示にして5項目に更新（二重加算防止・見やすさ向上）
+    // 今月給料の表示（給料振込後は内訳から除外して非表示、未受取時のみ「今月給料見込み」として表示）
     const stepCurSalary = document.getElementById('step-calc-cur-salary');
+    const iconCurSalary = document.getElementById('icon-calc-cur-salary');
+    const labelCurSalary = document.getElementById('label-calc-cur-salary');
+    const descCurSalary = document.getElementById('desc-calc-cur-salary');
     const elItemCount = document.getElementById('val-calc-item-count');
-    if (s.salaries && s.salaries.isCurrentSettled) {
-      if (stepCurSalary) stepCurSalary.style.display = 'none';
-      if (elItemCount) elItemCount.textContent = '5項目';
-    } else {
-      if (stepCurSalary) stepCurSalary.style.display = 'flex';
-      if (elItemCount) elItemCount.textContent = '6項目';
-      if (elCalcCurSalary) elCalcCurSalary.textContent = `+¥${(s.salaries.currentMonth || 250000).toLocaleString()}`;
+
+    const isCurrentSalarySettled = s.salaries && s.salaries.isCurrentSettled;
+
+    if (elItemCount) {
+      elItemCount.textContent = isCurrentSalarySettled ? '5項目' : '6項目';
+    }
+
+    if (stepCurSalary) {
+      if (isCurrentSalarySettled) {
+        // 給料振込後（受取済）の場合は内訳に表示しない（所持金に含まれているため）
+        stepCurSalary.style.display = 'none';
+      } else {
+        // 給料未受取時のみ内訳に加算見込みとして表示
+        stepCurSalary.style.display = 'flex';
+        stepCurSalary.className = 'flow-step plus';
+        if (iconCurSalary) {
+          iconCurSalary.textContent = '＋';
+          iconCurSalary.className = 'flow-step-icon plus';
+        }
+        if (labelCurSalary) labelCurSalary.textContent = '今月給料見込み';
+        if (descCurSalary) descCurSalary.textContent = '三井住友銀行振込予定';
+        if (elCalcCurSalary) {
+          elCalcCurSalary.textContent = `+¥${(s.salaries.currentMonth || 250000).toLocaleString()}`;
+          elCalcCurSalary.className = 'flow-step-val plus';
+        }
+      }
     }
 
     if (elCalcCardSpent) elCalcCardSpent.textContent = `-¥${s.totalSpent.toLocaleString()}`;
@@ -973,59 +998,8 @@ class AppController {
     });
   }
 
-  // 8. 分析（リッチ横棒グラフ＆プログレスカード）
+  // 8. 分析（カテゴリ別支出グラフ）
   renderAnalytics(s) {
-    const rankingContainer = document.getElementById('category-ranking-container');
-    if (!rankingContainer) return;
-
-    const sortedCats = Object.entries(s.categoryTotals).sort((a, b) => b[1] - a[1]);
-
-    if (sortedCats.length === 0) {
-      rankingContainer.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 20px;">データがありません</div>';
-      return;
-    }
-
-    const maxAmount = Math.max(...sortedCats.map(([, v]) => v), 1);
-
-    // カテゴリごとのグラデーション色定義
-    const catColors = [
-      { gradient: 'linear-gradient(90deg, #10b981 0%, #059669 100%)', glow: 'rgba(16, 185, 129, 0.4)' },
-      { gradient: 'linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%)', glow: 'rgba(139, 92, 246, 0.4)' },
-      { gradient: 'linear-gradient(90deg, #3b82f6 0%, #0ea5e9 100%)', glow: 'rgba(59, 130, 246, 0.4)' },
-      { gradient: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)', glow: 'rgba(245, 158, 11, 0.4)' },
-      { gradient: 'linear-gradient(90deg, #ec4899 0%, #f43f5e 100%)', glow: 'rgba(236, 72, 153, 0.4)' },
-      { gradient: 'linear-gradient(90deg, #06b6d4 0%, #0891b2 100%)', glow: 'rgba(6, 182, 212, 0.4)' }
-    ];
-
-    rankingContainer.innerHTML = sortedCats
-      .map(([cat, amount], idx) => {
-        const pct = s.totalSpent > 0 ? Math.round((amount / s.totalSpent) * 100) : 0;
-        const barWidth = Math.min(100, Math.round((amount / maxAmount) * 100));
-        const colorSet = catColors[idx % catColors.length];
-        const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
-
-        return `
-        <div class="rich-bar-item">
-          <div class="bar-meta-header">
-            <div class="bar-cat-left">
-              <span class="bar-rank-badge ${rankClass}">${idx + 1}</span>
-              <span class="bar-cat-name">${cat}</span>
-            </div>
-            <div class="bar-amount-wrap">
-              <span class="bar-amount-val">¥${amount.toLocaleString()}</span>
-              <span class="bar-percentage">(${pct}%)</span>
-            </div>
-          </div>
-          <!-- Animated Gradient Bar -->
-          <div class="bar-track">
-            <div class="bar-fill" style="width: ${barWidth}%; --bar-gradient: ${colorSet.gradient}; --bar-glow: ${colorSet.glow};"></div>
-          </div>
-        </div>
-      `;
-      })
-      .join('');
-
-    // Chart.js 横棒グラフの描画
     if (this.currentView === 'analytics' && this.chartRenderer) {
       this.chartRenderer.renderCategoryBarChart(s.categoryTotals);
     }

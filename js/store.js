@@ -530,7 +530,7 @@ const DEFAULT_DATA_202609 = {
         "id":  "tx-101",
         "date":  null,
         "name":  "水道",
-        "category":  "引落系、課金系",
+        "category":  "水道光熱費",
         "amount":  0,
         "amountPending": true,
         "group": "recurring",
@@ -549,9 +549,9 @@ const DEFAULT_DATA_202609 = {
     },
     {
         "id":  "tx-103",
-        "date":  null,
-        "name":  "月額課金",
-        "category":  "引落系、課金系",
+        "date":  "2026/07/04",
+        "name":  "東京ガス",
+        "category":  "水道光熱費",
         "amount":  0,
         "amountPending": true,
         "group": "recurring",
@@ -561,8 +561,8 @@ const DEFAULT_DATA_202609 = {
     {
         "id":  "tx-104",
         "date":  "2026/07/08",
-        "name":  "東京ガス",
-        "category":  "引落系、課金系",
+        "name":  "レンタルサーバー",
+        "category":  "月額課金",
         "amount":  2637,
         "group": "recurring",
         "status":  "unsettled",
@@ -571,7 +571,7 @@ const DEFAULT_DATA_202609 = {
     {
         "id":  "tx-105",
         "date":  "2026/07/08",
-        "name":  "レンタルサーバー",
+        "name":  "Applecare（安心代）",
         "category":  "月額課金",
         "amount":  1280,
         "group": "recurring",
@@ -580,9 +580,9 @@ const DEFAULT_DATA_202609 = {
     },
     {
         "id":  "tx-106",
-        "date":  null,
-        "name":  "Applecare（安心代）",
-        "category":  "月額課金",
+        "date":  "2026/07/11",
+        "name":  "povo",
+        "category":  "通信費",
         "amount":  0,
         "amountPending": true,
         "group": "recurring",
@@ -672,28 +672,17 @@ const DEFAULT_DATA_202609 = {
     {
         "id":  "tx-115",
         "date":  null,
-        "name":  "サブスク",
+        "name":  "YouTube Premium",
         "category":  "月額課金",
         "amount":  1100,
         "group": "recurring",
         "status":  "unsettled",
         "emailId":  ""
-    },
-    {
-        "id":  "tx-117",
-        "date":  null,
-        "name":  "YouTube Premium",
-        "category":  "月額課金",
-        "amount":  0,
-        "amountPending": true,
-        "group": "recurring",
-        "status":  "unsettled",
-        "emailId":  ""
     }
-]
+  ]
 };
 
-const STORAGE_KEY = 'kakeibo_app_data_v2';
+const STORAGE_KEY = 'kakeibo_app_data_v3';
 const SETTINGS_KEY = 'kakeibo_settings_v1';
 
 class KakeiboStore {
@@ -705,11 +694,40 @@ class KakeiboStore {
 
   loadData() {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      let saved = localStorage.getItem(STORAGE_KEY);
+      // v2 からのマイグレーション
+      if (!saved) {
+        const oldV2 = localStorage.getItem('kakeibo_app_data_v2');
+        if (oldV2) saved = oldV2;
+      }
+
       if (saved) {
         const parsed = JSON.parse(saved);
-        // 未確定の固定費項目（tx-101, tx-103, tx-106, tx-117等）が未登録の場合に補完
         if (Array.isArray(parsed.transactions)) {
+          // 不正なゴミデータ（tx-117等）や誤った店名（サブスク、月額課金）をスプレッドシート基準でクリーンアップ
+          parsed.transactions = parsed.transactions.filter(t => t.id !== 'tx-117' && t.name !== 'サブスク');
+
+          // 固定費・生活引落（Row 101〜115）をスプレッドシートの最新定義と整合させる
+          const defaultRecurringMap = new Map();
+          DEFAULT_DATA_202609.transactions
+            .filter(t => t.group === 'recurring')
+            .forEach(defTx => defaultRecurringMap.set(defTx.id, defTx));
+
+          parsed.transactions.forEach(tx => {
+            if (defaultRecurringMap.has(tx.id)) {
+              const def = defaultRecurringMap.get(tx.id);
+              tx.name = def.name;
+              tx.category = def.category;
+              tx.group = 'recurring';
+              // 未確定項目でユーザーが入力した金額がなければデフォルト
+              if (tx.amount === undefined || (def.amount > 0 && tx.amount === 0)) {
+                tx.amount = def.amount;
+                tx.amountPending = def.amountPending;
+              }
+            }
+          });
+
+          // 未登録の固定費項目を追加
           const existingIds = new Set(parsed.transactions.map(t => t.id));
           DEFAULT_DATA_202609.transactions.forEach(defTx => {
             if (!existingIds.has(defTx.id)) {
@@ -838,10 +856,23 @@ class KakeiboStore {
     const mufgCurrent = currentAccounts.find((a) => a.id === 'mufg')?.currentBalance || 0;
     const mizuhoCurrent = currentAccounts.find((a) => a.id === 'mizuho')?.currentBalance || 0;
 
-    const actualSalary = (d.bankTransfers || [])
-      .filter((tf) => tf.type === 'income' && tf.name && tf.name.includes('給料'))
-      .reduce((sum, tf) => sum + Number(tf.amount || 0), 0);
-    const effectiveCurrentSalary = actualSalary > 0 ? 0 : Number(d.salaries.currentMonth || 0);
+    // 給与・給料の入金記録を判定（三井住友銀行または各口座の入金で「給料」「給与」「キユウヨ」「ｷﾕｳﾖ」「給与振込」等）
+    const salaryTransfers = (d.bankTransfers || []).filter((tf) => {
+      if (tf.type !== 'income') return false;
+      const n = String(tf.name || '').trim().toLowerCase();
+      return n.includes('給料') || 
+             n.includes('給与') || 
+             n.includes('キユウヨ') || 
+             n.includes('ｷﾕｳﾖ') || 
+             n.includes('賞与') || 
+             n.includes('ボーナス') || 
+             n.includes('salary');
+    });
+
+    const actualSalary = salaryTransfers.reduce((sum, tf) => sum + Number(tf.amount || 0), 0);
+    const isSalarySettled = salaryTransfers.length > 0;
+    // 実際に給料振込があれば通帳残高（smbcCurrent）にすでに給料が含まれているため見込み額は二重加算せず0、未振込の場合のみ見込みを加算。
+    const effectiveCurrentSalary = isSalarySettled ? 0 : Number(d.salaries.currentMonth || 250000);
 
     const smbcAfterCurrent = smbcCurrent + d.currentMonthCardBill + pureFixedTotal - settledDeduction + effectiveCurrentSalary;
     const mizuhoAfterCurrent = mizuhoCurrent;
@@ -876,8 +907,9 @@ class KakeiboStore {
       totalCurrentBalance,
       salaries: {
         ...d.salaries,
-        isCurrentSettled: actualSalary > 0,
-        actualSalary: actualSalary
+        isCurrentSettled: isSalarySettled,
+        actualSalary: actualSalary,
+        salaryTransfers: salaryTransfers
       },
       currentMonthCardBill: d.currentMonthCardBill,
       afterCurrentMonth: {
@@ -1097,3 +1129,6 @@ class KakeiboStore {
 }
 
 export const store = new KakeiboStore();
+if (typeof window !== 'undefined') {
+  window.store = store;
+}

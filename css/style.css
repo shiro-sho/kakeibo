@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    Apple iPhone 18 Pro Inspired Design System
    Liquid Glass & Aerospace-Grade Titanium Edition
    ========================================================================== */
@@ -654,6 +654,11 @@ body {
   color: #34d399;
 }
 
+.flow-step-icon.settled {
+  background: rgba(16, 185, 129, 0.18);
+  color: #10b981;
+}
+
 .flow-step-info {
   display: flex;
   flex-direction: column;
@@ -686,6 +691,12 @@ body {
 
 .flow-step-val.plus {
   color: var(--accent-primary);
+}
+
+.flow-step-val.settled {
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  font-weight: 700;
 }
 
 .flow-result-row {
@@ -1565,7 +1576,8 @@ body {
    ========================================================================== */
 .chart-container {
   width: 100%;
-  height: 280px;
+  min-height: 480px;
+  height: auto;
   position: relative;
   padding: 10px 0;
 }

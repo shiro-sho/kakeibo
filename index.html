@@ -18,7 +18,7 @@
   <meta name="theme-color" content="#090d16">
 
   <!-- Stylesheet (キャッシュバスター付き) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260927_4">
+  <link rel="stylesheet" href="./css/style.css?v=20260928_4">
 
   <!-- Chart.js CDN for interactive beautiful charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -152,10 +152,10 @@
 
                 <!-- ③ 今月給料 -->
                 <div class="flow-step plus" id="step-calc-cur-salary">
-                  <div class="flow-step-icon plus">＋</div>
+                  <div class="flow-step-icon plus" id="icon-calc-cur-salary">＋</div>
                   <div class="flow-step-info">
-                    <span class="flow-step-label">今月給料見込み</span>
-                    <span class="flow-step-desc">三井住友銀行振込</span>
+                    <span class="flow-step-label" id="label-calc-cur-salary">今月給料見込み</span>
+                    <span class="flow-step-desc" id="desc-calc-cur-salary">三井住友銀行振込</span>
                   </div>
                   <span class="flow-step-val plus" id="val-calc-current-salary">+¥250,000</span>
                 </div>
@@ -959,7 +959,7 @@
   <div class="toast-container" id="toast-container"></div>
 
   <!-- App Scripts (キャッシュバスター付き) -->
-  <script type="module" src="./js/app.js?v=20260927_4"></script>
+  <script type="module" src="./js/app.js?v=20260928_4"></script>
 
   <!-- PWA Service Worker Registration & Cache Purge -->
   <script>
@@ -970,7 +970,7 @@
             reg.update();
           }
         });
-        navigator.serviceWorker.register('./sw.js?v=20260927_4').catch((err) => {
+        navigator.serviceWorker.register('./sw.js?v=20260928_4').catch((err) => {
           console.log('SW registration skipped:', err);
         });
       });

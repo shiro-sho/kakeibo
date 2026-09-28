@@ -57,7 +57,20 @@ export class ChartRenderer {
 
       // 最大値に応じてX軸に余裕を持たせる（各棒の横の金額ラベルが切れないようにする）
       const maxVal = Math.max(...data, 0);
-      const suggestedMax = Math.ceil(maxVal * 1.25);
+      const suggestedMax = Math.ceil(maxVal * 1.35);
+
+      // カテゴリ件数に応じて高さを動的に拡張し、棒どうしの間隔をゆったり確保（1項目あたり48px）
+      const itemHeight = 48;
+      const calculatedHeight = Math.max(420, labels.length * itemHeight + 70);
+      const parentContainer = this.canvas.parentElement;
+      if (parentContainer) {
+        parentContainer.style.setProperty('height', `${calculatedHeight}px`, 'important');
+        parentContainer.style.setProperty('min-height', `${calculatedHeight}px`, 'important');
+        parentContainer.style.position = 'relative';
+      }
+      this.canvas.style.setProperty('height', `${calculatedHeight}px`, 'important');
+      this.canvas.style.setProperty('min-height', `${calculatedHeight}px`, 'important');
+      this.canvas.height = calculatedHeight;
 
       // 各棒の横に金額を表示するカスタムChart.jsプラグイン
       const barValueLabelsPlugin = {
@@ -68,7 +81,7 @@ export class ChartRenderer {
           if (!meta || !meta.data) return;
 
           ctx.save();
-          ctx.font = 'bold 11px -apple-system, BlinkMacSystemFont, "Outfit", sans-serif';
+          ctx.font = 'bold 12px "Outfit", -apple-system, sans-serif';
           ctx.textBaseline = 'middle';
           ctx.fillStyle = valueLabelColor;
 
@@ -77,8 +90,8 @@ export class ChartRenderer {
             if (val === undefined || val === null) return;
             const text = '¥' + Number(val).toLocaleString();
 
-            // 横棒の右端のX座標 + 少しの余白
-            const x = bar.x + 8;
+            // 横棒の右端のX座標 + ゆとりのある余白 (10px)
+            const x = bar.x + 10;
             const y = bar.y;
             ctx.fillText(text, x, y);
           });
@@ -98,22 +111,22 @@ export class ChartRenderer {
               backgroundColor: gradient,
               borderRadius: 8,
               borderSkipped: false,
-              barThickness: 18,
-              maxBarThickness: 24
+              barThickness: 16,
+              maxBarThickness: 20
             }
           ]
         },
         plugins: [barValueLabelsPlugin],
         options: {
-          indexAxis: 'y', // 横棒グラフ（スマホで見やすい！）
+          indexAxis: 'y', // 横棒グラフ
           responsive: true,
           maintainAspectRatio: false,
           layout: {
             padding: {
-              right: 28, // 金額ラベル表示用の右側マージン
+              right: 65, // 金額ラベル表示用の右側ゆとりマージン
               left: 4,
-              top: 4,
-              bottom: 4
+              top: 10,
+              bottom: 10
             }
           },
           plugins: {
@@ -139,35 +152,56 @@ export class ChartRenderer {
             x: {
               suggestedMax,
               grid: {
-                color: gridColor
+                color: gridColor,
+                drawBorder: false
               },
               ticks: {
                 color: textColor,
                 font: {
                   family: "'Outfit', sans-serif",
-                  size: 10
+                  size: 11
                 },
                 callback: function (value) {
-                  return '¥' + (value / 1000) + 'k';
+                  if (value === 0) return '¥0';
+                  return '¥' + (value >= 1000 ? (value / 1000).toLocaleString() + 'k' : value);
                 }
               }
             },
             y: {
+              type: 'category',
+              offset: true,
               grid: {
-                display: false
+                display: false,
+                drawBorder: false
               },
               ticks: {
-                color: textColor,
+                autoSkip: false, // 1つ飛ばしを絶対に防ぎ、すべてのカテゴリを確実に100%表示
+                autoSkipPadding: 0,
+                stepSize: 1,
+                minRotation: 0,
+                maxRotation: 0,
+                color: isLight ? '#1e293b' : '#f1f5f9',
                 font: {
                   family: "'Noto Sans JP', sans-serif",
                   weight: '600',
-                  size: 11
+                  size: 12
+                },
+                padding: 10,
+                callback: function (val, index) {
+                  if (labels && labels[index] !== undefined) return labels[index];
+                  if (typeof val === 'string') return val;
+                  return this.getLabelForValue ? this.getLabelForValue(val) : val;
                 }
               }
             }
           }
         }
       });
+
+      // レンダリング直後にサイズを同期
+      if (this.chartInstance) {
+        this.chartInstance.resize();
+      }
     }
   }
 
