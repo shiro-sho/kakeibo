@@ -2,9 +2,9 @@
  * アプリメインコントローラー（UIレンダリング・インタラクション）
  */
 
-import { store, SPREADSHEET_CATEGORIES } from './store.js?v=20260928_4';
-import { ChartRenderer } from './charts.js?v=20260928_4';
-import { GasApiClient } from './api.js?v=20260928_4';
+import { store, SPREADSHEET_CATEGORIES } from './store.js?v=20260928_5';
+import { ChartRenderer } from './charts.js?v=20260928_5';
+import { GasApiClient } from './api.js?v=20260928_5';
 
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toast-container');
@@ -295,6 +295,11 @@ class AppController {
       setTimeout(() => {
         this.chartRenderer.renderCategoryBarChart(store.getSummary().categoryTotals);
       }, 250);
+    }
+
+    // 設定画面を開いた際に最新の給料・設定情報を確実に同期
+    if (viewName === 'settings') {
+      this.renderSettings(store.getSummary());
     }
 
     // 画面トップへスクロール
@@ -1010,27 +1015,44 @@ class AppController {
     const gasInput = document.getElementById('setting-gas-url');
     const salaryCurrent = document.getElementById('setting-salary-current');
     const salaryNext = document.getElementById('setting-salary-next');
+    const descSalaryCur = document.getElementById('desc-salary-current-status');
+    const descSalaryNxt = document.getElementById('desc-salary-next-status');
 
     if (gasInput && !gasInput.value) {
       gasInput.value = store.settings.gasApiUrl || '';
     }
-    if (salaryCurrent && !salaryCurrent.value) {
-      salaryCurrent.value = s.salaries.currentMonth;
+
+    const isCurrentSettled = s.salaries && s.salaries.isCurrentSettled;
+    // 確定時は口座入金から検出された実際の確定給与額、未確定時は設定の推定値
+    const currentSalaryVal = isCurrentSettled ? (s.salaries.actualSalary || s.salaries.currentMonth) : (s.salaries.currentMonth || 250000);
+    const nextSalaryVal = s.salaries.nextMonth || 250000;
+
+    // ユーザーが現在入力フォーカス中でない場合に正しい数値を自動反映
+    if (salaryCurrent && document.activeElement !== salaryCurrent) {
+      salaryCurrent.value = currentSalaryVal;
     }
-    if (salaryNext && !salaryNext.value) {
-      salaryNext.value = s.salaries.nextMonth;
+    if (salaryNext && document.activeElement !== salaryNext) {
+      salaryNext.value = nextSalaryVal;
     }
 
-    // 給料推定 / 確定バッジの更新
+    // 給料推定 / 確定バッジおよびステータステキストの更新
     const badgeCur = document.getElementById('badge-salary-current');
     const badgeNext = document.getElementById('badge-salary-next');
     if (badgeCur) {
-      if (s.salaries && s.salaries.isCurrentSettled) {
+      if (isCurrentSettled) {
         badgeCur.textContent = '確定';
         badgeCur.className = 'salary-status-badge badge-settled';
+        if (descSalaryCur) {
+          descSalaryCur.textContent = `口座入金から自動反映（確定: ¥${Number(currentSalaryVal).toLocaleString()}）`;
+          descSalaryCur.style.color = 'var(--accent-emerald)';
+        }
       } else {
         badgeCur.textContent = '推定';
         badgeCur.className = 'salary-status-badge badge-estimate';
+        if (descSalaryCur) {
+          descSalaryCur.textContent = '給料振込前の推定見込み額（編集可能）';
+          descSalaryCur.style.color = 'var(--text-muted)';
+        }
       }
     }
     if (badgeNext) {
@@ -1332,7 +1354,8 @@ class AppController {
       const nxt = document.getElementById('setting-salary-next').value;
       store.updateSalary('currentMonth', cur);
       store.updateSalary('nextMonth', nxt);
-      alert('給料設定を保存しました！');
+      this.render(store.getSummary());
+      showToast('給料設定を保存しました！', 'success');
     });
 
     // 初期化リセット

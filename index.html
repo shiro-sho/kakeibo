@@ -18,7 +18,7 @@
   <meta name="theme-color" content="#090d16">
 
   <!-- Stylesheet (キャッシュバスター付き) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260928_4">
+  <link rel="stylesheet" href="./css/style.css?v=20260928_5">
 
   <!-- Chart.js CDN for interactive beautiful charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -557,6 +557,7 @@
               <span class="salary-status-badge badge-estimate" id="badge-salary-current">推定</span>
             </div>
             <input type="number" id="setting-salary-current" class="form-input">
+            <p class="form-helper-text" id="desc-salary-current-status" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;"></p>
           </div>
           <div class="form-group">
             <div class="form-label-row">
@@ -564,6 +565,7 @@
               <span class="salary-status-badge badge-estimate" id="badge-salary-next">推定</span>
             </div>
             <input type="number" id="setting-salary-next" class="form-input">
+            <p class="form-helper-text" id="desc-salary-next-status" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">給料振込前の推定見込み額（編集可能）</p>
           </div>
           <button class="btn-primary" id="btn-save-salaries">給料設定を保存</button>
         </div>
@@ -959,7 +961,7 @@
   <div class="toast-container" id="toast-container"></div>
 
   <!-- App Scripts (キャッシュバスター付き) -->
-  <script type="module" src="./js/app.js?v=20260928_4"></script>
+  <script type="module" src="./js/app.js?v=20260928_5"></script>
 
   <!-- PWA Service Worker Registration & Cache Purge -->
   <script>
@@ -970,7 +972,7 @@
             reg.update();
           }
         });
-        navigator.serviceWorker.register('./sw.js?v=20260928_4').catch((err) => {
+        navigator.serviceWorker.register('./sw.js?v=20260928_5').catch((err) => {
           console.log('SW registration skipped:', err);
         });
       });
