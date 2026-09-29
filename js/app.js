@@ -526,22 +526,43 @@ class AppController {
       </div>
     `;
 
-    if (varContainer) {
-      varContainer.innerHTML = variableExpenses.map(createItemHtml).join('');
-      varContainer.querySelectorAll('.fixed-expense-item').forEach((item) => {
-        item.addEventListener('click', () => {
-          store.toggleFixedExpenseSettled(item.dataset.fixedId);
+    const attachFixedClickListener = (container) => {
+      if (!container) return;
+      container.querySelectorAll('.fixed-expense-item').forEach((item) => {
+        item.addEventListener('click', async () => {
+          const fixedId = item.dataset.fixedId;
+          const newSettled = store.toggleFixedExpenseSettled(fixedId);
+          const f = store.data.fixedExpenses.find((x) => x.id === fixedId);
+          const itemName = f ? f.name : '項目';
+
+          // スプレッドシート（B4, B5, B6）へ「〇」を非同期保存
+          if (this.api.isConfigured()) {
+            try {
+              const res = await this.api.toggleSettled(fixedId, newSettled);
+              if (res && res.status === 'success') {
+                showToast(newSettled ? `「${itemName}」を引落済みに更新しました（スプシ反映済）` : `「${itemName}」を未引落に戻しました（スプシ反映済）`, 'success');
+              } else {
+                showToast(`引落ステータス更新警告: ${res?.message || '不明な応答'}`, 'warning');
+              }
+            } catch (err) {
+              console.error('引落ステータス同期エラー:', err);
+              showToast(`スプレッドシートへの反映に失敗しました: ${err.message}`, 'warning');
+            }
+          } else {
+            showToast(newSettled ? `「${itemName}」を引落済みにしました（ローカル保存）` : `「${itemName}」を未引落に戻しました（ローカル保存）`);
+          }
         });
       });
+    };
+
+    if (varContainer) {
+      varContainer.innerHTML = variableExpenses.map(createItemHtml).join('');
+      attachFixedClickListener(varContainer);
     }
 
     if (fixContainer) {
       fixContainer.innerHTML = fixedExpenses.map(createItemHtml).join('');
-      fixContainer.querySelectorAll('.fixed-expense-item').forEach((item) => {
-        item.addEventListener('click', () => {
-          store.toggleFixedExpenseSettled(item.dataset.fixedId);
-        });
-      });
+      attachFixedClickListener(fixContainer);
     }
   }
 
@@ -1154,7 +1175,7 @@ class AppController {
   // --- フォーム送信制御 ---
   setupForms() {
     // 支出追加
-    document.getElementById('form-add-tx')?.addEventListener('submit', (e) => {
+    document.getElementById('form-add-tx')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('input-tx-name').value.trim();
       const amount = Number(document.getElementById('input-tx-amount').value);
@@ -1162,9 +1183,23 @@ class AppController {
       const rawDate = document.getElementById('input-tx-date').value;
       const date = rawDate ? rawDate.replace(/-/g, '/') : new Date().toISOString().slice(0, 10).replace(/-/g, '/');
 
-      store.addTransaction({ name, amount, category, date, group: 'card' });
+      const newTx = store.addTransaction({ name, amount, category, date, group: 'card' });
       document.getElementById('modal-add-tx')?.classList.remove('active');
       document.getElementById('form-add-tx')?.reset();
+
+      if (this.api.isConfigured()) {
+        try {
+          const res = await this.api.addTransaction(newTx);
+          if (res && res.status === 'success') {
+            showToast('明細をスプレッドシートに追加しました！', 'success');
+          }
+        } catch (err) {
+          console.error('明細追加のスプシ同期エラー:', err);
+          showToast('スプレッドシートへの追加に失敗しました: ' + err.message, 'warning');
+        }
+      } else {
+        showToast('明細を追加しました（ローカル保存）');
+      }
     });
 
     // 明細編集（金額の入力・更新）

@@ -973,8 +973,18 @@ class KakeiboStore {
     const f = this.data.fixedExpenses.find((x) => x.id === id);
     if (f) {
       f.settled = !f.settled;
+      // 内部フラグの同期
+      if (id === 'credit_card' || id === 'card') {
+        this.data.cardSettled = f.settled;
+      } else if (id === 'rent') {
+        this.data.rentSettled = f.settled;
+      } else if (id === 'medical_loan' || id === 'loan') {
+        this.data.loanSettled = f.settled;
+      }
       this.saveData();
+      return f.settled;
     }
+    return false;
   }
 
   // 新規明細（クレカ・手動支出）の追加
