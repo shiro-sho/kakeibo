@@ -18,7 +18,7 @@
   <meta name="theme-color" content="#090d16">
 
   <!-- Stylesheet (キャッシュバスター付き) -->
-  <link rel="stylesheet" href="./css/style.css?v=20261003_4">
+  <link rel="stylesheet" href="./css/style.css?v=20261003_7">
 
   <!-- Chart.js CDN for interactive beautiful charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -216,16 +216,6 @@
             <span class="card-status-spent">今月利用: <span id="val-hero-card-spent">¥0</span></span>
           </div>
 
-          <!-- スマート支出登録アクション -->
-          <div style="text-align: center; margin-top: 14px;">
-            <button class="hero-quick-action-btn" id="btn-hero-add-tx">
-              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-              <span>支出を登録</span>
-            </button>
-          </div>
 
           <!-- Warning Banner (Conditional) -->
           <div class="warning-banner" id="card-warning-banner" style="display: none;">
@@ -385,32 +375,9 @@
               <span class="apple-card-amount" id="tx-summary-total-amount">0</span>
             </div>
           </div>
-
-          <!-- カテゴリ別内訳の折りたたみトグルボタン -->
-          <div class="tx-breakdown-toggle-wrap">
-            <button class="tx-breakdown-toggle-btn" id="btn-toggle-tx-breakdown" type="button">
-              <span>カテゴリ内訳</span>
-              <svg class="svg-icon svg-icon-xs tx-breakdown-chevron" id="tx-breakdown-chevron" viewBox="0 0 24 24">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
-          </div>
-
-          <!-- 折りたたみドロワー（棒グラフ＆カテゴリ小計チップ） -->
-          <div class="tx-breakdown-drawer" id="tx-breakdown-drawer">
-            <!-- カテゴリ別マルチカラープログレスバー -->
-            <div class="category-multi-bar" id="category-multi-bar">
-              <!-- Dynamically populated -->
-            </div>
-
-            <!-- カテゴリ別小計バッジ -->
-            <div class="tx-category-chips-grid" id="tx-category-chips-container">
-              <!-- Dynamically populated: 食費 ¥12,000, 日用品 ¥5,000 ... -->
-            </div>
-          </div>
         </div>
 
-        <!-- 明細グループ切り替えタブ (すべて / 通常利用 / 固定・生活引落) -->
+        <!-- 明細グループ切り替えタブ (すべて / 通常利用 / 月額固定費) -->
         <div class="tx-segment-control" id="tx-segment-control">
           <button class="tx-segment-btn active" data-group="all">
             <span>すべて</span>
@@ -430,7 +397,7 @@
               <polyline points="1 20 1 14 7 14"></polyline>
               <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
             </svg>
-            <span>固定・生活引落</span>
+            <span>月額固定費</span>
             <span class="segment-badge" id="badge-count-recurring">0</span>
           </button>
         </div>
@@ -752,7 +719,7 @@
 
     <!-- MODAL: Edit Account Balance -->
     <div class="modal-overlay" id="modal-edit-account">
-      <div class="modal-content">
+      <div class="modal-content" data-account="smbc">
         <div class="modal-header">
           <h3 class="modal-title" id="edit-account-title">月初残高の設定</h3>
           <button class="close-btn" id="btn-close-edit-account">✕</button>
@@ -775,9 +742,9 @@
 
     <!-- MODAL: Add Bank Transfer -->
     <div class="modal-overlay" id="modal-add-transfer">
-      <div class="modal-content">
+      <div class="modal-content" data-account="smbc">
         <div class="modal-header">
-          <h3 class="modal-title">出入金（振込・引出）の登録</h3>
+          <h3 class="modal-title">入出金登録</h3>
           <button class="close-btn" id="btn-close-add-transfer">✕</button>
         </div>
         <form id="form-add-transfer">
@@ -815,9 +782,9 @@
 
     <!-- MODAL: Edit Bank Transfer (出入金の編集・削除) -->
     <div class="modal-overlay" id="modal-edit-transfer">
-      <div class="modal-content">
+      <div class="modal-content" data-account="smbc">
         <div class="modal-header">
-          <h3 class="modal-title">出入金の編集</h3>
+          <h3 class="modal-title">入出金の編集</h3>
           <button class="close-btn" id="btn-close-edit-transfer">✕</button>
         </div>
         <form id="form-edit-transfer">

@@ -181,13 +181,23 @@ body {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: var(--accent-primary);
-  background: rgba(16, 185, 129, 0.12);
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
   padding: 3px 10px;
   border-radius: var(--radius-full);
   display: inline-block;
   margin-top: 2px;
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+[data-theme="platinum"] .month-badge,
+[data-theme="white"] .month-badge,
+[data-theme="light"] .month-badge {
+  color: #0f172a;
+  background: rgba(15, 23, 42, 0.06);
+  border-color: rgba(15, 23, 42, 0.14);
 }
 
 .header-actions {
@@ -1156,14 +1166,15 @@ body {
 }
 
 .total-balance-bar {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: var(--radius-sm);
   padding: 14px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 .total-label {
@@ -1176,8 +1187,9 @@ body {
   font-family: var(--font-display);
   font-size: 1.4rem;
   font-weight: 900;
-  color: var(--accent-primary);
+  color: #ffffff;
   letter-spacing: -0.03em;
+  text-shadow: 0 0 16px rgba(255, 255, 255, 0.2);
 }
 
 /* ==========================================================================
@@ -1203,16 +1215,27 @@ body {
   border-bottom-color: rgba(0, 0, 0, 0.06);
 }
 
+.forecast-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
 .forecast-title {
+  display: block;
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--text-primary);
+  line-height: 1.3;
 }
 
 .forecast-desc {
+  display: block;
   font-size: 0.74rem;
   color: var(--text-muted);
-  margin-top: 2px;
+  line-height: 1.3;
+  margin-top: 0;
 }
 
 .forecast-val {
@@ -1678,10 +1701,418 @@ body {
   max-width: var(--max-width);
   padding: 24px 22px calc(env(safe-area-inset-bottom, 24px) + 24px);
   transform: translateY(100%);
-  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
   max-height: 88vh;
   overflow-y: auto;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.7);
+}
+
+/* 各口座専用ジュエルテーマ（入出金登録・編集モーダル & 月初残高設定モーダル） */
+
+/* ==========================================================================
+   ダークモード（オニキス・ブラック）各口座モーダルデザイン
+   ========================================================================== */
+
+/* 三井住友銀行 (SMBC) - 上質エメラルドチタングラス */
+.modal-content[data-account="smbc"],
+[data-theme="onyx"] .modal-content[data-account="smbc"],
+[data-theme="black"] .modal-content[data-account="smbc"] {
+  background: linear-gradient(165deg, rgba(14, 34, 26, 0.98) 0%, rgba(8, 16, 12, 0.99) 100%) !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 
+    0 -14px 48px rgba(0, 0, 0, 0.85),
+    0 0 28px rgba(16, 185, 129, 0.18),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
+}
+.modal-content[data-account="smbc"] .modal-title,
+[data-theme="onyx"] .modal-content[data-account="smbc"] .modal-title,
+[data-theme="black"] .modal-content[data-account="smbc"] .modal-title {
+  color: #ffffff !important;
+  text-shadow: 0 0 14px rgba(16, 185, 129, 0.3);
+}
+.modal-content[data-account="smbc"] .form-label,
+[data-theme="onyx"] .modal-content[data-account="smbc"] .form-label,
+[data-theme="black"] .modal-content[data-account="smbc"] .form-label {
+  color: #a7f3d0 !important;
+  font-weight: 600;
+}
+.modal-content[data-account="smbc"] .form-input,
+.modal-content[data-account="smbc"] .form-select,
+[data-theme="onyx"] .modal-content[data-account="smbc"] .form-input,
+[data-theme="onyx"] .modal-content[data-account="smbc"] .form-select,
+[data-theme="black"] .modal-content[data-account="smbc"] .form-input,
+[data-theme="black"] .modal-content[data-account="smbc"] .form-select {
+  background: rgba(8, 16, 12, 0.85) !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+  color: #ffffff !important;
+}
+.modal-content[data-account="smbc"] .form-input:focus,
+.modal-content[data-account="smbc"] .form-select:focus,
+[data-theme="onyx"] .modal-content[data-account="smbc"] .form-input:focus,
+[data-theme="onyx"] .modal-content[data-account="smbc"] .form-select:focus,
+[data-theme="black"] .modal-content[data-account="smbc"] .form-input:focus,
+[data-theme="black"] .modal-content[data-account="smbc"] .form-select:focus {
+  border-color: #34d399 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25) !important;
+}
+.modal-content[data-account="smbc"] .btn-primary,
+[data-theme="onyx"] .modal-content[data-account="smbc"] .btn-primary,
+[data-theme="black"] .modal-content[data-account="smbc"] .btn-primary {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.4) 0%, rgba(5, 150, 105, 0.65) 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(110, 231, 183, 0.55) !important;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+.modal-content[data-account="smbc"] .close-btn,
+[data-theme="onyx"] .modal-content[data-account="smbc"] .close-btn,
+[data-theme="black"] .modal-content[data-account="smbc"] .close-btn {
+  background: rgba(14, 34, 26, 0.7) !important;
+  color: #a7f3d0 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+}
+.modal-content[data-account="smbc"] .btn-danger,
+[data-theme="onyx"] .modal-content[data-account="smbc"] .btn-danger,
+[data-theme="black"] .modal-content[data-account="smbc"] .btn-danger {
+  background: rgba(225, 29, 72, 0.2) !important;
+  border: 1px solid rgba(251, 113, 133, 0.35) !important;
+  color: #fecdd3 !important;
+}
+
+/* 三菱UFJ銀行 (MUFG) - 上質クリムゾンルビーチタングラス */
+.modal-content[data-account="mufg"],
+[data-theme="onyx"] .modal-content[data-account="mufg"],
+[data-theme="black"] .modal-content[data-account="mufg"] {
+  background: linear-gradient(165deg, rgba(46, 18, 26, 0.98) 0%, rgba(18, 10, 14, 0.99) 100%) !important;
+  border: 1px solid rgba(244, 63, 94, 0.4) !important;
+  box-shadow: 
+    0 -14px 48px rgba(0, 0, 0, 0.85),
+    0 0 28px rgba(244, 63, 94, 0.18),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
+}
+.modal-content[data-account="mufg"] .modal-title,
+[data-theme="onyx"] .modal-content[data-account="mufg"] .modal-title,
+[data-theme="black"] .modal-content[data-account="mufg"] .modal-title {
+  color: #ffffff !important;
+  text-shadow: 0 0 14px rgba(244, 63, 94, 0.3);
+}
+.modal-content[data-account="mufg"] .form-label,
+[data-theme="onyx"] .modal-content[data-account="mufg"] .form-label,
+[data-theme="black"] .modal-content[data-account="mufg"] .form-label {
+  color: #fecdd3 !important;
+  font-weight: 600;
+}
+.modal-content[data-account="mufg"] .form-input,
+.modal-content[data-account="mufg"] .form-select,
+[data-theme="onyx"] .modal-content[data-account="mufg"] .form-input,
+[data-theme="onyx"] .modal-content[data-account="mufg"] .form-select,
+[data-theme="black"] .modal-content[data-account="mufg"] .form-input,
+[data-theme="black"] .modal-content[data-account="mufg"] .form-select {
+  background: rgba(18, 10, 14, 0.85) !important;
+  border: 1px solid rgba(244, 63, 94, 0.35) !important;
+  color: #ffffff !important;
+}
+.modal-content[data-account="mufg"] .form-input:focus,
+.modal-content[data-account="mufg"] .form-select:focus,
+[data-theme="onyx"] .modal-content[data-account="mufg"] .form-input:focus,
+[data-theme="onyx"] .modal-content[data-account="mufg"] .form-select:focus,
+[data-theme="black"] .modal-content[data-account="mufg"] .form-input:focus,
+[data-theme="black"] .modal-content[data-account="mufg"] .form-select:focus {
+  border-color: #fb7185 !important;
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.25) !important;
+}
+.modal-content[data-account="mufg"] .btn-primary,
+[data-theme="onyx"] .modal-content[data-account="mufg"] .btn-primary,
+[data-theme="black"] .modal-content[data-account="mufg"] .btn-primary {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.4) 0%, rgba(225, 29, 72, 0.65) 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(253, 164, 175, 0.55) !important;
+  box-shadow: 0 6px 20px rgba(244, 63, 94, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+.modal-content[data-account="mufg"] .close-btn,
+[data-theme="onyx"] .modal-content[data-account="mufg"] .close-btn,
+[data-theme="black"] .modal-content[data-account="mufg"] .close-btn {
+  background: rgba(46, 18, 26, 0.7) !important;
+  color: #fecdd3 !important;
+  border: 1px solid rgba(244, 63, 94, 0.35) !important;
+}
+.modal-content[data-account="mufg"] .btn-danger,
+[data-theme="onyx"] .modal-content[data-account="mufg"] .btn-danger,
+[data-theme="black"] .modal-content[data-account="mufg"] .btn-danger {
+  background: rgba(225, 29, 72, 0.2) !important;
+  border: 1px solid rgba(251, 113, 133, 0.35) !important;
+  color: #fecdd3 !important;
+}
+
+/* みずほ銀行 (Mizuho) - 上質コズミックサファイアチタングラス */
+.modal-content[data-account="mizuho"],
+[data-theme="onyx"] .modal-content[data-account="mizuho"],
+[data-theme="black"] .modal-content[data-account="mizuho"] {
+  background: linear-gradient(165deg, rgba(16, 26, 44, 0.98) 0%, rgba(8, 14, 22, 0.99) 100%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.4) !important;
+  box-shadow: 
+    0 -14px 48px rgba(0, 0, 0, 0.85),
+    0 0 28px rgba(56, 189, 248, 0.18),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
+}
+.modal-content[data-account="mizuho"] .modal-title,
+[data-theme="onyx"] .modal-content[data-account="mizuho"] .modal-title,
+[data-theme="black"] .modal-content[data-account="mizuho"] .modal-title {
+  color: #ffffff !important;
+  text-shadow: 0 0 14px rgba(56, 189, 248, 0.3);
+}
+.modal-content[data-account="mizuho"] .form-label,
+[data-theme="onyx"] .modal-content[data-account="mizuho"] .form-label,
+[data-theme="black"] .modal-content[data-account="mizuho"] .form-label {
+  color: #bfdbfe !important;
+  font-weight: 600;
+}
+.modal-content[data-account="mizuho"] .form-input,
+.modal-content[data-account="mizuho"] .form-select,
+[data-theme="onyx"] .modal-content[data-account="mizuho"] .form-input,
+[data-theme="onyx"] .modal-content[data-account="mizuho"] .form-select,
+[data-theme="black"] .modal-content[data-account="mizuho"] .form-input,
+[data-theme="black"] .modal-content[data-account="mizuho"] .form-select {
+  background: rgba(8, 14, 22, 0.85) !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
+  color: #ffffff !important;
+}
+.modal-content[data-account="mizuho"] .form-input:focus,
+.modal-content[data-account="mizuho"] .form-select:focus,
+[data-theme="onyx"] .modal-content[data-account="mizuho"] .form-input:focus,
+[data-theme="onyx"] .modal-content[data-account="mizuho"] .form-select:focus,
+[data-theme="black"] .modal-content[data-account="mizuho"] .form-input:focus,
+[data-theme="black"] .modal-content[data-account="mizuho"] .form-select:focus {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25) !important;
+}
+.modal-content[data-account="mizuho"] .btn-primary,
+[data-theme="onyx"] .modal-content[data-account="mizuho"] .btn-primary,
+[data-theme="black"] .modal-content[data-account="mizuho"] .btn-primary {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.4) 0%, rgba(37, 99, 235, 0.65) 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(147, 197, 253, 0.55) !important;
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+.modal-content[data-account="mizuho"] .close-btn,
+[data-theme="onyx"] .modal-content[data-account="mizuho"] .close-btn,
+[data-theme="black"] .modal-content[data-account="mizuho"] .close-btn {
+  background: rgba(16, 26, 44, 0.7) !important;
+  color: #bfdbfe !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
+}
+.modal-content[data-account="mizuho"] .btn-danger,
+[data-theme="onyx"] .modal-content[data-account="mizuho"] .btn-danger,
+[data-theme="black"] .modal-content[data-account="mizuho"] .btn-danger {
+  background: rgba(225, 29, 72, 0.2) !important;
+  border: 1px solid rgba(251, 113, 133, 0.35) !important;
+  color: #fecdd3 !important;
+}
+
+
+/* ==========================================================================
+   ライトモード（プラチナ・ホワイト）各口座専用ジュエルデザイン
+   清潔感あふれる白銀ベースに、各口座の上品な淡色ニュアンスを調和
+   ========================================================================== */
+
+/* 三井住友銀行 (SMBC) - 上質エメラルドジュエルフロスト */
+[data-theme="platinum"] .modal-content[data-account="smbc"],
+[data-theme="white"] .modal-content[data-account="smbc"],
+[data-theme="light"] .modal-content[data-account="smbc"] {
+  background: linear-gradient(165deg, #ffffff 0%, #f4fbf7 60%, #eaf7f0 100%) !important;
+  border: 1.5px solid rgba(16, 185, 129, 0.35) !important;
+  box-shadow: 
+    0 -12px 48px rgba(15, 23, 42, 0.1),
+    0 0 24px rgba(16, 185, 129, 0.12),
+    inset 0 1.5px 0.5px #ffffff !important;
+  color: #0f172a !important;
+}
+[data-theme="platinum"] .modal-content[data-account="smbc"] .modal-title,
+[data-theme="white"] .modal-content[data-account="smbc"] .modal-title,
+[data-theme="light"] .modal-content[data-account="smbc"] .modal-title {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+[data-theme="platinum"] .modal-content[data-account="smbc"] .form-label,
+[data-theme="white"] .modal-content[data-account="smbc"] .form-label,
+[data-theme="light"] .modal-content[data-account="smbc"] .form-label {
+  color: #047857 !important;
+  font-weight: 700 !important;
+}
+[data-theme="platinum"] .modal-content[data-account="smbc"] .form-input,
+[data-theme="platinum"] .modal-content[data-account="smbc"] .form-select,
+[data-theme="white"] .modal-content[data-account="smbc"] .form-input,
+[data-theme="white"] .modal-content[data-account="smbc"] .form-select,
+[data-theme="light"] .modal-content[data-account="smbc"] .form-input,
+[data-theme="light"] .modal-content[data-account="smbc"] .form-select {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(16, 185, 129, 0.35) !important;
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+[data-theme="platinum"] .modal-content[data-account="smbc"] .form-input:focus,
+[data-theme="platinum"] .modal-content[data-account="smbc"] .form-select:focus,
+[data-theme="white"] .modal-content[data-account="smbc"] .form-input:focus,
+[data-theme="white"] .modal-content[data-account="smbc"] .form-select:focus,
+[data-theme="light"] .modal-content[data-account="smbc"] .form-input:focus,
+[data-theme="light"] .modal-content[data-account="smbc"] .form-select:focus {
+  border-color: #059669 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
+}
+[data-theme="platinum"] .modal-content[data-account="smbc"] .btn-primary,
+[data-theme="white"] .modal-content[data-account="smbc"] .btn-primary,
+[data-theme="light"] .modal-content[data-account="smbc"] .btn-primary {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  border: 1px solid #047857 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3) !important;
+}
+[data-theme="platinum"] .modal-content[data-account="smbc"] .close-btn,
+[data-theme="white"] .modal-content[data-account="smbc"] .close-btn,
+[data-theme="light"] .modal-content[data-account="smbc"] .close-btn {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #047857 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+[data-theme="platinum"] .modal-content[data-account="smbc"] .btn-danger,
+[data-theme="white"] .modal-content[data-account="smbc"] .btn-danger,
+[data-theme="light"] .modal-content[data-account="smbc"] .btn-danger {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  color: #b91c1c !important;
+}
+
+/* 三菱UFJ銀行 (MUFG) - 上質クリムゾンルビーフロスト */
+[data-theme="platinum"] .modal-content[data-account="mufg"],
+[data-theme="white"] .modal-content[data-account="mufg"],
+[data-theme="light"] .modal-content[data-account="mufg"] {
+  background: linear-gradient(165deg, #ffffff 0%, #fdf5f5 60%, #faebee 100%) !important;
+  border: 1.5px solid rgba(244, 63, 94, 0.35) !important;
+  box-shadow: 
+    0 -12px 48px rgba(15, 23, 42, 0.1),
+    0 0 24px rgba(244, 63, 94, 0.12),
+    inset 0 1.5px 0.5px #ffffff !important;
+  color: #0f172a !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mufg"] .modal-title,
+[data-theme="white"] .modal-content[data-account="mufg"] .modal-title,
+[data-theme="light"] .modal-content[data-account="mufg"] .modal-title {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mufg"] .form-label,
+[data-theme="white"] .modal-content[data-account="mufg"] .form-label,
+[data-theme="light"] .modal-content[data-account="mufg"] .form-label {
+  color: #be123c !important;
+  font-weight: 700 !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mufg"] .form-input,
+[data-theme="platinum"] .modal-content[data-account="mufg"] .form-select,
+[data-theme="white"] .modal-content[data-account="mufg"] .form-input,
+[data-theme="white"] .modal-content[data-account="mufg"] .form-select,
+[data-theme="light"] .modal-content[data-account="mufg"] .form-input,
+[data-theme="light"] .modal-content[data-account="mufg"] .form-select {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(244, 63, 94, 0.35) !important;
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mufg"] .form-input:focus,
+[data-theme="platinum"] .modal-content[data-account="mufg"] .form-select:focus,
+[data-theme="white"] .modal-content[data-account="mufg"] .form-input:focus,
+[data-theme="white"] .modal-content[data-account="mufg"] .form-select:focus,
+[data-theme="light"] .modal-content[data-account="mufg"] .form-input:focus,
+[data-theme="light"] .modal-content[data-account="mufg"] .form-select:focus {
+  border-color: #e11d48 !important;
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.2) !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mufg"] .btn-primary,
+[data-theme="white"] .modal-content[data-account="mufg"] .btn-primary,
+[data-theme="light"] .modal-content[data-account="mufg"] .btn-primary {
+  background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
+  border: 1px solid #be123c !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 20px rgba(225, 29, 72, 0.3) !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mufg"] .close-btn,
+[data-theme="white"] .modal-content[data-account="mufg"] .close-btn,
+[data-theme="light"] .modal-content[data-account="mufg"] .close-btn {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #be123c !important;
+  border: 1px solid rgba(244, 63, 94, 0.3) !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mufg"] .btn-danger,
+[data-theme="white"] .modal-content[data-account="mufg"] .btn-danger,
+[data-theme="light"] .modal-content[data-account="mufg"] .btn-danger {
+  background: rgba(190, 18, 60, 0.1) !important;
+  border: 1px solid rgba(190, 18, 60, 0.3) !important;
+  color: #9f1239 !important;
+}
+
+/* みずほ銀行 (Mizuho) - 上質コズミックサファイアフロスト */
+[data-theme="platinum"] .modal-content[data-account="mizuho"],
+[data-theme="white"] .modal-content[data-account="mizuho"],
+[data-theme="light"] .modal-content[data-account="mizuho"] {
+  background: linear-gradient(165deg, #ffffff 0%, #f4f8fe 60%, #eaf2fd 100%) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 
+    0 -12px 48px rgba(15, 23, 42, 0.1),
+    0 0 24px rgba(56, 189, 248, 0.12),
+    inset 0 1.5px 0.5px #ffffff !important;
+  color: #0f172a !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mizuho"] .modal-title,
+[data-theme="white"] .modal-content[data-account="mizuho"] .modal-title,
+[data-theme="light"] .modal-content[data-account="mizuho"] .modal-title {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mizuho"] .form-label,
+[data-theme="white"] .modal-content[data-account="mizuho"] .form-label,
+[data-theme="light"] .modal-content[data-account="mizuho"] .form-label {
+  color: #0284c7 !important;
+  font-weight: 700 !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mizuho"] .form-input,
+[data-theme="platinum"] .modal-content[data-account="mizuho"] .form-select,
+[data-theme="white"] .modal-content[data-account="mizuho"] .form-input,
+[data-theme="white"] .modal-content[data-account="mizuho"] .form-select,
+[data-theme="light"] .modal-content[data-account="mizuho"] .form-input,
+[data-theme="light"] .modal-content[data-account="mizuho"] .form-select {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mizuho"] .form-input:focus,
+[data-theme="platinum"] .modal-content[data-account="mizuho"] .form-select:focus,
+[data-theme="white"] .modal-content[data-account="mizuho"] .form-input:focus,
+[data-theme="white"] .modal-content[data-account="mizuho"] .form-select:focus,
+[data-theme="light"] .modal-content[data-account="mizuho"] .form-input:focus,
+[data-theme="light"] .modal-content[data-account="mizuho"] .form-select:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2) !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mizuho"] .btn-primary,
+[data-theme="white"] .modal-content[data-account="mizuho"] .btn-primary,
+[data-theme="light"] .modal-content[data-account="mizuho"] .btn-primary {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+  border: 1px solid #0369a1 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.3) !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mizuho"] .close-btn,
+[data-theme="white"] .modal-content[data-account="mizuho"] .close-btn,
+[data-theme="light"] .modal-content[data-account="mizuho"] .close-btn {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #0284c7 !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mizuho"] .btn-danger,
+[data-theme="white"] .modal-content[data-account="mizuho"] .btn-danger,
+[data-theme="light"] .modal-content[data-account="mizuho"] .btn-danger {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  color: #b91c1c !important;
 }
 
 [data-theme="white"] .modal-content,
@@ -1742,7 +2173,10 @@ body {
 }
 
 .form-input {
+  box-sizing: border-box;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-sm);
@@ -1752,6 +2186,15 @@ body {
   font-family: inherit;
   outline: none;
   transition: border-color 0.2s, background-color 0.2s;
+}
+
+input[type="date"].form-input {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-height: 48px;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .form-select {
@@ -1995,19 +2438,25 @@ select option,
   box-shadow: 0 0 16px var(--accent-glow);
 }
 
-/* 出入金アイテム・操作ボタン */
+/* 出入金コンテナ・アイテム・操作ボタン */
+.account-transfers-box {
+  border-radius: 16px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow: hidden;
+}
+
 .transfer-item-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 0.84rem;
-  padding: 8px 4px;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
-  transition: background 0.15s ease;
-}
-
-.transfer-item-row:last-child {
-  border-bottom: none;
+  padding: 10px 12px;
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
 }
 
 .transfer-item-left {
@@ -4569,16 +5018,18 @@ select option,
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
 }
 
-/* 6. 口座セクションの各口座カード（設定の復元ボタン調の高級ジュエルチタングラス） */
+/* 6. 口座セクションの各口座カード（各銀行ジュエルカラー完全適応） */
 [data-theme="onyx"] #view-accounts .account-card,
 [data-theme="black"] #view-accounts .account-card,
 [data-theme="onyx"] #home-accounts-container .account-card,
-[data-theme="black"] #home-accounts-container .account-card {
+[data-theme="black"] #home-accounts-container .account-card,
+[data-theme="onyx"] .account-detail-card,
+[data-theme="black"] .account-detail-card {
   border-radius: var(--radius-lg) !important;
   transition: all 0.25s ease !important;
 }
 
-/* 三井住友銀行（上質エメラルドチタングラス） */
+/* 三井住友銀行（上質エメラルドチタングラス背景） */
 [data-theme="onyx"] .account-card.smbc,
 [data-theme="black"] .account-card.smbc,
 [data-theme="onyx"] .account-detail-card.smbc,
@@ -4596,9 +5047,7 @@ select option,
 [data-theme="onyx"] .account-card.smbc:hover,
 [data-theme="black"] .account-card.smbc:hover,
 [data-theme="onyx"] .account-detail-card.smbc:hover,
-[data-theme="black"] .account-detail-card.smbc:hover,
-[data-theme="onyx"] [data-account-id="smbc"]:hover,
-[data-theme="black"] [data-account-id="smbc"]:hover {
+[data-theme="black"] .account-detail-card.smbc:hover {
   border-color: rgba(16, 185, 129, 0.6) !important;
   box-shadow: 
     0 16px 38px -6px rgba(0, 0, 0, 0.95),
@@ -4606,7 +5055,42 @@ select option,
     inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
 }
 
-/* 三菱UFJ銀行（上質クリムゾンチタングラス：復元の赤色と完全統一） */
+[data-theme="onyx"] .account-detail-card.smbc .account-transfers-box {
+  background: rgba(8, 16, 12, 0.75) !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+  border-radius: 16px !important;
+  padding: 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  overflow: hidden !important;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="onyx"] .account-detail-card.smbc .transfer-item-row {
+  background: rgba(14, 34, 26, 0.6) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+}
+
+[data-theme="onyx"] .account-detail-card.smbc .btn-card-add-tf {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.35) 0%, rgba(5, 150, 105, 0.55) 100%) !important;
+  border: 1px solid rgba(110, 231, 183, 0.55) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+}
+
+[data-theme="onyx"] .account-card.smbc .initial-balance-chip,
+[data-theme="black"] .account-card.smbc .initial-balance-chip,
+[data-theme="onyx"] .account-detail-card.smbc .initial-balance-mini,
+[data-theme="black"] .account-detail-card.smbc .initial-balance-mini {
+  background: rgba(14, 34, 26, 0.8) !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+  color: #a7f3d0 !important;
+}
+
+/* 三菱UFJ銀行（上質クリムゾンルビーチタングラス背景） */
 [data-theme="onyx"] .account-card.mufg,
 [data-theme="black"] .account-card.mufg,
 [data-theme="onyx"] .account-detail-card.mufg,
@@ -4624,9 +5108,7 @@ select option,
 [data-theme="onyx"] .account-card.mufg:hover,
 [data-theme="black"] .account-card.mufg:hover,
 [data-theme="onyx"] .account-detail-card.mufg:hover,
-[data-theme="black"] .account-detail-card.mufg:hover,
-[data-theme="onyx"] [data-account-id="mufg"]:hover,
-[data-theme="black"] [data-account-id="mufg"]:hover {
+[data-theme="black"] .account-detail-card.mufg:hover {
   border-color: rgba(244, 63, 94, 0.6) !important;
   box-shadow: 
     0 16px 38px -6px rgba(0, 0, 0, 0.95),
@@ -4634,7 +5116,42 @@ select option,
     inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
 }
 
-/* みずほ銀行（上質サファイアチタングラス） */
+[data-theme="onyx"] .account-detail-card.mufg .account-transfers-box {
+  background: rgba(18, 10, 14, 0.75) !important;
+  border: 1px solid rgba(244, 63, 94, 0.25) !important;
+  border-radius: 16px !important;
+  padding: 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  overflow: hidden !important;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="onyx"] .account-detail-card.mufg .transfer-item-row {
+  background: rgba(46, 18, 26, 0.6) !important;
+  border: 1px solid rgba(244, 63, 94, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+}
+
+[data-theme="onyx"] .account-detail-card.mufg .btn-card-add-tf {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.35) 0%, rgba(225, 29, 72, 0.55) 100%) !important;
+  border: 1px solid rgba(253, 164, 175, 0.55) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3) !important;
+}
+
+[data-theme="onyx"] .account-card.mufg .initial-balance-chip,
+[data-theme="black"] .account-card.mufg .initial-balance-chip,
+[data-theme="onyx"] .account-detail-card.mufg .initial-balance-mini,
+[data-theme="black"] .account-detail-card.mufg .initial-balance-mini {
+  background: rgba(46, 18, 26, 0.8) !important;
+  border: 1px solid rgba(244, 63, 94, 0.35) !important;
+  color: #fecdd3 !important;
+}
+
+/* みずほ銀行（上質コズミックサファイアチタングラス背景） */
 [data-theme="onyx"] .account-card.mizuho,
 [data-theme="black"] .account-card.mizuho,
 [data-theme="onyx"] .account-detail-card.mizuho,
@@ -4652,9 +5169,7 @@ select option,
 [data-theme="onyx"] .account-card.mizuho:hover,
 [data-theme="black"] .account-card.mizuho:hover,
 [data-theme="onyx"] .account-detail-card.mizuho:hover,
-[data-theme="black"] .account-detail-card.mizuho:hover,
-[data-theme="onyx"] [data-account-id="mizuho"]:hover,
-[data-theme="black"] [data-account-id="mizuho"]:hover {
+[data-theme="black"] .account-detail-card.mizuho:hover {
   border-color: rgba(56, 189, 248, 0.6) !important;
   box-shadow: 
     0 16px 38px -6px rgba(0, 0, 0, 0.95),
@@ -4662,17 +5177,44 @@ select option,
     inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
 }
 
-[data-theme="onyx"] #view-accounts .account-transfers-box,
-[data-theme="black"] #view-accounts .account-transfers-box {
-  background: rgba(10, 12, 16, 0.85) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: var(--radius-md) !important;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+[data-theme="onyx"] .account-detail-card.mizuho .account-transfers-box {
+  background: rgba(8, 14, 22, 0.75) !important;
+  border: 1px solid rgba(56, 189, 248, 0.25) !important;
+  border-radius: 16px !important;
+  padding: 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  overflow: hidden !important;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* 7. 各編集画面・モーダル内のボタン（設定ボタンと同じ上質チタングラスに統一） */
-[data-theme="onyx"] .modal-content .btn-primary,
-[data-theme="black"] .modal-content .btn-primary {
+[data-theme="onyx"] .account-detail-card.mizuho .transfer-item-row {
+  background: rgba(16, 26, 44, 0.6) !important;
+  border: 1px solid rgba(56, 189, 248, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+}
+
+[data-theme="onyx"] .account-detail-card.mizuho .btn-card-add-tf {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.35) 0%, rgba(37, 99, 235, 0.55) 100%) !important;
+  border: 1px solid rgba(147, 197, 253, 0.55) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+}
+
+[data-theme="onyx"] .account-card.mizuho .initial-balance-chip,
+[data-theme="black"] .account-card.mizuho .initial-balance-chip,
+[data-theme="onyx"] .account-detail-card.mizuho .initial-balance-mini,
+[data-theme="black"] .account-detail-card.mizuho .initial-balance-mini {
+  background: rgba(16, 26, 44, 0.8) !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
+  color: #bfdbfe !important;
+}
+
+/* 7. 各編集画面・モーダル内のボタン（設定ボタンと同じ上質チタングラスに統一 ※口座専用モーダルは各口座ジュエル色） */
+[data-theme="onyx"] .modal-content:not([data-account]) .btn-primary,
+[data-theme="black"] .modal-content:not([data-account]) .btn-primary {
   background: linear-gradient(165deg, rgba(34, 38, 46, 0.95) 0%, rgba(14, 16, 20, 0.99) 100%) !important;
   color: #ffffff !important;
   border: 1px solid rgba(255, 255, 255, 0.18) !important;
@@ -4687,8 +5229,8 @@ select option,
   transition: all 0.25s ease !important;
 }
 
-[data-theme="onyx"] .modal-content .btn-primary:hover,
-[data-theme="black"] .modal-content .btn-primary:hover {
+[data-theme="onyx"] .modal-content:not([data-account]) .btn-primary:hover,
+[data-theme="black"] .modal-content:not([data-account]) .btn-primary:hover {
   background: linear-gradient(165deg, rgba(46, 52, 64, 0.98) 0%, rgba(20, 24, 30, 1) 100%) !important;
   border-color: rgba(255, 255, 255, 0.35) !important;
   box-shadow: 
@@ -4698,8 +5240,8 @@ select option,
   transform: translateY(-1px);
 }
 
-[data-theme="onyx"] .modal-content .btn-danger,
-[data-theme="black"] .modal-content .btn-danger {
+[data-theme="onyx"] .modal-content:not([data-account]) .btn-danger,
+[data-theme="black"] .modal-content:not([data-account]) .btn-danger {
   background: linear-gradient(165deg, rgba(46, 18, 26, 0.95) 0%, rgba(18, 10, 14, 0.99) 100%) !important;
   color: #ffffff !important;
   border: 1px solid rgba(244, 63, 94, 0.38) !important;
@@ -4905,7 +5447,7 @@ select option,
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-/* 三井住友銀行（白銀チタンプレート × エメラルドジュエルエッジ） */
+/* 三井住友銀行（上質エメラルドジュエルフロスト背景） */
 [data-theme="platinum"] .account-card.smbc,
 [data-theme="light"] .account-card.smbc,
 [data-theme="white"] .account-card.smbc,
@@ -4915,19 +5457,34 @@ select option,
 [data-theme="platinum"] [data-account-id="smbc"],
 [data-theme="light"] [data-account-id="smbc"],
 [data-theme="white"] [data-account-id="smbc"] {
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.92) 50%, rgba(241, 245, 249, 0.88) 100%) !important;
-  border: 1px solid rgba(16, 185, 129, 0.5) !important;
+  background: linear-gradient(165deg, #ffffff 0%, #f4fbf7 60%, #eaf7f0 100%) !important;
+  border: 1.5px solid rgba(16, 185, 129, 0.35) !important;
   box-shadow: 
-    0 12px 30px -6px rgba(15, 23, 42, 0.08),
-    0 0 16px rgba(16, 185, 129, 0.12),
-    inset 0 1.5px 0.5px #ffffff,
-    inset 0 -1px 0 rgba(148, 163, 184, 0.2) !important;
+    0 8px 24px -4px rgba(15, 23, 42, 0.06),
+    0 0 16px rgba(16, 185, 129, 0.08),
+    inset 0 1.5px 0.5px #ffffff !important;
 }
 
-[data-theme="platinum"] .account-card.smbc .account-balance,
-[data-theme="light"] .account-card.smbc .account-balance,
-[data-theme="white"] .account-card.smbc .account-balance {
+[data-theme="platinum"] .account-card.smbc h3,
+[data-theme="light"] .account-card.smbc h3,
+[data-theme="white"] .account-card.smbc h3,
+[data-theme="platinum"] .account-card.smbc .account-name,
+[data-theme="light"] .account-card.smbc .account-name,
+[data-theme="white"] .account-card.smbc .account-name,
+[data-theme="platinum"] .account-detail-card.smbc h3,
+[data-theme="light"] .account-detail-card.smbc h3,
+[data-theme="white"] .account-detail-card.smbc h3 {
+  color: #0f172a !important;
+}
+
+[data-theme="platinum"] .account-card.smbc .account-val,
+[data-theme="light"] .account-card.smbc .account-val,
+[data-theme="white"] .account-card.smbc .account-val,
+[data-theme="platinum"] .account-detail-card.smbc .account-val,
+[data-theme="light"] .account-detail-card.smbc .account-val,
+[data-theme="white"] .account-detail-card.smbc .account-val {
   color: #047857 !important;
+  font-weight: 900 !important;
 }
 
 [data-theme="platinum"] .account-card.smbc:hover,
@@ -4935,18 +5492,80 @@ select option,
 [data-theme="white"] .account-card.smbc:hover,
 [data-theme="platinum"] .account-detail-card.smbc:hover,
 [data-theme="light"] .account-detail-card.smbc:hover,
-[data-theme="white"] .account-detail-card.smbc:hover,
-[data-theme="platinum"] [data-account-id="smbc"]:hover,
-[data-theme="light"] [data-account-id="smbc"]:hover,
-[data-theme="white"] [data-account-id="smbc"]:hover {
-  border-color: rgba(16, 185, 129, 0.75) !important;
+[data-theme="white"] .account-detail-card.smbc:hover {
+  border-color: rgba(16, 185, 129, 0.6) !important;
   box-shadow: 
-    0 16px 36px -6px rgba(15, 23, 42, 0.12),
-    0 0 24px rgba(16, 185, 129, 0.2),
+    0 12px 30px -4px rgba(16, 185, 129, 0.15),
+    0 0 20px rgba(16, 185, 129, 0.15),
     inset 0 1.5px 0.5px #ffffff !important;
 }
 
-/* 三菱UFJ銀行（白銀チタンプレート × ルビージュエルエッジ） */
+[data-theme="platinum"] .account-detail-card.smbc .account-transfers-box,
+[data-theme="light"] .account-detail-card.smbc .account-transfers-box,
+[data-theme="white"] .account-detail-card.smbc .account-transfers-box {
+  background: rgba(240, 253, 244, 0.6) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+  border-radius: 16px !important;
+  padding: 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  overflow: hidden !important;
+  box-shadow: inset 0 2px 6px rgba(6, 78, 59, 0.04) !important;
+}
+
+[data-theme="platinum"] .account-detail-card.smbc .transfer-item-row,
+[data-theme="light"] .account-detail-card.smbc .transfer-item-row,
+[data-theme="white"] .account-detail-card.smbc .transfer-item-row {
+  background: #ffffff !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+  color: #064e3b !important;
+}
+[data-theme="platinum"] .account-detail-card.smbc .transfer-item-row:hover,
+[data-theme="light"] .account-detail-card.smbc .transfer-item-row:hover,
+[data-theme="white"] .account-detail-card.smbc .transfer-item-row:hover {
+  background: #ffffff !important;
+  border-color: rgba(16, 185, 129, 0.45) !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.12) !important;
+}
+[data-theme="platinum"] .account-detail-card.smbc .transfer-item-date,
+[data-theme="light"] .account-detail-card.smbc .transfer-item-date,
+[data-theme="white"] .account-detail-card.smbc .transfer-item-date {
+  color: #047857 !important;
+  font-weight: 700 !important;
+}
+[data-theme="platinum"] .account-detail-card.smbc .transfer-item-name,
+[data-theme="light"] .account-detail-card.smbc .transfer-item-name,
+[data-theme="white"] .account-detail-card.smbc .transfer-item-name {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="platinum"] .account-detail-card.smbc .btn-card-add-tf,
+[data-theme="light"] .account-detail-card.smbc .btn-card-add-tf,
+[data-theme="white"] .account-detail-card.smbc .btn-card-add-tf {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  border: 1px solid #047857 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25) !important;
+}
+
+[data-theme="platinum"] .account-card.smbc .initial-balance-chip,
+[data-theme="light"] .account-card.smbc .initial-balance-chip,
+[data-theme="white"] .account-card.smbc .initial-balance-chip,
+[data-theme="platinum"] .account-detail-card.smbc .initial-balance-mini,
+[data-theme="light"] .account-detail-card.smbc .initial-balance-mini,
+[data-theme="white"] .account-detail-card.smbc .initial-balance-mini {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  color: #047857 !important;
+}
+
+/* 三菱UFJ銀行（上質クリムゾンルビーフロスト背景） */
 [data-theme="platinum"] .account-card.mufg,
 [data-theme="light"] .account-card.mufg,
 [data-theme="white"] .account-card.mufg,
@@ -4956,19 +5575,34 @@ select option,
 [data-theme="platinum"] [data-account-id="mufg"],
 [data-theme="light"] [data-account-id="mufg"],
 [data-theme="white"] [data-account-id="mufg"] {
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.92) 50%, rgba(241, 245, 249, 0.88) 100%) !important;
-  border: 1px solid rgba(225, 29, 72, 0.48) !important;
+  background: linear-gradient(165deg, #ffffff 0%, #fdf5f5 60%, #faebee 100%) !important;
+  border: 1.5px solid rgba(244, 63, 94, 0.35) !important;
   box-shadow: 
-    0 12px 30px -6px rgba(15, 23, 42, 0.08),
-    0 0 16px rgba(225, 29, 72, 0.12),
-    inset 0 1.5px 0.5px #ffffff,
-    inset 0 -1px 0 rgba(148, 163, 184, 0.2) !important;
+    0 8px 24px -4px rgba(15, 23, 42, 0.06),
+    0 0 16px rgba(244, 63, 94, 0.08),
+    inset 0 1.5px 0.5px #ffffff !important;
 }
 
-[data-theme="platinum"] .account-card.mufg .account-balance,
-[data-theme="light"] .account-card.mufg .account-balance,
-[data-theme="white"] .account-card.mufg .account-balance {
-  color: #be123c !important;
+[data-theme="platinum"] .account-card.mufg h3,
+[data-theme="light"] .account-card.mufg h3,
+[data-theme="white"] .account-card.mufg h3,
+[data-theme="platinum"] .account-card.mufg .account-name,
+[data-theme="light"] .account-card.mufg .account-name,
+[data-theme="white"] .account-card.mufg .account-name,
+[data-theme="platinum"] .account-detail-card.mufg h3,
+[data-theme="light"] .account-detail-card.mufg h3,
+[data-theme="white"] .account-detail-card.mufg h3 {
+  color: #0f172a !important;
+}
+
+[data-theme="platinum"] .account-card.mufg .account-val,
+[data-theme="light"] .account-card.mufg .account-val,
+[data-theme="white"] .account-card.mufg .account-val,
+[data-theme="platinum"] .account-detail-card.mufg .account-val,
+[data-theme="light"] .account-detail-card.mufg .account-val,
+[data-theme="white"] .account-detail-card.mufg .account-val {
+  color: #e11d48 !important;
+  font-weight: 900 !important;
 }
 
 [data-theme="platinum"] .account-card.mufg:hover,
@@ -4976,18 +5610,80 @@ select option,
 [data-theme="white"] .account-card.mufg:hover,
 [data-theme="platinum"] .account-detail-card.mufg:hover,
 [data-theme="light"] .account-detail-card.mufg:hover,
-[data-theme="white"] .account-detail-card.mufg:hover,
-[data-theme="platinum"] [data-account-id="mufg"]:hover,
-[data-theme="light"] [data-account-id="mufg"]:hover,
-[data-theme="white"] [data-account-id="mufg"]:hover {
-  border-color: rgba(225, 29, 72, 0.75) !important;
+[data-theme="white"] .account-detail-card.mufg:hover {
+  border-color: rgba(244, 63, 94, 0.6) !important;
   box-shadow: 
-    0 16px 36px -6px rgba(15, 23, 42, 0.12),
-    0 0 24px rgba(225, 29, 72, 0.2),
+    0 12px 30px -4px rgba(244, 63, 94, 0.15),
+    0 0 20px rgba(244, 63, 94, 0.15),
     inset 0 1.5px 0.5px #ffffff !important;
 }
 
-/* みずほ銀行（白銀チタンプレート × サファイアジュエルエッジ） */
+[data-theme="platinum"] .account-detail-card.mufg .account-transfers-box,
+[data-theme="light"] .account-detail-card.mufg .account-transfers-box,
+[data-theme="white"] .account-detail-card.mufg .account-transfers-box {
+  background: rgba(254, 242, 242, 0.6) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(244, 63, 94, 0.25) !important;
+  border-radius: 16px !important;
+  padding: 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  overflow: hidden !important;
+  box-shadow: inset 0 2px 6px rgba(159, 18, 57, 0.04) !important;
+}
+
+[data-theme="platinum"] .account-detail-card.mufg .transfer-item-row,
+[data-theme="light"] .account-detail-card.mufg .transfer-item-row,
+[data-theme="white"] .account-detail-card.mufg .transfer-item-row {
+  background: #ffffff !important;
+  border: 1px solid rgba(244, 63, 94, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+  color: #881337 !important;
+}
+[data-theme="platinum"] .account-detail-card.mufg .transfer-item-row:hover,
+[data-theme="light"] .account-detail-card.mufg .transfer-item-row:hover,
+[data-theme="white"] .account-detail-card.mufg .transfer-item-row:hover {
+  background: #ffffff !important;
+  border-color: rgba(244, 63, 94, 0.45) !important;
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.12) !important;
+}
+[data-theme="platinum"] .account-detail-card.mufg .transfer-item-date,
+[data-theme="light"] .account-detail-card.mufg .transfer-item-date,
+[data-theme="white"] .account-detail-card.mufg .transfer-item-date {
+  color: #be123c !important;
+  font-weight: 700 !important;
+}
+[data-theme="platinum"] .account-detail-card.mufg .transfer-item-name,
+[data-theme="light"] .account-detail-card.mufg .transfer-item-name,
+[data-theme="white"] .account-detail-card.mufg .transfer-item-name {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="platinum"] .account-detail-card.mufg .btn-card-add-tf,
+[data-theme="light"] .account-detail-card.mufg .btn-card-add-tf,
+[data-theme="white"] .account-detail-card.mufg .btn-card-add-tf {
+  background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
+  border: 1px solid #be123c !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.25) !important;
+}
+
+[data-theme="platinum"] .account-card.mufg .initial-balance-chip,
+[data-theme="light"] .account-card.mufg .initial-balance-chip,
+[data-theme="white"] .account-card.mufg .initial-balance-chip,
+[data-theme="platinum"] .account-detail-card.mufg .initial-balance-mini,
+[data-theme="light"] .account-detail-card.mufg .initial-balance-mini,
+[data-theme="white"] .account-detail-card.mufg .initial-balance-mini {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(244, 63, 94, 0.3) !important;
+  color: #be123c !important;
+}
+
+/* みずほ銀行（上質コズミックサファイアフロスト背景） */
 [data-theme="platinum"] .account-card.mizuho,
 [data-theme="light"] .account-card.mizuho,
 [data-theme="white"] .account-card.mizuho,
@@ -4997,19 +5693,34 @@ select option,
 [data-theme="platinum"] [data-account-id="mizuho"],
 [data-theme="light"] [data-account-id="mizuho"],
 [data-theme="white"] [data-account-id="mizuho"] {
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.92) 50%, rgba(241, 245, 249, 0.88) 100%) !important;
-  border: 1px solid rgba(2, 132, 199, 0.5) !important;
+  background: linear-gradient(165deg, #ffffff 0%, #f4f8fe 60%, #eaf2fd 100%) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
   box-shadow: 
-    0 12px 30px -6px rgba(15, 23, 42, 0.08),
-    0 0 16px rgba(56, 189, 248, 0.14),
-    inset 0 1.5px 0.5px #ffffff,
-    inset 0 -1px 0 rgba(148, 163, 184, 0.2) !important;
+    0 8px 24px -4px rgba(15, 23, 42, 0.06),
+    0 0 16px rgba(56, 189, 248, 0.08),
+    inset 0 1.5px 0.5px #ffffff !important;
 }
 
-[data-theme="platinum"] .account-card.mizuho .account-balance,
-[data-theme="light"] .account-card.mizuho .account-balance,
-[data-theme="white"] .account-card.mizuho .account-balance {
+[data-theme="platinum"] .account-card.mizuho h3,
+[data-theme="light"] .account-card.mizuho h3,
+[data-theme="white"] .account-card.mizuho h3,
+[data-theme="platinum"] .account-card.mizuho .account-name,
+[data-theme="light"] .account-card.mizuho .account-name,
+[data-theme="white"] .account-card.mizuho .account-name,
+[data-theme="platinum"] .account-detail-card.mizuho h3,
+[data-theme="light"] .account-detail-card.mizuho h3,
+[data-theme="white"] .account-detail-card.mizuho h3 {
+  color: #0f172a !important;
+}
+
+[data-theme="platinum"] .account-card.mizuho .account-val,
+[data-theme="light"] .account-card.mizuho .account-val,
+[data-theme="white"] .account-card.mizuho .account-val,
+[data-theme="platinum"] .account-detail-card.mizuho .account-val,
+[data-theme="light"] .account-detail-card.mizuho .account-val,
+[data-theme="white"] .account-detail-card.mizuho .account-val {
   color: #0284c7 !important;
+  font-weight: 900 !important;
 }
 
 [data-theme="platinum"] .account-card.mizuho:hover,
@@ -5017,21 +5728,83 @@ select option,
 [data-theme="white"] .account-card.mizuho:hover,
 [data-theme="platinum"] .account-detail-card.mizuho:hover,
 [data-theme="light"] .account-detail-card.mizuho:hover,
-[data-theme="white"] .account-detail-card.mizuho:hover,
-[data-theme="platinum"] [data-account-id="mizuho"]:hover,
-[data-theme="light"] [data-account-id="mizuho"]:hover,
-[data-theme="white"] [data-account-id="mizuho"]:hover {
-  border-color: rgba(2, 132, 199, 0.75) !important;
+[data-theme="white"] .account-detail-card.mizuho:hover {
+  border-color: rgba(56, 189, 248, 0.6) !important;
   box-shadow: 
-    0 16px 36px -6px rgba(15, 23, 42, 0.12),
-    0 0 24px rgba(56, 189, 248, 0.22),
+    0 12px 30px -4px rgba(56, 189, 248, 0.15),
+    0 0 20px rgba(56, 189, 248, 0.15),
     inset 0 1.5px 0.5px #ffffff !important;
 }
 
-/* 6. 各編集画面・モーダル内のボタン（重厚チタン＆白銀インゴット） */
-[data-theme="platinum"] .modal-content .btn-primary,
-[data-theme="light"] .modal-content .btn-primary,
-[data-theme="white"] .modal-content .btn-primary {
+[data-theme="platinum"] .account-detail-card.mizuho .account-transfers-box,
+[data-theme="light"] .account-detail-card.mizuho .account-transfers-box,
+[data-theme="white"] .account-detail-card.mizuho .account-transfers-box {
+  background: rgba(240, 249, 255, 0.6) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(56, 189, 248, 0.25) !important;
+  border-radius: 16px !important;
+  padding: 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  overflow: hidden !important;
+  box-shadow: inset 0 2px 6px rgba(14, 165, 233, 0.04) !important;
+}
+
+[data-theme="platinum"] .account-detail-card.mizuho .transfer-item-row,
+[data-theme="light"] .account-detail-card.mizuho .transfer-item-row,
+[data-theme="white"] .account-detail-card.mizuho .transfer-item-row {
+  background: #ffffff !important;
+  border: 1px solid rgba(56, 189, 248, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+  color: #1e3a8a !important;
+}
+[data-theme="platinum"] .account-detail-card.mizuho .transfer-item-row:hover,
+[data-theme="light"] .account-detail-card.mizuho .transfer-item-row:hover,
+[data-theme="white"] .account-detail-card.mizuho .transfer-item-row:hover {
+  background: #ffffff !important;
+  border-color: rgba(56, 189, 248, 0.45) !important;
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.12) !important;
+}
+[data-theme="platinum"] .account-detail-card.mizuho .transfer-item-date,
+[data-theme="light"] .account-detail-card.mizuho .transfer-item-date,
+[data-theme="white"] .account-detail-card.mizuho .transfer-item-date {
+  color: #0284c7 !important;
+  font-weight: 700 !important;
+}
+[data-theme="platinum"] .account-detail-card.mizuho .transfer-item-name,
+[data-theme="light"] .account-detail-card.mizuho .transfer-item-name,
+[data-theme="white"] .account-detail-card.mizuho .transfer-item-name {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="platinum"] .account-detail-card.mizuho .btn-card-add-tf,
+[data-theme="light"] .account-detail-card.mizuho .btn-card-add-tf,
+[data-theme="white"] .account-detail-card.mizuho .btn-card-add-tf {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+  border: 1px solid #0369a1 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.25) !important;
+}
+
+[data-theme="platinum"] .account-card.mizuho .initial-balance-chip,
+[data-theme="light"] .account-card.mizuho .initial-balance-chip,
+[data-theme="white"] .account-card.mizuho .initial-balance-chip,
+[data-theme="platinum"] .account-detail-card.mizuho .initial-balance-mini,
+[data-theme="light"] .account-detail-card.mizuho .initial-balance-mini,
+[data-theme="white"] .account-detail-card.mizuho .initial-balance-mini {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  color: #0284c7 !important;
+}
+
+/* 6. 各編集画面・モーダル内のボタン（重厚チタン＆白銀インゴット ※口座専用モーダルは各口座ジュエル色） */
+[data-theme="platinum"] .modal-content:not([data-account]) .btn-primary,
+[data-theme="light"] .modal-content:not([data-account]) .btn-primary,
+[data-theme="white"] .modal-content:not([data-account]) .btn-primary {
   background: linear-gradient(165deg, #0f172a 0%, #1e293b 100%) !important;
   color: #ffffff !important;
   border: 1px solid rgba(15, 23, 42, 0.9) !important;
@@ -5045,9 +5818,9 @@ select option,
   transition: all 0.25s ease !important;
 }
 
-[data-theme="platinum"] .modal-content .btn-primary:hover,
-[data-theme="light"] .modal-content .btn-primary:hover,
-[data-theme="white"] .modal-content .btn-primary:hover {
+[data-theme="platinum"] .modal-content:not([data-account]) .btn-primary:hover,
+[data-theme="light"] .modal-content:not([data-account]) .btn-primary:hover,
+[data-theme="white"] .modal-content:not([data-account]) .btn-primary:hover {
   background: linear-gradient(165deg, #1e293b 0%, #334155 100%) !important;
   border-color: rgba(15, 23, 42, 1) !important;
   box-shadow: 
@@ -5056,9 +5829,9 @@ select option,
   transform: translateY(-1px);
 }
 
-[data-theme="platinum"] .modal-content .btn-danger,
-[data-theme="light"] .modal-content .btn-danger,
-[data-theme="white"] .modal-content .btn-danger {
+[data-theme="platinum"] .modal-content:not([data-account]) .btn-danger,
+[data-theme="light"] .modal-content:not([data-account]) .btn-danger,
+[data-theme="white"] .modal-content:not([data-account]) .btn-danger {
   background: linear-gradient(165deg, #ffffff 0%, #fff1f2 50%, #ffe4e6 100%) !important;
   color: #e11d48 !important;
   border: 1px solid rgba(244, 63, 94, 0.45) !important;
@@ -5072,9 +5845,9 @@ select option,
   transition: all 0.25s ease !important;
 }
 
-[data-theme="platinum"] .modal-content .btn-danger:hover,
-[data-theme="light"] .modal-content .btn-danger:hover,
-[data-theme="white"] .modal-content .btn-danger:hover {
+[data-theme="platinum"] .modal-content:not([data-account]) .btn-danger:hover,
+[data-theme="light"] .modal-content:not([data-account]) .btn-danger:hover,
+[data-theme="white"] .modal-content:not([data-account]) .btn-danger:hover {
   background: linear-gradient(165deg, #ffffff 0%, #ffe4e6 50%, #fecdd3 100%) !important;
   border-color: rgba(244, 63, 94, 0.7) !important;
   box-shadow: 
@@ -5158,4 +5931,231 @@ select option,
     0 12px 30px -4px rgba(15, 23, 42, 0.4),
     inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
   transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   各口座モーダル（入出金登録・編集・月初残高設定）専用 最優先ジュエルスタイル
+   落ち着いた深みのあるチタングラス（オニキス）と上品な白銀淡色フロスト（プラチナ）
+   ========================================================================== */
+
+/* 三井住友銀行 (SMBC) - 上質エメラルドチタングラス */
+.modal-content[data-account="smbc"] {
+  background: linear-gradient(165deg, rgba(14, 34, 26, 0.98) 0%, rgba(8, 16, 12, 0.99) 100%) !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 -14px 48px rgba(0, 0, 0, 0.85), 0 0 28px rgba(16, 185, 129, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
+}
+.modal-content[data-account="smbc"] .modal-title {
+  color: #ffffff !important;
+  text-shadow: 0 0 14px rgba(16, 185, 129, 0.3) !important;
+}
+.modal-content[data-account="smbc"] .form-label {
+  color: #a7f3d0 !important;
+  font-weight: 600 !important;
+}
+.modal-content[data-account="smbc"] .form-input,
+.modal-content[data-account="smbc"] .form-select {
+  background: rgba(8, 16, 12, 0.85) !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+  color: #ffffff !important;
+}
+.modal-content[data-account="smbc"] .btn-primary,
+.modal-content[data-account="smbc"] button[type="submit"] {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.4) 0%, rgba(5, 150, 105, 0.65) 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(110, 231, 183, 0.55) !important;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+.modal-content[data-account="smbc"] .btn-primary:hover,
+.modal-content[data-account="smbc"] button[type="submit"]:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.55) 0%, rgba(5, 150, 105, 0.8) 100%) !important;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.5) !important;
+}
+
+/* ライトモード時のSMBC */
+[data-theme="platinum"] .modal-content[data-account="smbc"],
+[data-theme="light"] .modal-content[data-account="smbc"],
+[data-theme="white"] .modal-content[data-account="smbc"] {
+  background: linear-gradient(165deg, #ffffff 0%, #f4fbf7 60%, #eaf7f0 100%) !important;
+  border: 1.5px solid rgba(16, 185, 129, 0.35) !important;
+  box-shadow: 0 -12px 48px rgba(15, 23, 42, 0.1), 0 0 24px rgba(16, 185, 129, 0.12), inset 0 1.5px 0.5px #ffffff !important;
+  color: #0f172a !important;
+}
+[data-theme="platinum"] .modal-content[data-account="smbc"] .modal-title,
+[data-theme="light"] .modal-content[data-account="smbc"] .modal-title,
+[data-theme="white"] .modal-content[data-account="smbc"] .modal-title {
+  color: #0f172a !important;
+}
+[data-theme="platinum"] .modal-content[data-account="smbc"] .form-label,
+[data-theme="light"] .modal-content[data-account="smbc"] .form-label,
+[data-theme="white"] .modal-content[data-account="smbc"] .form-label {
+  color: #047857 !important;
+}
+[data-theme="platinum"] .modal-content[data-account="smbc"] .form-input,
+[data-theme="platinum"] .modal-content[data-account="smbc"] .form-select,
+[data-theme="light"] .modal-content[data-account="smbc"] .form-input,
+[data-theme="light"] .modal-content[data-account="smbc"] .form-select,
+[data-theme="white"] .modal-content[data-account="smbc"] .form-input,
+[data-theme="white"] .modal-content[data-account="smbc"] .form-select {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(16, 185, 129, 0.35) !important;
+  color: #0f172a !important;
+}
+[data-theme="platinum"] .modal-content[data-account="smbc"] .btn-primary,
+[data-theme="platinum"] .modal-content[data-account="smbc"] button[type="submit"],
+[data-theme="light"] .modal-content[data-account="smbc"] .btn-primary,
+[data-theme="light"] .modal-content[data-account="smbc"] button[type="submit"],
+[data-theme="white"] .modal-content[data-account="smbc"] .btn-primary,
+[data-theme="white"] .modal-content[data-account="smbc"] button[type="submit"] {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid #047857 !important;
+  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3) !important;
+}
+
+/* 三菱UFJ銀行 (MUFG) - 上質クリムゾンルビーチタングラス */
+.modal-content[data-account="mufg"] {
+  background: linear-gradient(165deg, rgba(46, 18, 26, 0.98) 0%, rgba(18, 10, 14, 0.99) 100%) !important;
+  border: 1px solid rgba(244, 63, 94, 0.4) !important;
+  box-shadow: 0 -14px 48px rgba(0, 0, 0, 0.85), 0 0 28px rgba(244, 63, 94, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
+}
+.modal-content[data-account="mufg"] .modal-title {
+  color: #ffffff !important;
+  text-shadow: 0 0 14px rgba(244, 63, 94, 0.3) !important;
+}
+.modal-content[data-account="mufg"] .form-label {
+  color: #fecdd3 !important;
+  font-weight: 600 !important;
+}
+.modal-content[data-account="mufg"] .form-input,
+.modal-content[data-account="mufg"] .form-select {
+  background: rgba(18, 10, 14, 0.85) !important;
+  border: 1px solid rgba(244, 63, 94, 0.35) !important;
+  color: #ffffff !important;
+}
+.modal-content[data-account="mufg"] .btn-primary,
+.modal-content[data-account="mufg"] button[type="submit"] {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.4) 0%, rgba(225, 29, 72, 0.65) 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(253, 164, 175, 0.55) !important;
+  box-shadow: 0 6px 20px rgba(244, 63, 94, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+.modal-content[data-account="mufg"] .btn-primary:hover,
+.modal-content[data-account="mufg"] button[type="submit"]:hover {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.55) 0%, rgba(225, 29, 72, 0.8) 100%) !important;
+  box-shadow: 0 8px 24px rgba(244, 63, 94, 0.5) !important;
+}
+
+/* ライトモード時のMUFG */
+[data-theme="platinum"] .modal-content[data-account="mufg"],
+[data-theme="light"] .modal-content[data-account="mufg"],
+[data-theme="white"] .modal-content[data-account="mufg"] {
+  background: linear-gradient(165deg, #ffffff 0%, #fdf5f5 60%, #faebee 100%) !important;
+  border: 1.5px solid rgba(244, 63, 94, 0.35) !important;
+  box-shadow: 0 -12px 48px rgba(15, 23, 42, 0.1), 0 0 24px rgba(244, 63, 94, 0.12), inset 0 1.5px 0.5px #ffffff !important;
+  color: #0f172a !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mufg"] .modal-title,
+[data-theme="light"] .modal-content[data-account="mufg"] .modal-title,
+[data-theme="white"] .modal-content[data-account="mufg"] .modal-title {
+  color: #0f172a !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mufg"] .form-label,
+[data-theme="light"] .modal-content[data-account="mufg"] .form-label,
+[data-theme="white"] .modal-content[data-account="mufg"] .form-label {
+  color: #be123c !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mufg"] .form-input,
+[data-theme="platinum"] .modal-content[data-account="mufg"] .form-select,
+[data-theme="light"] .modal-content[data-account="mufg"] .form-input,
+[data-theme="light"] .modal-content[data-account="mufg"] .form-select,
+[data-theme="white"] .modal-content[data-account="mufg"] .form-input,
+[data-theme="white"] .modal-content[data-account="mufg"] .form-select {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(244, 63, 94, 0.35) !important;
+  color: #0f172a !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mufg"] .btn-primary,
+[data-theme="platinum"] .modal-content[data-account="mufg"] button[type="submit"],
+[data-theme="light"] .modal-content[data-account="mufg"] .btn-primary,
+[data-theme="light"] .modal-content[data-account="mufg"] button[type="submit"],
+[data-theme="white"] .modal-content[data-account="mufg"] .btn-primary,
+[data-theme="white"] .modal-content[data-account="mufg"] button[type="submit"] {
+  background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid #be123c !important;
+  box-shadow: 0 6px 20px rgba(225, 29, 72, 0.3) !important;
+}
+
+/* みずほ銀行 (Mizuho) - 上質コズミックサファイアチタングラス */
+.modal-content[data-account="mizuho"] {
+  background: linear-gradient(165deg, rgba(16, 26, 44, 0.98) 0%, rgba(8, 14, 22, 0.99) 100%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.4) !important;
+  box-shadow: 0 -14px 48px rgba(0, 0, 0, 0.85), 0 0 28px rgba(56, 189, 248, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
+}
+.modal-content[data-account="mizuho"] .modal-title {
+  color: #ffffff !important;
+  text-shadow: 0 0 14px rgba(56, 189, 248, 0.3) !important;
+}
+.modal-content[data-account="mizuho"] .form-label {
+  color: #bfdbfe !important;
+  font-weight: 600 !important;
+}
+.modal-content[data-account="mizuho"] .form-input,
+.modal-content[data-account="mizuho"] .form-select {
+  background: rgba(8, 14, 22, 0.85) !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
+  color: #ffffff !important;
+}
+.modal-content[data-account="mizuho"] .btn-primary,
+.modal-content[data-account="mizuho"] button[type="submit"] {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.4) 0%, rgba(37, 99, 235, 0.65) 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(147, 197, 253, 0.55) !important;
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+.modal-content[data-account="mizuho"] .btn-primary:hover,
+.modal-content[data-account="mizuho"] button[type="submit"]:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.55) 0%, rgba(37, 99, 235, 0.8) 100%) !important;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.5) !important;
+}
+
+/* ライトモード時のみずほ */
+[data-theme="platinum"] .modal-content[data-account="mizuho"],
+[data-theme="light"] .modal-content[data-account="mizuho"],
+[data-theme="white"] .modal-content[data-account="mizuho"] {
+  background: linear-gradient(165deg, #ffffff 0%, #f4f8fe 60%, #eaf2fd 100%) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 0 -12px 48px rgba(15, 23, 42, 0.1), 0 0 24px rgba(56, 189, 248, 0.12), inset 0 1.5px 0.5px #ffffff !important;
+  color: #0f172a !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mizuho"] .modal-title,
+[data-theme="light"] .modal-content[data-account="mizuho"] .modal-title,
+[data-theme="white"] .modal-content[data-account="mizuho"] .modal-title {
+  color: #0f172a !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mizuho"] .form-label,
+[data-theme="light"] .modal-content[data-account="mizuho"] .form-label,
+[data-theme="white"] .modal-content[data-account="mizuho"] .form-label {
+  color: #0284c7 !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mizuho"] .form-input,
+[data-theme="platinum"] .modal-content[data-account="mizuho"] .form-select,
+[data-theme="light"] .modal-content[data-account="mizuho"] .form-input,
+[data-theme="light"] .modal-content[data-account="mizuho"] .form-select,
+[data-theme="white"] .modal-content[data-account="mizuho"] .form-input,
+[data-theme="white"] .modal-content[data-account="mizuho"] .form-select {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
+  color: #0f172a !important;
+}
+[data-theme="platinum"] .modal-content[data-account="mizuho"] .btn-primary,
+[data-theme="platinum"] .modal-content[data-account="mizuho"] button[type="submit"],
+[data-theme="light"] .modal-content[data-account="mizuho"] .btn-primary,
+[data-theme="light"] .modal-content[data-account="mizuho"] button[type="submit"],
+[data-theme="white"] .modal-content[data-account="mizuho"] .btn-primary,
+[data-theme="white"] .modal-content[data-account="mizuho"] button[type="submit"] {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid #0369a1 !important;
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.3) !important;
 }

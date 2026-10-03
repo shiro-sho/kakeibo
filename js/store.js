@@ -50,7 +50,7 @@ const DEFAULT_DATA_202609 = {
   fixedExpenses: [
     { id: 'rent', name: '家賃', amount: -82150, settled: false },
     { id: 'medical_loan', name: '医療ローン', amount: -29800, settled: false },
-    { id: 'credit_card', name: 'クレジットカード引落', amount: -318889, settled: false }
+    { id: 'credit_card', name: 'クレカ引落', amount: -318889, settled: false }
   ],
 
   // 銀行口座の月初設定値（Row 9-11 の D列）

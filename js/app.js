@@ -299,10 +299,7 @@ class AppController {
     if (viewName === 'analytics') {
       setTimeout(() => {
         this.chartRenderer.renderCategoryBarChart(store.getSummary().categoryTotals);
-      }, 50);
-      setTimeout(() => {
-        this.chartRenderer.renderCategoryBarChart(store.getSummary().categoryTotals);
-      }, 250);
+      }, 150);
     }
 
     // 設定画面を開いた際に最新の給料・設定情報を確実に同期
@@ -464,7 +461,7 @@ class AppController {
     container.innerHTML = s.accounts
       .map(
         (acc) => `
-      <div class="account-card" data-account-id="${acc.id}">
+      <div class="account-card ${acc.id}" data-account-id="${acc.id}">
         <div class="account-left">
           <span class="account-badge ${acc.id}"></span>
           <div class="account-info-main">
@@ -531,18 +528,21 @@ class AppController {
       }
     };
 
-    const createItemHtml = (f) => `
+    const createItemHtml = (f) => {
+      const displayName = (f.id === 'credit_card' || f.name === 'クレジットカード引落') ? 'クレカ引落' : f.name;
+      return `
       <div class="fixed-expense-item ${f.settled ? 'settled' : ''}" data-fixed-id="${f.id}">
         <div class="fixed-left">
           <div class="check-circle">${f.settled ? '✓' : ''}</div>
           <span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: rgba(255,255,255,0.06); color: var(--text-secondary); margin-right: 2px;">
             ${getFixedIconSvg(f.id)}
           </span>
-          <span class="fixed-name">${f.name}</span>
+          <span class="fixed-name">${displayName}</span>
         </div>
         <span class="fixed-amount">¥${Math.abs(f.amount).toLocaleString()}</span>
       </div>
     `;
+    };
 
     const attachFixedClickListener = (container) => {
       if (!container) return;
@@ -885,7 +885,7 @@ class AppController {
       <div class="tx-group-header recurring">
         <div class="tx-group-title-wrap">
           <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-          <span class="tx-group-title">固定費・生活引落（光熱費・サブスク等）</span>
+          <span class="tx-group-title">月額固定費</span>
           <span class="tx-group-count">${recurringTxList.length}件</span>
           ${pendingBadgeHtml}
         </div>
@@ -1021,6 +1021,8 @@ class AppController {
         const accId = btn.dataset.accountId;
         const sel = document.getElementById('input-tf-account');
         if (sel) sel.value = accId;
+        const modalContent = document.querySelector('#modal-add-transfer .modal-content');
+        if (modalContent) modalContent.setAttribute('data-account', accId || 'smbc');
         document.getElementById('modal-add-transfer')?.classList.add('active');
       });
     });
@@ -1140,15 +1142,39 @@ class AppController {
       document.getElementById('modal-edit-account')?.classList.remove('active');
     });
 
+    // 出入金モーダルの口座カラー動的適応ヘルパー
+    const updateModalAccountTheme = (modalId, accountId) => {
+      const modal = document.getElementById(modalId);
+      const content = modal?.querySelector('.modal-content');
+      if (content) {
+        content.setAttribute('data-account', accountId || 'smbc');
+      }
+    };
+
     // 出入金モーダル
-    const openTransferModal = () => document.getElementById('modal-add-transfer')?.classList.add('active');
+    const openTransferModal = () => {
+      const inputAcc = document.getElementById('input-tf-account');
+      const selAcc = inputAcc ? inputAcc.value : 'smbc';
+      updateModalAccountTheme('modal-add-transfer', selAcc);
+      document.getElementById('modal-add-transfer')?.classList.add('active');
+    };
     document.getElementById('btn-add-transfer')?.addEventListener('click', openTransferModal);
     document.getElementById('btn-add-transfer-home')?.addEventListener('click', openTransferModal);
     document.getElementById('btn-close-add-transfer')?.addEventListener('click', () => {
       document.getElementById('modal-add-transfer')?.classList.remove('active');
     });
 
-    // 出入金モーダル閉じる
+    // 口座セレクト変更時のカラー連動（change & input）
+    ['change', 'input'].forEach((evt) => {
+      document.getElementById('input-tf-account')?.addEventListener(evt, (e) => {
+        updateModalAccountTheme('modal-add-transfer', e.target.value);
+      });
+      document.getElementById('edit-tf-account')?.addEventListener(evt, (e) => {
+        updateModalAccountTheme('modal-edit-transfer', e.target.value);
+      });
+    });
+
+    // 出入金編集モーダル閉じる
     document.getElementById('btn-close-edit-transfer')?.addEventListener('click', () => {
       document.getElementById('modal-edit-transfer')?.classList.remove('active');
     });
@@ -1173,12 +1199,21 @@ class AppController {
     document.getElementById('edit-account-id').value = acc.id;
     document.getElementById('edit-account-title').textContent = `${acc.name}の月初金額`;
     document.getElementById('edit-account-amount').value = acc.initialBalance;
-    document.getElementById('modal-edit-account')?.classList.add('active');
+    const m = document.getElementById('modal-edit-account');
+    const content = m?.querySelector('.modal-content');
+    if (content) {
+      content.setAttribute('data-account', acc.id || 'smbc');
+    }
+    m?.classList.add('active');
   }
 
   openEditTransferModal(tf) {
     const m = document.getElementById('modal-edit-transfer');
     if (!m) return;
+    const content = m.querySelector('.modal-content');
+    if (content) {
+      content.setAttribute('data-account', tf.accountId || 'smbc');
+    }
     document.getElementById('edit-tf-id').value = tf.id || '';
     document.getElementById('edit-tf-row').value = tf.row || '';
     document.getElementById('edit-tf-old-name').value = tf.name || '';
