@@ -147,8 +147,13 @@ class AppController {
   }
 
   // --- アイコン管理システム ---
+  // --- アイコン管理システム ---
   initIcon() {
-    const savedIcon = localStorage.getItem('kakeibo_icon') || './icons/cow-gold.png';
+    let savedIcon = localStorage.getItem('kakeibo_icon') || './icons/cow-titanium.png';
+    // 削除された旧アイコンが保存されていた場合はチタン牛に自動移行
+    if (!savedIcon.includes('cow-titanium') && !savedIcon.includes('cow-platinum')) {
+      savedIcon = './icons/cow-titanium.png';
+    }
     this.applyAppIcon(savedIcon);
 
     document.querySelectorAll('.icon-choice-card').forEach((card) => {
@@ -198,28 +203,26 @@ class AppController {
     });
   }
 
-  // --- テーマ管理システム (ダーク2種 / ライト2種) ---
+  // --- テーマ管理システム (オニキス・ブラック & プラチナ・ホワイトの厳選2テーマ) ---
   initTheme() {
-    let savedTheme = localStorage.getItem('kakeibo_theme') || 'cyber';
-    // 旧テーマから新4テーマへの自動移行
-    if (savedTheme === 'gold' || savedTheme === 'desert' || savedTheme === 'space') savedTheme = 'cyber';
-    if (savedTheme === 'indigo' || savedTheme === 'natural' || savedTheme === 'midnight') savedTheme = 'onyx';
-    if (savedTheme === 'light' || savedTheme === 'white') savedTheme = 'platinum';
-    if (savedTheme === 'aurora' || savedTheme === 'purple') savedTheme = 'starlight';
+    let savedTheme = localStorage.getItem('kakeibo_theme') || 'onyx';
+    // 旧テーマから新2テーマ（onyx / platinum）への自動移行
+    if (savedTheme === 'platinum' || savedTheme === 'starlight' || savedTheme === 'light' || savedTheme === 'white') {
+      savedTheme = 'platinum';
+    } else {
+      savedTheme = 'onyx';
+    }
     this.applyTheme(savedTheme);
   }
 
   applyTheme(themeName) {
-    if (themeName === 'cyber') {
-      document.documentElement.removeAttribute('data-theme');
-    } else {
-      document.documentElement.setAttribute('data-theme', themeName);
-    }
-    localStorage.setItem('kakeibo_theme', themeName);
+    const validTheme = (themeName === 'platinum') ? 'platinum' : 'onyx';
+    document.documentElement.setAttribute('data-theme', validTheme);
+    localStorage.setItem('kakeibo_theme', validTheme);
 
     // モーダル内のカードアクティブ表示
     document.querySelectorAll('.theme-card').forEach((c) => {
-      if (c.dataset.setTheme === themeName) {
+      if (c.dataset.setTheme === validTheme) {
         c.classList.add('active');
       } else {
         c.classList.remove('active');

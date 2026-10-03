@@ -28,31 +28,23 @@ export class ChartRenderer {
         this.chartInstance.destroy();
       }
 
-      // テーマに合わせたカラー設定
-      const currentTheme = document.documentElement.getAttribute('data-theme') || 'cyber';
-      const isLight = currentTheme === 'platinum' || currentTheme === 'starlight' || currentTheme === 'light' || currentTheme === 'white';
+      // テーマに合わせたカラー設定（オニキスブラック & プラチナホワイト）
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'onyx';
+      const isLight = currentTheme === 'platinum' || currentTheme === 'light' || currentTheme === 'white';
       const textColor = isLight ? '#475569' : '#94a3b8';
       const valueLabelColor = isLight ? '#0f172a' : '#f8fafc';
-      const gridColor = isLight ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.06)';
+      const gridColor = isLight ? 'rgba(15, 23, 42, 0.06)' : 'rgba(255, 255, 255, 0.06)';
 
-      // グラデーションバーの作成
+      // グラデーションバーの作成（チタンスタイル）
       const gradient = this.ctx.createLinearGradient(0, 0, 320, 0);
       if (isLight) {
-        if (currentTheme === 'starlight') {
-          gradient.addColorStop(0, '#f59e0b');
-          gradient.addColorStop(1, '#d97706');
-        } else {
-          gradient.addColorStop(0, '#3b82f6');
-          gradient.addColorStop(1, '#0284c7');
-        }
+        // プラチナ・ホワイト：白銀から深く上質なスレートチタンへのグラデーション
+        gradient.addColorStop(0, '#94a3b8');
+        gradient.addColorStop(1, '#0f172a');
       } else {
-        if (currentTheme === 'onyx' || currentTheme === 'black') {
-          gradient.addColorStop(0, '#94a3b8');
-          gradient.addColorStop(1, '#f8fafc');
-        } else {
-          gradient.addColorStop(0, '#10b981');
-          gradient.addColorStop(1, '#3b82f6');
-        }
+        // オニキス・ブラック：スレートチタンから鮮やかなクールシルバーへのグラデーション
+        gradient.addColorStop(0, '#64748b');
+        gradient.addColorStop(1, '#f8fafc');
       }
 
       // 最大値に応じてX軸に余裕を持たせる（各棒の横の金額ラベルが切れないようにする）

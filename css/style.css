@@ -5,49 +5,13 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;900&display=swap');
 
-:root {
-  color-scheme: dark;
-  /* Theme 1 (Default): Emerald Black Titanium (漆黒チタン × エメラルドグリーン)
-     ユーザー要望：背景色の光にうっすら緑を入れる */
-  --bg-main: #010402;
-  --bg-gradient: radial-gradient(ellipse 90% 60% at 50% -12%, rgba(16, 185, 129, 0.22) 0%, rgba(5, 150, 105, 0.08) 42%, #040906 72%, #010402 100%);
-  --surface-card: rgba(16, 26, 21, 0.78);
-  --surface-card-hover: rgba(24, 40, 32, 0.88);
-  --surface-glass: rgba(16, 185, 129, 0.06);
-  --border-glass: rgba(16, 185, 129, 0.22);
-  --border-glow: rgba(16, 185, 129, 0.45);
-
-  --accent-primary: #10b981;
-  --accent-primary-glow: rgba(16, 185, 129, 0.38);
-  --accent-secondary: #06b6d4;
-  --accent-rose: #ff375f;
-  --accent-amber: #ff9f0a;
-
-  --text-primary: #f5f5f7;
-  --text-secondary: #a7f3d0;
-  --text-muted: #6ee7b7;
-
-  --card-hero-bg: linear-gradient(165deg, rgba(20, 38, 30, 0.94) 0%, rgba(7, 16, 12, 0.98) 100%);
-  --hero-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.88), 0 0 35px rgba(16, 185, 129, 0.25), inset 0 1px 0 rgba(16, 185, 129, 0.35);
-
-  --radius-sm: 14px;
-  --radius-md: 22px;
-  --radius-lg: 30px;
-  --radius-full: 9999px;
-  --shadow-card: 0 16px 40px -8px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-
-  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Plus Jakarta Sans", "Noto Sans JP", sans-serif;
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Outfit", "Noto Sans JP", sans-serif;
-  --max-width: 480px;
-  --bottom-nav-height: 66px;
-  --bottom-clearance: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 20px) + 54px);
-}
-
-/* Theme 2: Onyx Black Titanium (漆黒チタン × クールシルバー)
-   ユーザー要望：漆黒系のもの */
+:root,
 [data-theme="onyx"],
-[data-theme="black"] {
+[data-theme="black"],
+[data-theme="cyber"] {
   color-scheme: dark;
+  /* Theme 1: Onyx Black Titanium (漆黒チタン × クールシルバー)
+     最高峰の完成度を誇るダークチタングラスデザイン */
   --bg-main: #000000;
   --bg-gradient: radial-gradient(ellipse 90% 60% at 50% -12%, rgba(148, 163, 184, 0.12) 0%, rgba(30, 41, 59, 0.06) 42%, #060709 72%, #000000 100%);
   --surface-card: rgba(18, 20, 24, 0.82);
@@ -68,23 +32,38 @@
 
   --card-hero-bg: linear-gradient(165deg, rgba(28, 30, 36, 0.95) 0%, rgba(10, 11, 13, 0.99) 100%);
   --hero-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.95), 0 0 32px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+
+  --radius-sm: 14px;
+  --radius-md: 22px;
+  --radius-lg: 30px;
+  --radius-full: 9999px;
+  --shadow-card: 0 16px 40px -8px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Plus Jakarta Sans", "Noto Sans JP", sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Outfit", "Noto Sans JP", sans-serif;
+  --max-width: 480px;
+  --bottom-nav-height: 66px;
+  --bottom-clearance: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 20px) + 54px);
 }
 
-/* Theme 3: Platinum Silver Titanium (白銀チタン × アイスシルバー)
-   ユーザー要望：アプリアイコンがプラチナのときに合うライト系デザイン */
-[data-theme="platinum"] {
+/* Theme 2: Platinum White Titanium (白銀チタン × スノーシルバー)
+   オニキスブラックに対応した極上のライト系フロストチタングラスデザイン */
+[data-theme="platinum"],
+[data-theme="light"],
+[data-theme="white"],
+[data-theme="starlight"] {
   color-scheme: light;
-  --bg-main: #f1f5f9;
-  --bg-gradient: radial-gradient(ellipse 90% 65% at 50% -12%, rgba(226, 232, 240, 0.95) 0%, rgba(241, 245, 249, 0.98) 50%, #e2e8f0 100%);
-  --surface-card: rgba(255, 255, 255, 0.85);
-  --surface-card-hover: rgba(255, 255, 255, 0.96);
+  --bg-main: #f8fafc;
+  --bg-gradient: radial-gradient(ellipse 90% 65% at 50% -12%, rgba(226, 232, 240, 0.95) 0%, rgba(248, 250, 252, 0.98) 50%, #e2e8f0 100%);
+  --surface-card: rgba(255, 255, 255, 0.88);
+  --surface-card-hover: rgba(255, 255, 255, 0.98);
   --surface-glass: rgba(15, 23, 42, 0.03);
-  --border-glass: rgba(148, 163, 184, 0.35);
-  --border-glow: rgba(37, 99, 235, 0.38);
+  --border-glass: rgba(148, 163, 184, 0.32);
+  --border-glow: rgba(100, 116, 139, 0.35);
 
-  --accent-primary: #2563eb;
-  --accent-primary-glow: rgba(37, 99, 235, 0.25);
-  --accent-secondary: #0ea5e9;
+  --accent-primary: #0f172a;
+  --accent-primary-glow: rgba(15, 23, 42, 0.18);
+  --accent-secondary: #64748b;
   --accent-rose: #e11d48;
   --accent-amber: #d97706;
 
@@ -92,76 +71,18 @@
   --text-secondary: #475569;
   --text-muted: #64748b;
 
-  --card-hero-bg: linear-gradient(165deg, rgba(255, 255, 255, 0.96) 0%, rgba(241, 245, 249, 0.92) 100%);
-  --hero-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.12), 0 0 24px rgba(37, 99, 235, 0.14), inset 0 1px 0 #ffffff;
-  --shadow-card: 0 12px 32px -6px rgba(15, 23, 42, 0.08), inset 0 1px 0 #ffffff;
-}
-
-/* Theme 4: Starlight White Titanium (スターライト × シャンパンホワイト)
-   ユーザー要望：ダークとライトで2種類ずつのライト2種目 */
-[data-theme="starlight"],
-[data-theme="light"],
-[data-theme="white"] {
-  color-scheme: light;
-  --bg-main: #faf8f5;
-  --bg-gradient: radial-gradient(ellipse 90% 65% at 50% -12%, rgba(254, 243, 199, 0.55) 0%, rgba(250, 248, 245, 0.98) 50%, #f5efe6 100%);
-  --surface-card: rgba(255, 255, 255, 0.88);
-  --surface-card-hover: rgba(255, 255, 255, 0.98);
-  --surface-glass: rgba(180, 83, 9, 0.03);
-  --border-glass: rgba(217, 119, 6, 0.22);
-  --border-glow: rgba(217, 119, 6, 0.38);
-
-  --accent-primary: #d97706;
-  --accent-primary-glow: rgba(217, 119, 6, 0.25);
-  --accent-secondary: #f59e0b;
-  --accent-rose: #e11d48;
-  --accent-amber: #b45309;
-
-  --text-primary: #1c1917;
-  --text-secondary: #57534e;
-  --text-muted: #78716c;
-
-  --card-hero-bg: linear-gradient(165deg, rgba(255, 255, 255, 0.96) 0%, rgba(254, 252, 248, 0.92) 100%);
-  --hero-shadow: 0 16px 40px -8px rgba(41, 37, 36, 0.1), 0 0 24px rgba(217, 119, 6, 0.14), inset 0 1px 0 #ffffff;
-  --shadow-card: 0 12px 32px -6px rgba(41, 37, 36, 0.08), inset 0 1px 0 #ffffff;
+  --card-hero-bg: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(241, 245, 249, 0.94) 100%);
+  --hero-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.08), 0 0 24px rgba(148, 163, 184, 0.14), inset 0 1px 0 #ffffff;
+  --shadow-card: 0 12px 32px -6px rgba(15, 23, 42, 0.06), inset 0 1px 0 #ffffff;
 }
 
 /* 後方互換用エイリアス */
 [data-theme="space"],
-[data-theme="cyan"] {
-  color-scheme: dark;
-  --bg-main: #010204;
-  --bg-gradient: radial-gradient(circle at 50% 0%, #0d1a29 0%, #050b12 55%, #010204 100%);
-  --surface-card: rgba(13, 23, 37, 0.78);
-  --border-glow: rgba(6, 182, 212, 0.45);
-  --accent-primary: #06b6d4;
-  --accent-secondary: #38bdf8;
-  --text-primary: #f0fdf4;
-}
-
+[data-theme="cyan"],
 [data-theme="midnight"],
 [data-theme="blue"],
 [data-theme="indigo"] {
   color-scheme: dark;
-  --bg-main: #020308;
-  --bg-gradient: radial-gradient(circle at 50% 0%, #0f1938 0%, #070c1e 55%, #020308 100%);
-  --surface-card: rgba(16, 24, 46, 0.78);
-  --border-glow: rgba(59, 130, 246, 0.45);
-  --accent-primary: #3b82f6;
-  --accent-secondary: #60a5fa;
-  --text-primary: #f8fafc;
-}
-
-[data-theme="aurora"],
-[data-theme="purple"] {
-  color-scheme: dark;
-  --bg-main: #030106;
-  --bg-gradient: radial-gradient(circle at 50% 0%, #1e1030 0%, #0d0617 55%, #030106 100%);
-  --surface-card: rgba(28, 16, 44, 0.78);
-  --border-glow: rgba(168, 85, 247, 0.45);
-  --accent-primary: #a855f7;
-  --accent-secondary: #c084fc;
-  --text-primary: #faf5ff;
 }
 
 /* ==========================================================================
@@ -844,11 +765,12 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+[data-theme="platinum"] .apple-card-chip,
 [data-theme="white"] .apple-card-chip,
 [data-theme="light"] .apple-card-chip {
-  color: rgba(0, 0, 0, 0.6);
-  background: rgba(0, 0, 0, 0.04);
-  border-color: rgba(0, 0, 0, 0.06);
+  color: #334155;
+  background: rgba(15, 23, 42, 0.05);
+  border-color: rgba(148, 163, 184, 0.28);
 }
 
 .apple-card-badge {
@@ -927,9 +849,10 @@ body {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+[data-theme="platinum"] .tx-category-chips-grid,
 [data-theme="white"] .tx-category-chips-grid,
 [data-theme="light"] .tx-category-chips-grid {
-  border-top-color: rgba(0, 0, 0, 0.06);
+  border-top-color: rgba(148, 163, 184, 0.25);
 }
 
 .tx-cat-chip-card {
@@ -944,10 +867,12 @@ body {
   transition: transform 0.2s ease, background 0.2s ease;
 }
 
+[data-theme="platinum"] .tx-cat-chip-card,
 [data-theme="white"] .tx-cat-chip-card,
 [data-theme="light"] .tx-cat-chip-card {
-  background: rgba(0, 0, 0, 0.02);
-  border-color: rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(148, 163, 184, 0.28);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
 }
 
 .tx-cat-chip-card:active {
@@ -1915,34 +1840,39 @@ select option,
   color: #f8fafc !important;
 }
 
-/* 4. ホワイトチタン（ライトモード）の select & option */
+/* 4. プラチナ・ホワイト（ライトモード）の select & option */
+[data-theme="platinum"] .form-input,
 [data-theme="white"] .form-input,
 [data-theme="light"] .form-input {
-  background: #f5f5f7;
-  border-color: #d2d2d7;
-  color: #1d1d1f;
+  background: #f8fafc;
+  border-color: rgba(148, 163, 184, 0.4);
+  color: #0f172a;
 }
 
+[data-theme="platinum"] .form-select,
 [data-theme="white"] .form-select,
 [data-theme="light"] .form-select {
   background-color: #ffffff;
-  border-color: #d2d2d7;
-  color: #1d1d1f;
+  border-color: rgba(148, 163, 184, 0.4);
+  color: #0f172a;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23059669' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
   color-scheme: light;
 }
+[data-theme="platinum"] .form-select:hover,
 [data-theme="white"] .form-select:hover,
 [data-theme="light"] .form-select:hover {
   border-color: #059669;
 }
 
+[data-theme="platinum"] select option,
 [data-theme="white"] select option,
 [data-theme="light"] select option,
+[data-theme="platinum"] .form-select option,
 [data-theme="white"] .form-select option,
 [data-theme="light"] .form-select option {
   background-color: #ffffff !important;
-  color: #1d1d1f !important;
+  color: #0f172a !important;
 }
 
 .btn-primary {
@@ -4225,47 +4155,43 @@ select option,
 }
 
 [data-theme="platinum"] .tx-segment-btn.active .segment-badge,
-[data-theme="starlight"] .tx-segment-btn.active .segment-badge,
-[data-theme="white"] .tx-segment-btn.active .segment-badge,
-[data-theme="light"] .tx-segment-btn.active .segment-badge {
+[data-theme="light"] .tx-segment-btn.active .segment-badge,
+[data-theme="white"] .tx-segment-btn.active .segment-badge {
   background: var(--accent-primary) !important;
   color: #ffffff !important;
 }
 
-/* 蠖捺怦縺ｮ縺泌茜逕ｨ邱城｡・(Apple Card Hero) 縺ｮ譁・ｭ苓牡 */
+/* 当月のご利用総額 (Apple Card Hero) の文字色 */
 [data-theme="platinum"] .apple-card-label,
-[data-theme="starlight"] .apple-card-label,
-[data-theme="white"] .apple-card-label,
-[data-theme="light"] .apple-card-label {
+[data-theme="light"] .apple-card-label,
+[data-theme="white"] .apple-card-label {
   color: #475569 !important;
   font-weight: 800 !important;
 }
 
 [data-theme="platinum"] .apple-card-amount,
-[data-theme="starlight"] .apple-card-amount,
-[data-theme="white"] .apple-card-amount,
-[data-theme="light"] .apple-card-amount {
+[data-theme="light"] .apple-card-amount,
+[data-theme="white"] .apple-card-amount {
   color: #0f172a !important;
   text-shadow: none !important;
 }
 
 [data-theme="platinum"] .apple-card-cur,
-[data-theme="starlight"] .apple-card-cur,
-[data-theme="white"] .apple-card-cur,
-[data-theme="light"] .apple-card-cur {
+[data-theme="light"] .apple-card-cur,
+[data-theme="white"] .apple-card-cur {
   color: var(--accent-primary) !important;
 }
 
 [data-theme="platinum"] .tx-breakdown-toggle-btn,
-[data-theme="starlight"] .tx-breakdown-toggle-btn,
-[data-theme="white"] .tx-breakdown-toggle-btn,
-[data-theme="light"] .tx-breakdown-toggle-btn {
-  background: rgba(0, 0, 0, 0.05) !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
+[data-theme="light"] .tx-breakdown-toggle-btn,
+[data-theme="white"] .tx-breakdown-toggle-btn {
+  background: rgba(15, 23, 42, 0.05) !important;
+  border-color: rgba(148, 163, 184, 0.3) !important;
   color: #334155 !important;
 }
+
 /* ========================================================
-   譏守ｴｰ繧ｰ繝ｫ繝ｼ繝苓ｦ句・縺・ 繝ｩ繧､繝医Δ繝ｼ繝牙ｯｾ蠢・& 繝ｩ繝・・隱ｿ謨ｴ
+   明細グループ見出し: ライトモード対応
    ======================================================== */
 .tx-group-header {
   gap: 8px;
@@ -4279,262 +4205,223 @@ select option,
 }
 
 [data-theme="platinum"] .tx-group-header,
-[data-theme="starlight"] .tx-group-header,
-[data-theme="white"] .tx-group-header,
-[data-theme="light"] .tx-group-header {
-  background: rgba(0, 0, 0, 0.03);
+[data-theme="light"] .tx-group-header,
+[data-theme="white"] .tx-group-header {
+  background: rgba(15, 23, 42, 0.03);
 }
 
 [data-theme="platinum"] .tx-group-header.recurring .tx-group-total,
-[data-theme="starlight"] .tx-group-header.recurring .tx-group-total,
-[data-theme="white"] .tx-group-header.recurring .tx-group-total,
-[data-theme="light"] .tx-group-header.recurring .tx-group-total {
+[data-theme="light"] .tx-group-header.recurring .tx-group-total,
+[data-theme="white"] .tx-group-header.recurring .tx-group-total {
   color: #7e22ce !important;
   font-weight: 800;
 }
 
 [data-theme="platinum"] .tx-group-total,
-[data-theme="starlight"] .tx-group-total,
-[data-theme="white"] .tx-group-total,
-[data-theme="light"] .tx-group-total {
+[data-theme="light"] .tx-group-total,
+[data-theme="white"] .tx-group-total {
   color: #0f172a;
   font-weight: 800;
 }
 
 [data-theme="platinum"] .tx-badge-recurring,
-[data-theme="starlight"] .tx-badge-recurring,
-[data-theme="white"] .tx-badge-recurring,
-[data-theme="light"] .tx-badge-recurring {
+[data-theme="light"] .tx-badge-recurring,
+[data-theme="white"] .tx-badge-recurring {
   background: rgba(168, 85, 247, 0.12) !important;
   color: #7e22ce !important;
   border-color: rgba(168, 85, 247, 0.28) !important;
 }
+
 /* ==========================================================================
-   繝ｩ繧ｰ繧ｸ繝･繧｢繝ｪ繝ｼ繝ｻ繝輔Ο繧ｹ繝医メ繧ｿ繝ｳ・亥ｮ峨▲縺ｽ縺輔ｒ荳謗・☆繧矩ｫ倡ｴ壹Λ繧､繝医Δ繝ｼ繝臥音蛹砲SS・・   Apple Pro Liquid Glass Light Edition & 2-Line Forecast Layout
+   ラグジュアリー・白銀フロストチタンデザイン（プラチナ・ホワイト専用）
+   オニキスブラックの「漆黒チタン」と対をなす最高峰のライト系デザイン
    ========================================================================== */
 
-/* 1. 謗ｨ螳壽園謖・≡・亥ｼ戊誠蠕碁≡鬘搾ｼ峨・遒ｺ螳溘↑2陦瑚｡ｨ遉ｺ繝ｬ繧､繧｢繧ｦ繝・   繝ｦ繝ｼ繧ｶ繝ｼ隕∵悍・壹後け繝ｬ繧ｫ莉｣繝ｻ蝗ｺ螳夊ｲｻ繝ｻ邨ｦ荳弱ｒ蜉蜻ｳ縲咲ｭ峨ｒ遒ｺ螳溘↓2陦檎岼縺ｫ險倩ｼ・*/
-.forecast-meta {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 3px !important;
-  flex: 1;
-  min-width: 0;
-}
-
-.forecast-title {
-  display: block !important;
-  font-size: 0.95rem !important;
-  font-weight: 700 !important;
-  color: var(--text-primary) !important;
-  line-height: 1.3 !important;
-}
-
-.forecast-desc {
-  display: block !important;
-  font-size: 0.73rem !important;
-  color: var(--text-muted) !important;
-  line-height: 1.35 !important;
-}
-
-/* 2. 繝ｩ繧､繝医Δ繝ｼ繝峨・繝・・繝槫､画焚繧｢繝・・繧ｰ繝ｬ繝ｼ繝会ｼ・latinum & Starlight・・*/
-[data-theme="platinum"] {
-  color-scheme: light;
-  --bg-main: #f0f4f8;
-  --bg-gradient: radial-gradient(ellipse 110% 75% at 50% -10%, rgba(219, 234, 254, 0.65) 0%, rgba(238, 242, 248, 0.88) 45%, #e1e7ef 100%);
-  --surface-card: rgba(255, 255, 255, 0.82);
-  --surface-card-hover: rgba(255, 255, 255, 0.96);
-  --surface-glass: rgba(255, 255, 255, 0.65);
-  --border-glass: rgba(255, 255, 255, 0.92);
-  --border-glow: rgba(37, 99, 235, 0.28);
-
-  --accent-primary: #1d4ed8;
-  --accent-primary-glow: rgba(37, 99, 235, 0.22);
-  --accent-secondary: #0284c7;
-  --accent-rose: #e11d48;
-  --accent-amber: #d97706;
-
-  --text-primary: #090d16;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
-
-  --card-hero-bg: linear-gradient(150deg, #ffffff 0%, #f8fafc 50%, #eff6ff 100%);
-  --hero-shadow: 0 20px 48px -10px rgba(29, 78, 216, 0.14), 0 4px 16px rgba(15, 23, 42, 0.04), inset 0 1px 1px #ffffff;
-  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -4px rgba(15, 23, 42, 0.06), 0 20px 40px -10px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.95);
-}
-
-[data-theme="starlight"],
+/* 1. プラチナ・ホワイトのテーマ変数（最高峰ソリッド・プラチナチタニウム） */
+[data-theme="platinum"],
 [data-theme="light"],
 [data-theme="white"] {
   color-scheme: light;
-  --bg-main: #faf7f2;
-  --bg-gradient: radial-gradient(ellipse 110% 75% at 50% -10%, rgba(254, 243, 199, 0.68) 0%, rgba(253, 248, 240, 0.9) 45%, #f4eae0 100%);
-  --surface-card: rgba(255, 255, 255, 0.84);
-  --surface-card-hover: rgba(255, 255, 255, 0.96);
-  --surface-glass: rgba(255, 255, 255, 0.68);
-  --border-glass: rgba(255, 255, 255, 0.92);
-  --border-glow: rgba(217, 119, 6, 0.28);
+  --bg-main: #e2e8f0;
+  --bg-gradient: radial-gradient(ellipse 110% 75% at 50% -12%, #f1f5f9 0%, #e2e8f0 40%, #cbd5e1 100%);
+  --surface-card: linear-gradient(165deg, rgba(255, 255, 255, 0.94) 0%, rgba(241, 245, 249, 0.88) 100%);
+  --surface-card-hover: linear-gradient(165deg, #ffffff 0%, rgba(248, 250, 252, 0.95) 100%);
+  --surface-glass: rgba(15, 23, 42, 0.04);
+  --border-glass: rgba(148, 163, 184, 0.45);
+  --border-glow: rgba(100, 116, 139, 0.45);
 
-  --accent-primary: #b45309;
-  --accent-primary-glow: rgba(217, 119, 6, 0.22);
-  --accent-secondary: #d97706;
-  --accent-rose: #e11d48;
-  --accent-amber: #92400e;
+  --accent-primary: #0f172a;
+  --accent-primary-glow: rgba(15, 23, 42, 0.2);
+  --accent-secondary: #475569;
+  --accent-rose: #be123c;
+  --accent-amber: #b45309;
 
-  --text-primary: #1c1917;
-  --text-secondary: #44403c;
-  --text-muted: #78716c;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
 
-  --card-hero-bg: linear-gradient(150deg, #ffffff 0%, #fffdfa 50%, #fef3c7 100%);
-  --hero-shadow: 0 20px 48px -10px rgba(180, 83, 9, 0.12), 0 4px 16px rgba(41, 37, 36, 0.04), inset 0 1px 1px #ffffff;
-  --shadow-card: 0 1px 2px rgba(41, 37, 36, 0.04), 0 8px 24px -4px rgba(41, 37, 36, 0.06), 0 20px 40px -10px rgba(41, 37, 36, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --card-hero-bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 25%, #e9eef5 55%, #f1f5f9 80%, #ffffff 100%);
+  --hero-shadow: 0 20px 48px -12px rgba(15, 23, 42, 0.14), 0 4px 16px rgba(100, 116, 139, 0.15), inset 0 1.5px 0.5px #ffffff, inset 0 -1px 0 rgba(148, 163, 184, 0.25);
+  --shadow-card: 0 12px 30px -6px rgba(15, 23, 42, 0.09), 0 2px 6px rgba(100, 116, 139, 0.08), inset 0 1.5px 0.5px #ffffff, inset 0 -1px 0 rgba(148, 163, 184, 0.2);
 }
 
-/* 3. 繝ｩ繧､繝医Δ繝ｼ繝峨・繧ｬ繝ｩ繧ｹ繧ｫ繝ｼ繝・ 螳峨▲縺ｽ縺・區繝吶ち縺九ｉ縲碁ｫ倡ｴ壹ヵ繝ｭ繧ｹ繝医Μ繧ｭ繝・ラ繧ｬ繝ｩ繧ｹ縲阪∈ */
+/* 2. プラチナ・ホワイトのガラスカード（重厚な彫刻チタンプレート＆クリスタルガラス） */
 [data-theme="platinum"] .glass-card,
-[data-theme="starlight"] .glass-card,
-[data-theme="white"] .glass-card,
-[data-theme="light"] .glass-card {
+[data-theme="light"] .glass-card,
+[data-theme="white"] .glass-card {
   background: var(--surface-card) !important;
-  backdrop-filter: blur(28px) saturate(190%) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.9) !important;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03), 0 10px 30px -4px rgba(15, 23, 42, 0.06), inset 0 1px 0 #ffffff !important;
+  backdrop-filter: blur(28px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.45) !important;
+  box-shadow: 
+    0 12px 32px -6px rgba(15, 23, 42, 0.09), 
+    0 2px 6px rgba(100, 116, 139, 0.08), 
+    inset 0 1.5px 0.5px #ffffff, 
+    inset 0 -1px 0 rgba(148, 163, 184, 0.22) !important;
 }
 
-/* 4. 閾ｪ逕ｱ雉・≡繝｡繧､繝ｳ繝偵・繝ｭ繝ｼ繧ｫ繝ｼ繝峨・譛鬮倡ｴ壻ｻ穂ｸ翫￡ */
-[data-theme="platinum"] .credit-hero {
-  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 55%, #eff6ff 100%) !important;
-  border: 1px solid rgba(37, 99, 235, 0.22) !important;
-  box-shadow: 0 24px 50px -12px rgba(37, 99, 235, 0.16), 0 4px 16px rgba(15, 23, 42, 0.04), inset 0 1px 1px #ffffff !important;
+/* 3. クレジット利用枠メインヒーローカード（本物のApple Card Titaniumサテン白銀チタン） */
+[data-theme="platinum"] .credit-hero,
+[data-theme="light"] .credit-hero,
+[data-theme="white"] .credit-hero {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 25%, #e9eef5 55%, #f1f5f9 80%, #ffffff 100%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.5) !important;
+  box-shadow: 
+    0 24px 52px -12px rgba(15, 23, 42, 0.16), 
+    0 6px 18px rgba(100, 116, 139, 0.18), 
+    inset 0 2px 1px #ffffff, 
+    inset 0 -1.5px 1px rgba(148, 163, 184, 0.3) !important;
 }
 
-[data-theme="starlight"] .credit-hero {
-  background: linear-gradient(145deg, #ffffff 0%, #fffdfa 55%, #fef3c7 100%) !important;
-  border: 1px solid rgba(217, 119, 6, 0.22) !important;
-  box-shadow: 0 24px 50px -12px rgba(217, 119, 6, 0.14), 0 4px 16px rgba(41, 37, 36, 0.04), inset 0 1px 1px #ffffff !important;
+/* ヒーローカードの金額刻印タイポグラフィ（レーザーエングレービング立体感） */
+[data-theme="platinum"] .hero-total-amount,
+[data-theme="light"] .hero-total-amount,
+[data-theme="white"] .hero-total-amount,
+[data-theme="platinum"] .apple-card-amount,
+[data-theme="light"] .apple-card-amount,
+[data-theme="white"] .apple-card-amount {
+  color: #0f172a !important;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.95), 0 -1px 0 rgba(15, 23, 42, 0.1) !important;
+  letter-spacing: -0.03em !important;
 }
 
-/* 繝偵・繝ｭ繝ｼ繧ｫ繝ｼ繝牙・縺ｮ險育ｮ怜・險ｳ繧｢繧ｳ繝ｼ繝・ぅ繧ｪ繝ｳ */
+/* ヒーローカード境界線の白銀チタン光アニメーション */
+[data-theme="platinum"] .credit-hero::before,
+[data-theme="light"] .credit-hero::before,
+[data-theme="white"] .credit-hero::before {
+  background: conic-gradient(
+    from var(--border-angle, 0deg),
+    transparent 0%,
+    rgba(255, 255, 255, 0.8) 10%,
+    rgba(148, 163, 184, 0.6) 20%,
+    rgba(100, 116, 139, 0.7) 25%,
+    transparent 35%,
+    transparent 100%
+  ) !important;
+}
+
+/* 4. ヒーローカード内の計算内訳アコーディオン */
 [data-theme="platinum"] .calc-insight-card,
-[data-theme="starlight"] .calc-insight-card,
-[data-theme="white"] .calc-insight-card,
-[data-theme="light"] .calc-insight-card {
-  background: rgba(255, 255, 255, 0.65) !important;
-  border: 1px solid rgba(255, 255, 255, 0.9) !important;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04), inset 0 1px 0 #ffffff !important;
+[data-theme="light"] .calc-insight-card,
+[data-theme="white"] .calc-insight-card {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.92) 0%, rgba(241, 245, 249, 0.9) 100%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.42) !important;
+  box-shadow: 
+    0 4px 16px rgba(15, 23, 42, 0.06), 
+    inset 0 1.5px 0 #ffffff,
+    inset 0 -1px 0 rgba(148, 163, 184, 0.2) !important;
 }
 
 [data-theme="platinum"] .flow-step,
-[data-theme="starlight"] .flow-step,
-[data-theme="white"] .flow-step,
-[data-theme="light"] .flow-step {
-  background: #ffffff !important;
-  border: 1px solid rgba(15, 23, 42, 0.06) !important;
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03) !important;
+[data-theme="light"] .flow-step,
+[data-theme="white"] .flow-step {
+  background: linear-gradient(165deg, #ffffff 0%, #f8fafc 100%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.38) !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05), inset 0 1px 0 #ffffff !important;
 }
 
-/* 5. Apple Card Hero (譏守ｴｰ繧ｫ繝ｼ繝・ 縺ｮ繝√ち繝ｳ繝｡繧ｿ繝ｫ雉ｪ諢・*/
+/* 5. Apple Card Hero (明細カード) の白銀チタンメタル質感 */
 [data-theme="platinum"] .tx-apple-card-hero,
-[data-theme="starlight"] .tx-apple-card-hero,
-[data-theme="white"] .tx-apple-card-hero,
-[data-theme="light"] .tx-apple-card-hero {
-  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 40%, #eef2f6 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 0 20px 44px -10px rgba(15, 23, 42, 0.1), 0 2px 8px rgba(15, 23, 42, 0.03), inset 0 1px 1px #ffffff, inset 0 0 0 1px rgba(255, 255, 255, 0.8) !important;
+[data-theme="light"] .tx-apple-card-hero,
+[data-theme="white"] .tx-apple-card-hero {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 30%, #e9eef5 60%, #ffffff 100%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.48) !important;
+  box-shadow: 
+    0 22px 48px -12px rgba(15, 23, 42, 0.14), 
+    0 4px 14px rgba(100, 116, 139, 0.12), 
+    inset 0 2px 1px #ffffff, 
+    inset 0 -1px 0 rgba(148, 163, 184, 0.25) !important;
 }
 
-/* 6. 譏守ｴｰ繝ｪ繧ｹ繝医い繧､繝・Β縺ｮ鬮倡ｴ壹い繧ｯ繝ｪ繝ｫ繧ｬ繝ｩ繧ｹ雉ｪ諢・*/
+/* 6. 明細リストアイテムの高級アクリルガラス＆チタン質感 */
 [data-theme="platinum"] .tx-item-card,
-[data-theme="starlight"] .tx-item-card,
-[data-theme="white"] .tx-item-card,
-[data-theme="light"] .tx-item-card {
-  background: rgba(255, 255, 255, 0.82) !important;
-  backdrop-filter: blur(16px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03), 0 8px 24px -6px rgba(15, 23, 42, 0.04), inset 0 1px 0 #ffffff !important;
+[data-theme="light"] .tx-item-card,
+[data-theme="white"] .tx-item-card {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%) !important;
+  backdrop-filter: blur(16px) saturate(170%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.4) !important;
+  box-shadow: 
+    0 3px 10px rgba(15, 23, 42, 0.05), 
+    0 8px 22px -4px rgba(15, 23, 42, 0.07), 
+    inset 0 1.5px 0 #ffffff,
+    inset 0 -1px 0 rgba(148, 163, 184, 0.18) !important;
 }
 
 [data-theme="platinum"] .tx-item-card:active,
-[data-theme="starlight"] .tx-item-card:active,
-[data-theme="white"] .tx-item-card:active,
-[data-theme="light"] .tx-item-card:active {
-  background: rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), inset 0 1px 0 #ffffff !important;
+[data-theme="light"] .tx-item-card:active,
+[data-theme="white"] .tx-item-card:active {
+  background: linear-gradient(165deg, #f8fafc 0%, #edf2f7 100%) !important;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08), inset 0 1px 0 #ffffff !important;
 }
 
-/* 7. 繧ｻ繧ｰ繝｡繝ｳ繝医ち繝悶・繝ｩ繧ｰ繧ｸ繝･繧｢繝ｪ繝ｼ繝ｻ繧ｨ繝ｳ繝懊せ繝輔ぅ繝九ャ繧ｷ繝･ */
+/* 7. セグメントタブのラグジュアリー・エンボスフィニッシュ（彫刻金属窪み） */
 [data-theme="platinum"] .tx-segment-control,
-[data-theme="starlight"] .tx-segment-control,
-[data-theme="white"] .tx-segment-control,
-[data-theme="light"] .tx-segment-control {
-  background: rgba(15, 23, 42, 0.05) !important;
-  border: 1px solid rgba(15, 23, 42, 0.08) !important;
-  box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.04) !important;
+[data-theme="light"] .tx-segment-control,
+[data-theme="white"] .tx-segment-control {
+  background: rgba(15, 23, 42, 0.08) !important;
+  border: 1px solid rgba(148, 163, 184, 0.4) !important;
+  box-shadow: inset 0 2px 5px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(255, 255, 255, 0.6) !important;
 }
 
 [data-theme="platinum"] .tx-segment-btn.active,
-[data-theme="starlight"] .tx-segment-btn.active,
-[data-theme="white"] .tx-segment-btn.active,
-[data-theme="light"] .tx-segment-btn.active {
-  background: #ffffff !important;
-  color: #090d16 !important;
+[data-theme="light"] .tx-segment-btn.active,
+[data-theme="white"] .tx-segment-btn.active {
+  background: linear-gradient(165deg, #ffffff 0%, #f1f5f9 100%) !important;
+  color: #0f172a !important;
   font-weight: 700 !important;
-  border: 1px solid rgba(15, 23, 42, 0.08) !important;
-  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04), inset 0 1px 0 #ffffff !important;
+  border: 1px solid rgba(148, 163, 184, 0.45) !important;
+  box-shadow: 
+    0 4px 12px rgba(15, 23, 42, 0.11), 
+    0 1px 2px rgba(15, 23, 42, 0.06), 
+    inset 0 1.5px 0 #ffffff !important;
 }
 
-/* 8. 繝倥ャ繝繝ｼ縺ｨ繝懊ヨ繝繝翫ン縺ｮ繝輔Ο繧ｹ繝医げ繝ｩ繧ｹ繝ｪ繝・メ蛹・*/
+/* 8. ヘッダーとボトムナビのソリッドフロストチタン（彫刻メタルフレーム） */
 [data-theme="platinum"] .app-header,
-[data-theme="starlight"] .app-header,
-[data-theme="white"] .app-header,
-[data-theme="light"] .app-header {
-  background: rgba(255, 255, 255, 0.8) !important;
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.07) !important;
+[data-theme="light"] .app-header,
+[data-theme="white"] .app-header {
+  background: rgba(235, 240, 246, 0.88) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.4) !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04) !important;
 }
 
 [data-theme="platinum"] .bottom-nav,
-[data-theme="starlight"] .bottom-nav,
-[data-theme="white"] .bottom-nav,
-[data-theme="light"] .bottom-nav {
-  background: rgba(255, 255, 255, 0.84) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  border-top: 1px solid rgba(15, 23, 42, 0.07) !important;
-  box-shadow: 0 -4px 24px rgba(15, 23, 42, 0.04) !important;
+[data-theme="light"] .bottom-nav,
+[data-theme="white"] .bottom-nav {
+  background: rgba(235, 240, 246, 0.9) !important;
+  backdrop-filter: blur(28px) saturate(180%) !important;
+  border-top: 1px solid rgba(148, 163, 184, 0.4) !important;
+  box-shadow: 0 -6px 28px rgba(15, 23, 42, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
 }
 
-/* 9. 蜿｣蠎ｧ繧ｻ繧ｯ繧ｷ繝ｧ繝ｳ縺ｮ蜈･蜃ｺ驥大ｱ･豁ｴ譫・医Λ繧､繝医Δ繝ｼ繝牙ｯｾ蠢懶ｼ・*/
+/* 9. 口座セクションの入出金履歴枠（ライトモード対応） */
 [data-theme="platinum"] .account-transfers-box,
-[data-theme="starlight"] .account-transfers-box,
-[data-theme="white"] .account-transfers-box,
-[data-theme="light"] .account-transfers-box {
-  background: rgba(255, 255, 255, 0.7) !important;
-  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+[data-theme="light"] .account-transfers-box,
+[data-theme="white"] .account-transfers-box {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
   box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.03) !important;
-}
-
-/* 10. 蠅・阜邱壹・蜈峨い繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ・医Λ繧､繝医Δ繝ｼ繝臥畑縺ｮ荳雁刀縺ｪ繧ｵ繝輔ぃ繧､繧｢蜈会ｼ・す繝｣繝ｳ繝代Φ蜈会ｼ・*/
-[data-theme="platinum"] .credit-hero::before {
-  background: conic-gradient(
-    from var(--border-angle, 0deg),
-    transparent 0%,
-    rgba(37, 99, 235, 0.45) 15%,
-    rgba(2, 132, 199, 0.6) 25%,
-    transparent 35%,
-    transparent 100%
-  ) !important;
-}
-
-[data-theme="starlight"] .credit-hero::before {
-  background: conic-gradient(
-    from var(--border-angle, 0deg),
-    transparent 0%,
-    rgba(217, 119, 6, 0.45) 15%,
-    rgba(245, 158, 11, 0.6) 25%,
-    transparent 35%,
-    transparent 100%
-  ) !important;
 }
 
 /* ==========================================================================
@@ -4878,4 +4765,397 @@ select option,
   color: rgba(255, 255, 255, 0.8) !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
   padding: 3px 8px !important;
+}
+
+/* ==========================================================================
+   Luxury White Titanium Glass Design for Platinum White
+   オニキスブラックに対応した極上の白銀チタンフロストガラス UI スタイル
+   ========================================================================== */
+
+/* 1. 設定セクションの設定ボタン（白銀チタンインゴット仕上げ） */
+[data-theme="platinum"] #view-settings .btn-primary,
+[data-theme="platinum"] .view-settings .btn-primary,
+[data-theme="light"] #view-settings .btn-primary,
+[data-theme="light"] .view-settings .btn-primary,
+[data-theme="white"] #view-settings .btn-primary,
+[data-theme="white"] .view-settings .btn-primary {
+  background: linear-gradient(165deg, #ffffff 0%, #f8fafc 45%, #e2e8f0 100%) !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(148, 163, 184, 0.5) !important;
+  box-shadow: 
+    0 6px 20px -2px rgba(15, 23, 42, 0.1),
+    0 0 16px rgba(148, 163, 184, 0.15),
+    inset 0 1.5px 0.5px #ffffff,
+    inset 0 -1px 0 rgba(148, 163, 184, 0.25) !important;
+}
+
+[data-theme="platinum"] #view-settings .btn-primary svg,
+[data-theme="platinum"] .view-settings .btn-primary svg,
+[data-theme="light"] #view-settings .btn-primary svg,
+[data-theme="light"] .view-settings .btn-primary svg,
+[data-theme="white"] #view-settings .btn-primary svg,
+[data-theme="white"] .view-settings .btn-primary svg {
+  stroke: #0f172a !important;
+  color: #0f172a !important;
+}
+
+[data-theme="platinum"] #view-settings .btn-primary:hover,
+[data-theme="platinum"] .view-settings .btn-primary:hover,
+[data-theme="light"] #view-settings .btn-primary:hover,
+[data-theme="light"] .view-settings .btn-primary:hover,
+[data-theme="white"] #view-settings .btn-primary:hover,
+[data-theme="white"] .view-settings .btn-primary:hover {
+  background: linear-gradient(165deg, #ffffff 0%, #ffffff 50%, #edf2f7 100%) !important;
+  border-color: rgba(100, 116, 139, 0.65) !important;
+  box-shadow: 
+    0 10px 28px -2px rgba(15, 23, 42, 0.15),
+    0 0 22px rgba(148, 163, 184, 0.25),
+    inset 0 1.5px 0.5px #ffffff !important;
+  transform: translateY(-1px);
+}
+
+/* 2. プラチナ・ホワイトにおける「今月データをテンプレから再復元」（高級ルビーチタンインゴット） */
+[data-theme="platinum"] #view-settings .btn-danger,
+[data-theme="platinum"] .view-settings .btn-danger,
+[data-theme="light"] #view-settings .btn-danger,
+[data-theme="light"] .view-settings .btn-danger,
+[data-theme="white"] #view-settings .btn-danger,
+[data-theme="white"] .view-settings .btn-danger {
+  background: linear-gradient(165deg, #ffffff 0%, #fff1f2 45%, #ffe4e6 100%) !important;
+  color: #e11d48 !important;
+  border: 1px solid rgba(244, 63, 94, 0.45) !important;
+  box-shadow: 
+    0 6px 20px -2px rgba(225, 29, 72, 0.1),
+    0 0 16px rgba(244, 63, 94, 0.12),
+    inset 0 1.5px 0.5px #ffffff,
+    inset 0 -1px 0 rgba(244, 63, 94, 0.2) !important;
+}
+
+[data-theme="platinum"] #view-settings .btn-danger svg,
+[data-theme="platinum"] .view-settings .btn-danger svg,
+[data-theme="light"] #view-settings .btn-danger svg,
+[data-theme="light"] .view-settings .btn-danger svg,
+[data-theme="white"] #view-settings .btn-danger svg,
+[data-theme="white"] .view-settings .btn-danger svg {
+  stroke: #e11d48 !important;
+}
+
+[data-theme="platinum"] #view-settings .btn-danger:hover,
+[data-theme="platinum"] .view-settings .btn-danger:hover,
+[data-theme="light"] #view-settings .btn-danger:hover,
+[data-theme="light"] .view-settings .btn-danger:hover,
+[data-theme="white"] #view-settings .btn-danger:hover,
+[data-theme="white"] .view-settings .btn-danger:hover {
+  background: linear-gradient(165deg, #ffffff 0%, #ffe4e6 50%, #fecdd3 100%) !important;
+  border-color: rgba(244, 63, 94, 0.7) !important;
+  box-shadow: 
+    0 10px 28px -2px rgba(225, 29, 72, 0.18),
+    0 0 22px rgba(244, 63, 94, 0.25),
+    inset 0 1.5px 0.5px #ffffff !important;
+  transform: translateY(-1px);
+}
+
+/* 3. 明細セクションの「メールから取込」ボタン（白銀チタン彫刻） */
+[data-theme="platinum"] .btn-email-sync,
+[data-theme="light"] .btn-email-sync,
+[data-theme="white"] .btn-email-sync {
+  background: linear-gradient(165deg, #ffffff 0%, #f8fafc 50%, #edf2f7 100%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.45) !important;
+  color: #0f172a !important;
+  box-shadow: 
+    0 3px 10px rgba(15, 23, 42, 0.08),
+    inset 0 1.5px 0.5px #ffffff,
+    inset 0 -1px 0 rgba(148, 163, 184, 0.2) !important;
+}
+
+[data-theme="platinum"] .btn-email-sync svg,
+[data-theme="light"] .btn-email-sync svg,
+[data-theme="white"] .btn-email-sync svg {
+  stroke: #0f172a !important;
+}
+
+[data-theme="platinum"] .btn-email-sync:hover,
+[data-theme="light"] .btn-email-sync:hover,
+[data-theme="white"] .btn-email-sync:hover {
+  background: #ffffff !important;
+  border-color: rgba(100, 116, 139, 0.6) !important;
+  box-shadow: 
+    0 6px 18px rgba(15, 23, 42, 0.12),
+    0 0 14px rgba(148, 163, 184, 0.2) !important;
+}
+
+/* 4. 明細セクションの「2026年10月分」表示枠（白銀チタンエンボス） */
+[data-theme="platinum"] .apple-card-badge,
+[data-theme="light"] .apple-card-badge,
+[data-theme="white"] .apple-card-badge {
+  background: linear-gradient(165deg, #ffffff 0%, #f1f5f9 100%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.45) !important;
+  color: #0f172a !important;
+  box-shadow: inset 0 1px 0 #ffffff, 0 2px 6px rgba(15, 23, 42, 0.06) !important;
+}
+
+/* 5. 口座セクションの各口座カード（白銀チタンプレート × 本格ジュエルエッジ） */
+[data-theme="platinum"] #view-accounts .account-card,
+[data-theme="light"] #view-accounts .account-card,
+[data-theme="white"] #view-accounts .account-card,
+[data-theme="platinum"] #home-accounts-container .account-card,
+[data-theme="light"] #home-accounts-container .account-card,
+[data-theme="white"] #home-accounts-container .account-card {
+  border-radius: var(--radius-lg) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* 三井住友銀行（白銀チタンプレート × エメラルドジュエルエッジ） */
+[data-theme="platinum"] .account-card.smbc,
+[data-theme="light"] .account-card.smbc,
+[data-theme="white"] .account-card.smbc,
+[data-theme="platinum"] .account-detail-card.smbc,
+[data-theme="light"] .account-detail-card.smbc,
+[data-theme="white"] .account-detail-card.smbc,
+[data-theme="platinum"] [data-account-id="smbc"],
+[data-theme="light"] [data-account-id="smbc"],
+[data-theme="white"] [data-account-id="smbc"] {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.92) 50%, rgba(241, 245, 249, 0.88) 100%) !important;
+  border: 1px solid rgba(16, 185, 129, 0.5) !important;
+  box-shadow: 
+    0 12px 30px -6px rgba(15, 23, 42, 0.08),
+    0 0 16px rgba(16, 185, 129, 0.12),
+    inset 0 1.5px 0.5px #ffffff,
+    inset 0 -1px 0 rgba(148, 163, 184, 0.2) !important;
+}
+
+[data-theme="platinum"] .account-card.smbc .account-balance,
+[data-theme="light"] .account-card.smbc .account-balance,
+[data-theme="white"] .account-card.smbc .account-balance {
+  color: #047857 !important;
+}
+
+[data-theme="platinum"] .account-card.smbc:hover,
+[data-theme="light"] .account-card.smbc:hover,
+[data-theme="white"] .account-card.smbc:hover,
+[data-theme="platinum"] .account-detail-card.smbc:hover,
+[data-theme="light"] .account-detail-card.smbc:hover,
+[data-theme="white"] .account-detail-card.smbc:hover,
+[data-theme="platinum"] [data-account-id="smbc"]:hover,
+[data-theme="light"] [data-account-id="smbc"]:hover,
+[data-theme="white"] [data-account-id="smbc"]:hover {
+  border-color: rgba(16, 185, 129, 0.75) !important;
+  box-shadow: 
+    0 16px 36px -6px rgba(15, 23, 42, 0.12),
+    0 0 24px rgba(16, 185, 129, 0.2),
+    inset 0 1.5px 0.5px #ffffff !important;
+}
+
+/* 三菱UFJ銀行（白銀チタンプレート × ルビージュエルエッジ） */
+[data-theme="platinum"] .account-card.mufg,
+[data-theme="light"] .account-card.mufg,
+[data-theme="white"] .account-card.mufg,
+[data-theme="platinum"] .account-detail-card.mufg,
+[data-theme="light"] .account-detail-card.mufg,
+[data-theme="white"] .account-detail-card.mufg,
+[data-theme="platinum"] [data-account-id="mufg"],
+[data-theme="light"] [data-account-id="mufg"],
+[data-theme="white"] [data-account-id="mufg"] {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.92) 50%, rgba(241, 245, 249, 0.88) 100%) !important;
+  border: 1px solid rgba(225, 29, 72, 0.48) !important;
+  box-shadow: 
+    0 12px 30px -6px rgba(15, 23, 42, 0.08),
+    0 0 16px rgba(225, 29, 72, 0.12),
+    inset 0 1.5px 0.5px #ffffff,
+    inset 0 -1px 0 rgba(148, 163, 184, 0.2) !important;
+}
+
+[data-theme="platinum"] .account-card.mufg .account-balance,
+[data-theme="light"] .account-card.mufg .account-balance,
+[data-theme="white"] .account-card.mufg .account-balance {
+  color: #be123c !important;
+}
+
+[data-theme="platinum"] .account-card.mufg:hover,
+[data-theme="light"] .account-card.mufg:hover,
+[data-theme="white"] .account-card.mufg:hover,
+[data-theme="platinum"] .account-detail-card.mufg:hover,
+[data-theme="light"] .account-detail-card.mufg:hover,
+[data-theme="white"] .account-detail-card.mufg:hover,
+[data-theme="platinum"] [data-account-id="mufg"]:hover,
+[data-theme="light"] [data-account-id="mufg"]:hover,
+[data-theme="white"] [data-account-id="mufg"]:hover {
+  border-color: rgba(225, 29, 72, 0.75) !important;
+  box-shadow: 
+    0 16px 36px -6px rgba(15, 23, 42, 0.12),
+    0 0 24px rgba(225, 29, 72, 0.2),
+    inset 0 1.5px 0.5px #ffffff !important;
+}
+
+/* みずほ銀行（白銀チタンプレート × サファイアジュエルエッジ） */
+[data-theme="platinum"] .account-card.mizuho,
+[data-theme="light"] .account-card.mizuho,
+[data-theme="white"] .account-card.mizuho,
+[data-theme="platinum"] .account-detail-card.mizuho,
+[data-theme="light"] .account-detail-card.mizuho,
+[data-theme="white"] .account-detail-card.mizuho,
+[data-theme="platinum"] [data-account-id="mizuho"],
+[data-theme="light"] [data-account-id="mizuho"],
+[data-theme="white"] [data-account-id="mizuho"] {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.92) 50%, rgba(241, 245, 249, 0.88) 100%) !important;
+  border: 1px solid rgba(2, 132, 199, 0.5) !important;
+  box-shadow: 
+    0 12px 30px -6px rgba(15, 23, 42, 0.08),
+    0 0 16px rgba(56, 189, 248, 0.14),
+    inset 0 1.5px 0.5px #ffffff,
+    inset 0 -1px 0 rgba(148, 163, 184, 0.2) !important;
+}
+
+[data-theme="platinum"] .account-card.mizuho .account-balance,
+[data-theme="light"] .account-card.mizuho .account-balance,
+[data-theme="white"] .account-card.mizuho .account-balance {
+  color: #0284c7 !important;
+}
+
+[data-theme="platinum"] .account-card.mizuho:hover,
+[data-theme="light"] .account-card.mizuho:hover,
+[data-theme="white"] .account-card.mizuho:hover,
+[data-theme="platinum"] .account-detail-card.mizuho:hover,
+[data-theme="light"] .account-detail-card.mizuho:hover,
+[data-theme="white"] .account-detail-card.mizuho:hover,
+[data-theme="platinum"] [data-account-id="mizuho"]:hover,
+[data-theme="light"] [data-account-id="mizuho"]:hover,
+[data-theme="white"] [data-account-id="mizuho"]:hover {
+  border-color: rgba(2, 132, 199, 0.75) !important;
+  box-shadow: 
+    0 16px 36px -6px rgba(15, 23, 42, 0.12),
+    0 0 24px rgba(56, 189, 248, 0.22),
+    inset 0 1.5px 0.5px #ffffff !important;
+}
+
+/* 6. 各編集画面・モーダル内のボタン（重厚チタン＆白銀インゴット） */
+[data-theme="platinum"] .modal-content .btn-primary,
+[data-theme="light"] .modal-content .btn-primary,
+[data-theme="white"] .modal-content .btn-primary {
+  background: linear-gradient(165deg, #0f172a 0%, #1e293b 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.9) !important;
+  border-radius: 14px !important;
+  padding: 14px 20px !important;
+  font-size: 0.92rem !important;
+  font-weight: 700 !important;
+  box-shadow: 
+    0 8px 24px -4px rgba(15, 23, 42, 0.28),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+  transition: all 0.25s ease !important;
+}
+
+[data-theme="platinum"] .modal-content .btn-primary:hover,
+[data-theme="light"] .modal-content .btn-primary:hover,
+[data-theme="white"] .modal-content .btn-primary:hover {
+  background: linear-gradient(165deg, #1e293b 0%, #334155 100%) !important;
+  border-color: rgba(15, 23, 42, 1) !important;
+  box-shadow: 
+    0 12px 30px -4px rgba(15, 23, 42, 0.38),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+[data-theme="platinum"] .modal-content .btn-danger,
+[data-theme="light"] .modal-content .btn-danger,
+[data-theme="white"] .modal-content .btn-danger {
+  background: linear-gradient(165deg, #ffffff 0%, #fff1f2 50%, #ffe4e6 100%) !important;
+  color: #e11d48 !important;
+  border: 1px solid rgba(244, 63, 94, 0.45) !important;
+  border-radius: 14px !important;
+  padding: 14px 20px !important;
+  font-size: 0.92rem !important;
+  font-weight: 700 !important;
+  box-shadow: 
+    0 4px 16px -2px rgba(225, 29, 72, 0.1),
+    inset 0 1.5px 0.5px #ffffff !important;
+  transition: all 0.25s ease !important;
+}
+
+[data-theme="platinum"] .modal-content .btn-danger:hover,
+[data-theme="light"] .modal-content .btn-danger:hover,
+[data-theme="white"] .modal-content .btn-danger:hover {
+  background: linear-gradient(165deg, #ffffff 0%, #ffe4e6 50%, #fecdd3 100%) !important;
+  border-color: rgba(244, 63, 94, 0.7) !important;
+  box-shadow: 
+    0 8px 24px -2px rgba(225, 29, 72, 0.18),
+    inset 0 1.5px 0.5px #ffffff !important;
+  transform: translateY(-1px);
+}
+
+/* 7. ホームセクションの「内訳」アコーディオン（白銀チタン調和） */
+[data-theme="platinum"] .calc-insight-card,
+[data-theme="light"] .calc-insight-card,
+[data-theme="white"] .calc-insight-card {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.92) 50%, rgba(241, 245, 249, 0.88) 100%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.45) !important;
+  border-radius: 16px !important;
+  box-shadow: 
+    0 8px 24px -2px rgba(15, 23, 42, 0.07),
+    inset 0 1.5px 0.5px #ffffff,
+    inset 0 -1px 0 rgba(148, 163, 184, 0.2) !important;
+}
+
+[data-theme="platinum"] .calc-insight-trigger,
+[data-theme="light"] .calc-insight-trigger,
+[data-theme="white"] .calc-insight-trigger {
+  padding: 11px 15px !important;
+}
+
+[data-theme="platinum"] .insight-sparkle-badge,
+[data-theme="light"] .insight-sparkle-badge,
+[data-theme="white"] .insight-sparkle-badge {
+  background: linear-gradient(165deg, #ffffff 0%, #f1f5f9 100%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.45) !important;
+  color: #0f172a !important;
+  padding: 4px 10px !important;
+  border-radius: 10px !important;
+  font-size: 0.74rem !important;
+  font-weight: 700 !important;
+  box-shadow: inset 0 1px 0 #ffffff, 0 2px 5px rgba(15, 23, 42, 0.05) !important;
+}
+
+[data-theme="platinum"] .insight-sparkle-badge svg,
+[data-theme="light"] .insight-sparkle-badge svg,
+[data-theme="white"] .insight-sparkle-badge svg {
+  stroke: #0f172a !important;
+  fill: rgba(15, 23, 42, 0.1) !important;
+}
+
+[data-theme="platinum"] .insight-status-tag,
+[data-theme="light"] .insight-status-tag,
+[data-theme="white"] .insight-status-tag {
+  background: rgba(15, 23, 42, 0.06) !important;
+  color: #334155 !important;
+  border: 1px solid rgba(148, 163, 184, 0.35) !important;
+  padding: 3px 8px !important;
+}
+
+/* 8. ホームのスマート支出登録ボタン（重厚チタンインゴット仕上げ） */
+[data-theme="platinum"] .hero-quick-action-btn,
+[data-theme="light"] .hero-quick-action-btn,
+[data-theme="white"] .hero-quick-action-btn {
+  background: linear-gradient(165deg, #0f172a 0%, #1e293b 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.95) !important;
+  box-shadow: 
+    0 8px 24px -4px rgba(15, 23, 42, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-theme="platinum"] .hero-quick-action-btn svg,
+[data-theme="light"] .hero-quick-action-btn svg,
+[data-theme="white"] .hero-quick-action-btn svg {
+  stroke: #ffffff !important;
+}
+
+[data-theme="platinum"] .hero-quick-action-btn:hover,
+[data-theme="light"] .hero-quick-action-btn:hover,
+[data-theme="white"] .hero-quick-action-btn:hover {
+  background: linear-gradient(165deg, #1e293b 0%, #334155 100%) !important;
+  box-shadow: 
+    0 12px 30px -4px rgba(15, 23, 42, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
+  transform: translateY(-1px);
 }

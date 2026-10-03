@@ -18,7 +18,7 @@
   <meta name="theme-color" content="#090d16">
 
   <!-- Stylesheet (キャッシュバスター付き) -->
-  <link rel="stylesheet" href="./css/style.css?v=20261003_1">
+  <link rel="stylesheet" href="./css/style.css?v=20261003_4">
 
   <!-- Chart.js CDN for interactive beautiful charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -500,35 +500,20 @@
           <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px;">
             お好みの牛アイコンをタップして切り替えられます。
           </p>
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;" id="icon-selector-grid">
-            <!-- ① キュート牛 -->
-            <!-- ① チタン牛 (NEW) -->
-            <div class="icon-choice-card" data-icon-src="./icons/cow-titanium.png"
-              style="text-align: center; cursor: pointer;">
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;" id="icon-selector-grid">
+            <!-- ① チタン牛 (ダーク用) -->
+            <div class="icon-choice-card active" data-icon-src="./icons/cow-titanium.png"
+              style="text-align: center; cursor: pointer; padding: 8px; border-radius: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass);">
               <img src="./icons/cow-titanium.png"
-                style="width: 100%; border-radius: 12px; border: 2px solid var(--border-glass);" alt="チタン牛">
-              <span style="font-size: 0.7rem; font-weight: 600; display: block; margin-top: 4px;">チタン</span>
+                style="width: 100%; max-width: 120px; aspect-ratio: 1; object-fit: cover; border-radius: 14px; border: 2px solid var(--accent-primary); box-shadow: 0 4px 16px rgba(0,0,0,0.4);" alt="チタン牛">
+              <span style="font-size: 0.82rem; font-weight: 700; display: block; margin-top: 6px;">チタン（ダーク）</span>
             </div>
-            <!-- ② ゴールド牛 -->
-            <div class="icon-choice-card active" data-icon-src="./icons/cow-gold.png"
-              style="text-align: center; cursor: pointer;">
-              <img src="./icons/cow-gold.png"
-                style="width: 100%; border-radius: 12px; border: 2px solid var(--accent-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.3);" alt="ゴールド牛">
-              <span style="font-size: 0.7rem; font-weight: 600; display: block; margin-top: 4px;">ゴールド</span>
-            </div>
-            <!-- ③ サファイア牛 (NEW) -->
-            <div class="icon-choice-card" data-icon-src="./icons/cow-sapphire.png"
-              style="text-align: center; cursor: pointer;">
-              <img src="./icons/cow-sapphire.png"
-                style="width: 100%; border-radius: 12px; border: 2px solid var(--border-glass);" alt="サファイア牛">
-              <span style="font-size: 0.7rem; font-weight: 600; display: block; margin-top: 4px;">サファイア</span>
-            </div>
-            <!-- ④ プラチナ牛 (NEW) -->
+            <!-- ② プラチナ牛 (ライト用) -->
             <div class="icon-choice-card" data-icon-src="./icons/cow-platinum.png"
-              style="text-align: center; cursor: pointer;">
+              style="text-align: center; cursor: pointer; padding: 8px; border-radius: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass);">
               <img src="./icons/cow-platinum.png"
-                style="width: 100%; border-radius: 12px; border: 2px solid var(--border-glass);" alt="プラチナ牛">
-              <span style="font-size: 0.7rem; font-weight: 600; display: block; margin-top: 4px;">プラチナ</span>
+                style="width: 100%; max-width: 120px; aspect-ratio: 1; object-fit: cover; border-radius: 14px; border: 2px solid var(--border-glass);" alt="プラチナ牛">
+              <span style="font-size: 0.82rem; font-weight: 700; display: block; margin-top: 6px;">プラチナ（ライト）</span>
             </div>
           </div>
           <div
@@ -899,20 +884,9 @@
         <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px;">
           Apple Pro基準のチタニウム＆リキッドガラスの質感を選択できます。
         </p>
-        <div class="theme-options-grid">
-          <!-- Theme 1 (Dark): Emerald Black Titanium -->
-          <div class="theme-card active" data-set-theme="cyber">
-            <div class="theme-preview-box">
-              <div class="theme-preview-color" style="background: #010402;"></div>
-              <div class="theme-preview-color" style="background: #10b981;"></div>
-              <div class="theme-preview-color" style="background: #064e3b;"></div>
-            </div>
-            <span class="theme-name">エメラルド・ブラック</span>
-            <span class="theme-desc">漆黒チタン × エメラルド光</span>
-          </div>
-
-          <!-- Theme 2 (Dark): Onyx Black Titanium -->
-          <div class="theme-card" data-set-theme="onyx">
+        <div class="theme-options-grid" style="grid-template-columns: repeat(2, 1fr);">
+          <!-- Theme 1 (Dark): Onyx Black Titanium -->
+          <div class="theme-card active" data-set-theme="onyx">
             <div class="theme-preview-box">
               <div class="theme-preview-color" style="background: #000000;"></div>
               <div class="theme-preview-color" style="background: #f8fafc;"></div>
@@ -922,26 +896,15 @@
             <span class="theme-desc">漆黒チタン × クールシルバー</span>
           </div>
 
-          <!-- Theme 3 (Light): Platinum Silver Titanium (Matches Platinum Cow) -->
+          <!-- Theme 2 (Light): Platinum White Titanium -->
           <div class="theme-card" data-set-theme="platinum">
             <div class="theme-preview-box">
-              <div class="theme-preview-color" style="background: #f1f5f9;"></div>
-              <div class="theme-preview-color" style="background: #2563eb;"></div>
+              <div class="theme-preview-color" style="background: #f8fafc;"></div>
+              <div class="theme-preview-color" style="background: #0f172a;"></div>
               <div class="theme-preview-color" style="background: #cbd5e1;"></div>
             </div>
-            <span class="theme-name">プラチナ・シルバー</span>
-            <span class="theme-desc">白銀チタン × アイスシルバー</span>
-          </div>
-
-          <!-- Theme 4 (Light): Starlight White Titanium -->
-          <div class="theme-card" data-set-theme="starlight">
-            <div class="theme-preview-box">
-              <div class="theme-preview-color" style="background: #faf8f5;"></div>
-              <div class="theme-preview-color" style="background: #d97706;"></div>
-              <div class="theme-preview-color" style="background: #fef3c7;"></div>
-            </div>
-            <span class="theme-name">スターライト・ホワイト</span>
-            <span class="theme-desc">白銀チタン × シャンパンホワイト</span>
+            <span class="theme-name">プラチナ・ホワイト</span>
+            <span class="theme-desc">白銀チタン × スノーシルバー</span>
           </div>
         </div>
       </div>
