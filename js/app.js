@@ -1421,12 +1421,60 @@ class AppController {
       showToast('給料設定を保存しました！', 'success');
     });
 
-    // 初期化リセット
-    document.getElementById('btn-reset-data')?.addEventListener('click', () => {
-      if (confirm('スプレッドシートから読み取った初期状態にデータを戻しますか？')) {
-        store.resetToDefault();
-        this.render(store.getSummary());
-        alert('初期データを復元しました。');
+    // 今月データをテンプレから再復元（メール取込含む）一括処理
+    document.getElementById('btn-reset-data')?.addEventListener('click', async () => {
+      const currentCalYM = getCurrentCalendarYM();
+      const ok = confirm(
+        `【今月データの一括再復元】\n\n` +
+        `1.「テンプレ」シートをもとに今月（${currentCalYM}）シートをまっさらに再生成（前月残高・クレカ代・数式を完全復元）\n` +
+        `2. Gmailから最新の利用通知メールを取得して明細を自動取り込み\n` +
+        `3. 最新の数値をアプリ画面に完全同期\n\n` +
+        `上記の一括復元処理を実行しますか？\n（※既存シートは安全のため一時バックアップとして退避されます）`
+      );
+      if (!ok) return;
+
+      const btn = document.getElementById('btn-reset-data');
+      btn.disabled = true;
+      const originalHtml = btn.innerHTML;
+      btn.innerHTML = `
+        <svg class="svg-icon svg-icon-sm rotating" viewBox="0 0 24 24">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+        <span>一括再復元を実行中...</span>
+      `;
+
+      try {
+        if (!this.api.isConfigured()) {
+          showToast('設定画面でGAS Web App URLを設定してください', 'warning');
+          return;
+        }
+
+        showToast('ステップ1: テンプレシートをもとに今月シートを再作成中...');
+        const recreateRes = await this.api.postRequest('recreateMonthSheet', { targetMonth: currentCalYM });
+        if (!recreateRes || recreateRes.status !== 'success') {
+          throw new Error(recreateRes?.message || 'シート再作成に失敗しました');
+        }
+
+        showToast('ステップ2: Gmailから最新の利用通知メールを取得・反映中...');
+        await this.api.syncCardEmails(currentCalYM, 'standard');
+
+        showToast('ステップ3: 最新データを同期中...');
+        store.switchMonth(currentCalYM);
+        const freshData = await this.api.fetchMonthData(currentCalYM);
+        if (freshData) {
+          store.applyMonthData(freshData);
+          this.render(store.getSummary());
+        }
+
+        await this.triggerSync(false);
+        showToast(`「${currentCalYM}」シートのテンプレ復元とメール取り込みが完了しました！`, 'success');
+      } catch (err) {
+        console.error('一括再復元エラー:', err);
+        showToast('一括再復元エラー: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
       }
     });
 
@@ -1468,76 +1516,6 @@ class AppController {
           </svg>
           <span>今月のシートを作成 & 最新同期</span>
         `;
-      }
-    });
-
-    // 今月シートをテンプレから再作成（復元）
-    document.getElementById('btn-recreate-current-month')?.addEventListener('click', async () => {
-      const btn = document.getElementById('btn-recreate-current-month');
-      const currentCalYM = getCurrentCalendarYM();
-      const ok = confirm(`「テンプレ」シートをもとに今月（${currentCalYM}）のシートを新しく再作成・復元しますか？\n\n・すべての数式、書式、レイアウトがテンプレから綺麗に復元されます\n・前月からの銀行残高、クレカ引落代、給与見込みが自動引き継ぎされます\n（※既存シートは安全のため一時バックアップとして退避されます）`);
-      if (!ok) return;
-
-      btn.disabled = true;
-      const originalHtml = btn.innerHTML;
-      btn.innerHTML = `
-        <svg class="svg-icon svg-icon-sm rotating" viewBox="0 0 24 24">
-          <polyline points="23 4 23 10 17 10"></polyline>
-          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-        </svg>
-        <span>テンプレから再作成中...</span>
-      `;
-      try {
-        if (!this.api.isConfigured()) {
-          showToast('設定画面でGAS Web App URLを設定してください', 'warning');
-          return;
-        }
-        showToast('テンプレシートをもとに今月シートを再作成しています...');
-        const res = await this.api.postRequest('recreateMonthSheet', { targetMonth: currentCalYM });
-        if (res && res.status === 'success') {
-          showToast(`「${currentCalYM}」シートをテンプレから綺麗に再作成しました！`, 'success');
-          store.switchMonth(currentCalYM);
-        } else {
-          showToast(res?.message || 'シート再作成に失敗しました', 'warning');
-        }
-        await this.triggerSync(false);
-      } catch (err) {
-        console.error('シート再作成エラー:', err);
-        showToast('シート再作成エラー: ' + err.message, 'warning');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = originalHtml;
-      }
-    });
-
-    // 毎月1日 深夜自動作成トリガーを設定
-    document.getElementById('btn-setup-daily-trigger')?.addEventListener('click', async () => {
-      const btn = document.getElementById('btn-setup-daily-trigger');
-      btn.disabled = true;
-      const originalHtml = btn.innerHTML;
-      btn.innerHTML = `
-        <svg class="svg-icon svg-icon-sm rotating" viewBox="0 0 24 24">
-          <polyline points="23 4 23 10 17 10"></polyline>
-          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-        </svg>
-        <span>トリガー設定中...</span>
-      `;
-      try {
-        if (!this.api.isConfigured()) {
-          showToast('設定画面でGAS Web App URLを設定してください', 'warning');
-          return;
-        }
-        const res = await this.api.postRequest('setupTrigger');
-        if (res && res.status === 'success') {
-          alert('毎日深夜0時〜1時に実行される「新月シート自動作成トリガー」をスプレッドシートに設定しました！今後は毎月1日深夜に自動で翌月シートが作成されます。');
-        } else {
-          showToast(res?.message || 'トリガー設定に失敗しました', 'warning');
-        }
-      } catch (err) {
-        showToast('トリガー設定エラー: ' + err.message, 'warning');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = originalHtml;
       }
     });
 

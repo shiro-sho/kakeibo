@@ -4538,11 +4538,11 @@ select option,
 }
 
 /* ==========================================================================
-   Luxury Rich Buttons for Settings Section (Onyx Black & Titanium Themes)
-   オニキスブラックに調和する、純白・高輝度チタンの美麗リッチボタン & 上質クリムゾンレッド
+   Luxury Titanium Glass Design for Onyx Black & All Themes
+   オニキスブラックのホームセクション枠に完全調和するダークチタンガラスボタン & リッチUI
    ========================================================================== */
 
-/* 1. 設定セクション全体のボタンスタイル共通（統一感あるパディング・角丸・アニメーション） */
+/* 1. 設定セクション全体のボタン（ホーム枠に合わせたダークチタングラス） */
 #view-settings .btn-primary,
 #view-settings .btn-secondary,
 #view-settings .btn-danger,
@@ -4555,9 +4555,9 @@ select option,
   justify-content: center;
   gap: 10px;
   width: 100%;
-  padding: 14px 20px;
+  padding: 15px 20px;
   border-radius: 14px;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   font-weight: 700;
   letter-spacing: 0.02em;
   cursor: pointer;
@@ -4576,102 +4576,139 @@ select option,
 #view-settings .btn-primary:active,
 #view-settings .btn-secondary:active,
 #view-settings .btn-danger:active {
-  transform: scale(0.978);
+  transform: scale(0.98);
 }
 
-/* 2. オニキスブラックテーマにおける白の超美麗リッチボタン（プライマリ） */
+/* 2. オニキスブラックテーマにおける設定ボタン（ホーム枠調ダークチタンガラス） */
 [data-theme="onyx"] #view-settings .btn-primary,
 [data-theme="black"] #view-settings .btn-primary,
 [data-theme="onyx"] .view-settings .btn-primary,
 [data-theme="black"] .view-settings .btn-primary {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 40%, #e2e8f0 100%) !important;
-  color: #060709 !important;
-  border: 1px solid rgba(255, 255, 255, 0.95) !important;
+  background: linear-gradient(165deg, rgba(34, 38, 46, 0.95) 0%, rgba(14, 16, 20, 0.99) 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
   box-shadow: 
-    0 6px 20px -2px rgba(255, 255, 255, 0.25),
-    0 2px 6px rgba(0, 0, 0, 0.8),
-    inset 0 1px 1px #ffffff,
-    inset 0 -1px 2px rgba(148, 163, 184, 0.3) !important;
+    0 8px 24px -4px rgba(0, 0, 0, 0.85),
+    0 0 16px rgba(255, 255, 255, 0.05),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
 }
 
 [data-theme="onyx"] #view-settings .btn-primary svg,
 [data-theme="black"] #view-settings .btn-primary svg,
 [data-theme="onyx"] .view-settings .btn-primary svg,
 [data-theme="black"] .view-settings .btn-primary svg {
-  stroke: #060709 !important;
-  color: #060709 !important;
+  stroke: #ffffff !important;
+  color: #ffffff !important;
 }
 
 [data-theme="onyx"] #view-settings .btn-primary:hover,
 [data-theme="black"] #view-settings .btn-primary:hover,
 [data-theme="onyx"] .view-settings .btn-primary:hover,
 [data-theme="black"] .view-settings .btn-primary:hover {
-  background: linear-gradient(135deg, #ffffff 0%, #ffffff 50%, #f1f5f9 100%) !important;
+  background: linear-gradient(165deg, rgba(44, 50, 60, 0.98) 0%, rgba(20, 22, 28, 1) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
   box-shadow: 
-    0 8px 28px -2px rgba(255, 255, 255, 0.45),
-    0 0 20px rgba(255, 255, 255, 0.35),
-    inset 0 1px 2px #ffffff !important;
+    0 12px 30px -4px rgba(0, 0, 0, 0.95),
+    0 0 22px rgba(255, 255, 255, 0.12),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
   transform: translateY(-1px);
 }
 
-/* 3. オニキスブラックテーマにおけるセカンダリボタン（白フロストガラス・リッチシルバー） */
-[data-theme="onyx"] #view-settings .btn-secondary,
-[data-theme="black"] #view-settings .btn-secondary,
-[data-theme="onyx"] .view-settings .btn-secondary,
-[data-theme="black"] .view-settings .btn-secondary {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.28) !important;
-  backdrop-filter: blur(12px) !important;
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
-}
-
-[data-theme="onyx"] #view-settings .btn-secondary svg,
-[data-theme="black"] #view-settings .btn-secondary svg,
-[data-theme="onyx"] .view-settings .btn-secondary svg,
-[data-theme="black"] .view-settings .btn-secondary svg {
-  stroke: #ffffff !important;
-  color: #ffffff !important;
-}
-
-[data-theme="onyx"] #view-settings .btn-secondary:hover,
-[data-theme="black"] #view-settings .btn-secondary:hover,
-[data-theme="onyx"] .view-settings .btn-secondary:hover,
-[data-theme="black"] .view-settings .btn-secondary:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.08) 100%) !important;
-  border-color: rgba(255, 255, 255, 0.55) !important;
-  box-shadow: 
-    0 6px 20px rgba(0, 0, 0, 0.7),
-    0 0 16px rgba(255, 255, 255, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
-  transform: translateY(-1px);
-}
-
-/* 4. オニキスブラックテーマにおける「初期データに戻す」（ラグジュアリークリムゾンレッド） */
+/* 3. オニキスブラックテーマにおける「今月データをテンプレから再復元」（上質クリムゾンチタン） */
 [data-theme="onyx"] #view-settings .btn-danger,
 [data-theme="black"] #view-settings .btn-danger,
 [data-theme="onyx"] .view-settings .btn-danger,
 [data-theme="black"] .view-settings .btn-danger {
-  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 45%, #9f1239 100%) !important;
+  background: linear-gradient(165deg, rgba(46, 18, 26, 0.95) 0%, rgba(18, 10, 14, 0.99) 100%) !important;
   color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border: 1px solid rgba(244, 63, 94, 0.38) !important;
   box-shadow: 
-    0 6px 22px -2px rgba(225, 29, 72, 0.45),
-    0 2px 6px rgba(0, 0, 0, 0.8),
-    inset 0 1px 1px rgba(255, 255, 255, 0.45),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.3) !important;
+    0 8px 24px -4px rgba(0, 0, 0, 0.85),
+    0 0 18px rgba(244, 63, 94, 0.18),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
+}
+
+[data-theme="onyx"] #view-settings .btn-danger svg,
+[data-theme="black"] #view-settings .btn-danger svg,
+[data-theme="onyx"] .view-settings .btn-danger svg,
+[data-theme="black"] .view-settings .btn-danger svg {
+  stroke: #f43f5e !important;
 }
 
 [data-theme="onyx"] #view-settings .btn-danger:hover,
 [data-theme="black"] #view-settings .btn-danger:hover,
 [data-theme="onyx"] .view-settings .btn-danger:hover,
 [data-theme="black"] .view-settings .btn-danger:hover {
-  background: linear-gradient(135deg, #fb7185 0%, #f43f5e 45%, #be123c 100%) !important;
+  background: linear-gradient(165deg, rgba(62, 22, 34, 0.98) 0%, rgba(26, 12, 18, 1) 100%) !important;
+  border-color: rgba(244, 63, 94, 0.65) !important;
   box-shadow: 
-    0 8px 28px -2px rgba(244, 63, 94, 0.6),
-    0 0 24px rgba(244, 63, 94, 0.45),
-    inset 0 1px 1px rgba(255, 255, 255, 0.6) !important;
+    0 12px 30px -4px rgba(0, 0, 0, 0.95),
+    0 0 24px rgba(244, 63, 94, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
   transform: translateY(-1px);
+}
+
+/* 4. 明細セクションの「メールから取込」ボタン（緑色を排除しオニキスブラックの枠色に調和） */
+[data-theme="onyx"] .btn-email-sync,
+[data-theme="black"] .btn-email-sync {
+  background: linear-gradient(165deg, rgba(32, 36, 44, 0.92) 0%, rgba(14, 16, 20, 0.96) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+}
+
+[data-theme="onyx"] .btn-email-sync svg,
+[data-theme="black"] .btn-email-sync svg {
+  stroke: #ffffff !important;
+}
+
+[data-theme="onyx"] .btn-email-sync:hover,
+[data-theme="black"] .btn-email-sync:hover {
+  background: linear-gradient(165deg, rgba(42, 48, 58, 0.96) 0%, rgba(20, 22, 28, 1) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 
+    0 4px 14px rgba(0, 0, 0, 0.75),
+    0 0 12px rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 5. 明細セクションの「2026年10月分」表示枠（緑色を排除しオニキスブラックの枠色に調和） */
+[data-theme="onyx"] .apple-card-badge,
+[data-theme="black"] .apple-card-badge {
+  background: linear-gradient(165deg, rgba(32, 36, 44, 0.92) 0%, rgba(14, 16, 20, 0.96) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+/* 6. 口座セクションの各口座カード（ホームセクションの枠色のようなリッチ感あるチタングラス） */
+[data-theme="onyx"] #view-accounts .account-card,
+[data-theme="black"] #view-accounts .account-card {
+  background: linear-gradient(165deg, rgba(28, 30, 36, 0.95) 0%, rgba(10, 11, 13, 0.99) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 
+    0 16px 36px -8px rgba(0, 0, 0, 0.9),
+    0 0 20px rgba(255, 255, 255, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+  transition: all 0.25s ease !important;
+}
+
+[data-theme="onyx"] #view-accounts .account-card:hover,
+[data-theme="black"] #view-accounts .account-card:hover {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 
+    0 20px 42px -8px rgba(0, 0, 0, 0.95),
+    0 0 24px rgba(255, 255, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+  transform: translateY(-2px);
+}
+
+[data-theme="onyx"] #view-accounts .account-transfers-box,
+[data-theme="black"] #view-accounts .account-transfers-box {
+  background: rgba(14, 16, 20, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6) !important;
 }

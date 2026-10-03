@@ -582,76 +582,34 @@
 
         <div class="glass-card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <h3 style="font-size: 0.95rem; margin-bottom: 0;">クレカ利用通知メール連携</h3>
-            <span class="badge-mini" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">Gmail</span>
-          </div>
-          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5;">
-            GmailからVpass・三井住友カードの利用通知メールを取得し、スプレッドシートの明細枠に反映します。
-          </p>
-          <div class="form-group" style="margin-bottom: 14px;">
-            <label class="form-label" for="setting-email-sync-mode">取り込み方法（目的を選択）</label>
-            <select id="setting-email-sync-mode" class="form-input" style="padding: 10px 12px; font-size: 0.82rem; background: rgba(255,255,255,0.06); color: var(--text-primary); cursor: pointer;">
-              <option value="standard">未登録の最新明細を取り込む（標準・過去60日分）</option>
-              <option value="deep">過去のメールを徹底探索して取り込む（過去90日分・再スキャン）</option>
-              <option value="current_month">今月利用分のメールのみに限定して取り込む</option>
-              <option value="custom">スプレッドシート既存の自作関数を実行する</option>
-            </select>
-            <p id="desc-email-sync-mode" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; line-height: 1.45;">
-              直近2ヶ月間に届いたVpass・三井住友カードの利用通知から未登録の明細を自動取得します。
-            </p>
-            <div id="wrap-custom-email-func" style="display: none; margin-top: 8px;">
-              <input type="text" id="setting-email-func-name" class="form-input" placeholder="自作関数名（例: fetchCardEmails）" style="font-size: 0.8rem;">
-            </div>
-          </div>
-          <button class="btn-primary" id="btn-run-email-sync">
-            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-              <polyline points="22,6 12,13 2,6"></polyline>
-            </svg>
-            <span>利用通知メールを取得 & 反映</span>
-          </button>
-        </div>
-
-        <div class="glass-card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <h3 style="font-size: 0.95rem; margin-bottom: 0;">月別シートの管理</h3>
             <span class="badge-mini" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3);">スプレッドシート</span>
           </div>
           <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5;">
             新しい月のシートをテンプレートから作成し、前月の銀行残高やクレカ使用額・給与見込みを引き継ぎます。
           </p>
-          <div style="display: flex; flex-direction: column; gap: 8px;">
-            <button class="btn-primary" id="btn-create-current-month">
-              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
-              <span>今月のシートを作成 & 最新同期</span>
-            </button>
-            <button class="btn-secondary" id="btn-recreate-current-month">
-              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24">
-                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
-              </svg>
-              <span>今月シートをテンプレから再作成（復元）</span>
-            </button>
-            <button class="btn-secondary" id="btn-setup-daily-trigger">
-              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-              <span>毎月1日 深夜自動作成トリガーを設定</span>
-            </button>
-          </div>
+          <button class="btn-primary" id="btn-create-current-month">
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span>今月のシートを作成 & 最新同期</span>
+          </button>
         </div>
 
         <div class="glass-card">
-          <h3 style="font-size: 0.95rem; margin-bottom: 8px;">データ管理</h3>
-          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 14px;">
-            スプレッドシートから読み取った初期状態（2026年9月分）にデータをリセットできます。
+          <h3 style="font-size: 0.95rem; margin-bottom: 8px;">データ復元・再初期化</h3>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5;">
+            テンプレシートから今月シートを再生成し、前月データの引き継ぎと最新メール明細の取り込みを一括で実行します。
           </p>
-          <button class="btn-danger" id="btn-reset-data">初期データに戻す</button>
+          <button class="btn-danger" id="btn-reset-data">
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+            </svg>
+            <span>今月データをテンプレから再復元（メール取込含む）</span>
+          </button>
         </div>
       </section>
     </main>

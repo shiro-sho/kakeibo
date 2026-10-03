@@ -162,8 +162,8 @@ export class ChartRenderer {
                   size: 11
                 },
                 callback: function (value) {
-                  if (value === 0) return '¥0';
-                  return '¥' + (value >= 1000 ? (value / 1000).toLocaleString() + 'k' : value);
+                  if (value === 0) return '0';
+                  return Number(value).toLocaleString();
                 }
               }
             },
