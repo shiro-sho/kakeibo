@@ -376,7 +376,7 @@
               </svg>
               <span>CREDIT CARD</span>
             </div>
-            <span class="apple-card-badge" id="tx-summary-month-badge">2026年9月分</span>
+            <span class="apple-card-badge" id="tx-summary-month-badge">当月利用分</span>
           </div>
 
           <div class="apple-card-body">
@@ -1023,7 +1023,7 @@
   <div class="toast-container" id="toast-container"></div>
 
   <!-- App Scripts (キャッシュバスター付き) -->
-  <script type="module" src="./js/app.js?v=20261003_3"></script>
+  <script type="module" src="./js/app.js?v=20261003_4"></script>
 
   <!-- PWA Service Worker Registration & Cache Purge -->
   <script>
@@ -1034,7 +1034,7 @@
             reg.update();
           }
         });
-        navigator.serviceWorker.register('./sw.js?v=20261003_3').catch((err) => {
+        navigator.serviceWorker.register('./sw.js?v=20261003_4').catch((err) => {
           console.log('SW registration skipped:', err);
         });
       });

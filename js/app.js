@@ -763,8 +763,17 @@ class AppController {
     const container = document.getElementById('full-tx-container');
     const badge = document.getElementById('tx-total-count');
     const elTotal = document.getElementById('tx-summary-total-amount');
+    const elMonthBadge = document.getElementById('tx-summary-month-badge');
     const multiBar = document.getElementById('category-multi-bar');
     const chipsContainer = document.getElementById('tx-category-chips-container');
+
+    // クレカカード右上の対象年月バッジを動的に更新（例: 2026年10月分）
+    const currentYM = String(store.data.currentMonth || getCurrentCalendarYM());
+    if (elMonthBadge && currentYM.length >= 6) {
+      const y = currentYM.substring(0, 4);
+      const m = parseInt(currentYM.substring(4, 6), 10);
+      elMonthBadge.textContent = `${y}年${m}月分`;
+    }
 
     const catColors = {
       '食費': '#f59e0b',
@@ -1759,6 +1768,9 @@ class AppController {
         } else {
           showToast('新しい利用通知メールはありませんでした（最新状態です）', 'success');
         }
+
+        // 全タブ・全サマリーカードを最新データで再同期・再描画
+        await this.triggerSync(false);
       } else {
         throw new Error(result?.message || 'メール同期処理に失敗しました');
       }
