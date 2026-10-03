@@ -945,7 +945,7 @@ class AppController {
           });
 
         return `
-        <div class="glass-card" style="border-top: 3px solid ${acc.color}; margin-bottom: 16px;">
+        <div class="glass-card account-detail-card ${acc.id}" style="margin-bottom: 16px;">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: ${transfers.length > 0 ? '12px' : '0'};">
             <div>
               <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 3px;">${acc.name}</h3>

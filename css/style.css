@@ -515,21 +515,21 @@ body {
 .insight-sparkle-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(59, 130, 246, 0.25));
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  color: #34d399;
-  padding: 3px 8px;
+  gap: 5px;
+  background: linear-gradient(165deg, rgba(36, 42, 52, 0.95) 0%, rgba(16, 20, 26, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  padding: 4px 10px;
   border-radius: 10px;
-  font-size: 0.68rem;
+  font-size: 0.74rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-.insight-trigger-text {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--text-secondary);
+.insight-sparkle-badge svg {
+  stroke: rgba(255, 255, 255, 0.95);
+  fill: rgba(255, 255, 255, 0.2);
 }
 
 .insight-trigger-right {
@@ -4682,33 +4682,200 @@ select option,
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
 }
 
-/* 6. 口座セクションの各口座カード（ホームセクションの枠色のようなリッチ感あるチタングラス） */
+/* 6. 口座セクションの各口座カード（設定の復元ボタン調の高級ジュエルチタングラス） */
 [data-theme="onyx"] #view-accounts .account-card,
-[data-theme="black"] #view-accounts .account-card {
-  background: linear-gradient(165deg, rgba(28, 30, 36, 0.95) 0%, rgba(10, 11, 13, 0.99) 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+[data-theme="black"] #view-accounts .account-card,
+[data-theme="onyx"] #home-accounts-container .account-card,
+[data-theme="black"] #home-accounts-container .account-card {
   border-radius: var(--radius-lg) !important;
-  box-shadow: 
-    0 16px 36px -8px rgba(0, 0, 0, 0.9),
-    0 0 20px rgba(255, 255, 255, 0.03),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
   transition: all 0.25s ease !important;
 }
 
-[data-theme="onyx"] #view-accounts .account-card:hover,
-[data-theme="black"] #view-accounts .account-card:hover {
-  border-color: rgba(255, 255, 255, 0.3) !important;
+/* 三井住友銀行（上質エメラルドチタングラス） */
+[data-theme="onyx"] .account-card.smbc,
+[data-theme="black"] .account-card.smbc,
+[data-theme="onyx"] .account-detail-card.smbc,
+[data-theme="black"] .account-detail-card.smbc,
+[data-theme="onyx"] [data-account-id="smbc"],
+[data-theme="black"] [data-account-id="smbc"] {
+  background: linear-gradient(165deg, rgba(14, 34, 26, 0.95) 0%, rgba(8, 16, 12, 0.99) 100%) !important;
+  border: 1px solid rgba(16, 185, 129, 0.38) !important;
   box-shadow: 
-    0 20px 42px -8px rgba(0, 0, 0, 0.95),
-    0 0 24px rgba(255, 255, 255, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
-  transform: translateY(-2px);
+    0 12px 32px -6px rgba(0, 0, 0, 0.9),
+    0 0 18px rgba(16, 185, 129, 0.14),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
+}
+
+[data-theme="onyx"] .account-card.smbc:hover,
+[data-theme="black"] .account-card.smbc:hover,
+[data-theme="onyx"] .account-detail-card.smbc:hover,
+[data-theme="black"] .account-detail-card.smbc:hover,
+[data-theme="onyx"] [data-account-id="smbc"]:hover,
+[data-theme="black"] [data-account-id="smbc"]:hover {
+  border-color: rgba(16, 185, 129, 0.6) !important;
+  box-shadow: 
+    0 16px 38px -6px rgba(0, 0, 0, 0.95),
+    0 0 24px rgba(16, 185, 129, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+}
+
+/* 三菱UFJ銀行（上質クリムゾンチタングラス：復元の赤色と完全統一） */
+[data-theme="onyx"] .account-card.mufg,
+[data-theme="black"] .account-card.mufg,
+[data-theme="onyx"] .account-detail-card.mufg,
+[data-theme="black"] .account-detail-card.mufg,
+[data-theme="onyx"] [data-account-id="mufg"],
+[data-theme="black"] [data-account-id="mufg"] {
+  background: linear-gradient(165deg, rgba(46, 18, 26, 0.95) 0%, rgba(18, 10, 14, 0.99) 100%) !important;
+  border: 1px solid rgba(244, 63, 94, 0.38) !important;
+  box-shadow: 
+    0 12px 32px -6px rgba(0, 0, 0, 0.9),
+    0 0 18px rgba(244, 63, 94, 0.14),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
+}
+
+[data-theme="onyx"] .account-card.mufg:hover,
+[data-theme="black"] .account-card.mufg:hover,
+[data-theme="onyx"] .account-detail-card.mufg:hover,
+[data-theme="black"] .account-detail-card.mufg:hover,
+[data-theme="onyx"] [data-account-id="mufg"]:hover,
+[data-theme="black"] [data-account-id="mufg"]:hover {
+  border-color: rgba(244, 63, 94, 0.6) !important;
+  box-shadow: 
+    0 16px 38px -6px rgba(0, 0, 0, 0.95),
+    0 0 24px rgba(244, 63, 94, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+}
+
+/* みずほ銀行（上質サファイアチタングラス） */
+[data-theme="onyx"] .account-card.mizuho,
+[data-theme="black"] .account-card.mizuho,
+[data-theme="onyx"] .account-detail-card.mizuho,
+[data-theme="black"] .account-detail-card.mizuho,
+[data-theme="onyx"] [data-account-id="mizuho"],
+[data-theme="black"] [data-account-id="mizuho"] {
+  background: linear-gradient(165deg, rgba(16, 26, 44, 0.95) 0%, rgba(8, 14, 22, 0.99) 100%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.38) !important;
+  box-shadow: 
+    0 12px 32px -6px rgba(0, 0, 0, 0.9),
+    0 0 18px rgba(56, 189, 248, 0.14),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
+}
+
+[data-theme="onyx"] .account-card.mizuho:hover,
+[data-theme="black"] .account-card.mizuho:hover,
+[data-theme="onyx"] .account-detail-card.mizuho:hover,
+[data-theme="black"] .account-detail-card.mizuho:hover,
+[data-theme="onyx"] [data-account-id="mizuho"]:hover,
+[data-theme="black"] [data-account-id="mizuho"]:hover {
+  border-color: rgba(56, 189, 248, 0.6) !important;
+  box-shadow: 
+    0 16px 38px -6px rgba(0, 0, 0, 0.95),
+    0 0 24px rgba(56, 189, 248, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
 }
 
 [data-theme="onyx"] #view-accounts .account-transfers-box,
 [data-theme="black"] #view-accounts .account-transfers-box {
-  background: rgba(14, 16, 20, 0.75) !important;
+  background: rgba(10, 12, 16, 0.85) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-radius: var(--radius-md) !important;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* 7. 各編集画面・モーダル内のボタン（設定ボタンと同じ上質チタングラスに統一） */
+[data-theme="onyx"] .modal-content .btn-primary,
+[data-theme="black"] .modal-content .btn-primary {
+  background: linear-gradient(165deg, rgba(34, 38, 46, 0.95) 0%, rgba(14, 16, 20, 0.99) 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: 14px !important;
+  padding: 14px 20px !important;
+  font-size: 0.92rem !important;
+  font-weight: 700 !important;
+  box-shadow: 
+    0 8px 24px -4px rgba(0, 0, 0, 0.85),
+    0 0 16px rgba(255, 255, 255, 0.05),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
+  transition: all 0.25s ease !important;
+}
+
+[data-theme="onyx"] .modal-content .btn-primary:hover,
+[data-theme="black"] .modal-content .btn-primary:hover {
+  background: linear-gradient(165deg, rgba(46, 52, 64, 0.98) 0%, rgba(20, 24, 30, 1) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 
+    0 12px 30px -4px rgba(0, 0, 0, 0.95),
+    0 0 20px rgba(255, 255, 255, 0.1),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+  transform: translateY(-1px);
+}
+
+[data-theme="onyx"] .modal-content .btn-danger,
+[data-theme="black"] .modal-content .btn-danger {
+  background: linear-gradient(165deg, rgba(46, 18, 26, 0.95) 0%, rgba(18, 10, 14, 0.99) 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(244, 63, 94, 0.38) !important;
+  border-radius: 14px !important;
+  padding: 14px 20px !important;
+  font-size: 0.92rem !important;
+  font-weight: 700 !important;
+  box-shadow: 
+    0 8px 24px -4px rgba(0, 0, 0, 0.85),
+    0 0 18px rgba(244, 63, 94, 0.18),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
+  transition: all 0.25s ease !important;
+}
+
+[data-theme="onyx"] .modal-content .btn-danger:hover,
+[data-theme="black"] .modal-content .btn-danger:hover {
+  background: linear-gradient(165deg, rgba(62, 22, 34, 0.98) 0%, rgba(26, 12, 18, 1) 100%) !important;
+  border-color: rgba(244, 63, 94, 0.65) !important;
+  box-shadow: 
+    0 12px 30px -4px rgba(0, 0, 0, 0.95),
+    0 0 24px rgba(244, 63, 94, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+  transform: translateY(-1px);
+}
+
+/* 8. ホームセクションの「内訳」アコーディオン（緑色固定を排除しオニキス枠色に調和） */
+[data-theme="onyx"] .calc-insight-card,
+[data-theme="black"] .calc-insight-card {
+  background: linear-gradient(165deg, rgba(28, 32, 40, 0.9) 0%, rgba(12, 14, 18, 0.98) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: 16px !important;
+  box-shadow: 
+    0 6px 20px -2px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+}
+
+[data-theme="onyx"] .calc-insight-trigger,
+[data-theme="black"] .calc-insight-trigger {
+  padding: 11px 15px !important;
+}
+
+[data-theme="onyx"] .insight-sparkle-badge,
+[data-theme="black"] .insight-sparkle-badge {
+  background: linear-gradient(165deg, rgba(42, 48, 58, 0.95) 0%, rgba(20, 22, 28, 0.98) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+  padding: 4px 10px !important;
+  border-radius: 10px !important;
+  font-size: 0.74rem !important;
+  font-weight: 700 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+}
+
+[data-theme="onyx"] .insight-sparkle-badge svg,
+[data-theme="black"] .insight-sparkle-badge svg {
+  stroke: rgba(255, 255, 255, 0.95) !important;
+  fill: rgba(255, 255, 255, 0.15) !important;
+}
+
+[data-theme="onyx"] .insight-status-tag,
+[data-theme="black"] .insight-status-tag {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  padding: 3px 8px !important;
 }
