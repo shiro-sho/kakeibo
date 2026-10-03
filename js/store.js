@@ -28,11 +28,20 @@ export const SPREADSHEET_CATEGORIES = [
   '勉強・資格'
 ];
 
-// スプレッドシートから読み取った 202609 の実際の内容に基づく初期データ
+// 現在のJSTカレンダー年月（YYYYMM形式、例: "202610"）を取得するヘルパー
+export function getCurrentCalendarYM() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  return `${y}${m}`;
+}
+
+// 基準となる初期データ
 const DEFAULT_DATA_202609 = {
-  currentMonth: '202609',
+  currentMonth: getCurrentCalendarYM(),
   cardLimit: 1000000,
   cardWarningThreshold: 200000,
+  availableMonths: [getCurrentCalendarYM(), '202609'],
   
   // 今月引落のクレカ代（手動入力セル D20）
   currentMonthCardBill: -318889,
@@ -736,32 +745,29 @@ class KakeiboStore {
           });
         }
 
-        // 固定費（fixedExpenses）の整合性担保
-        if (Array.isArray(parsed.fixedExpenses)) {
-          // medical_loan の ID 互換性補正
-          const oldLoan = parsed.fixedExpenses.find(f => f.id === 'loan');
-          if (oldLoan && !parsed.fixedExpenses.some(f => f.id === 'medical_loan')) {
-            oldLoan.id = 'medical_loan';
-            oldLoan.name = '医療ローン';
+        // 新月自動ロールオーバー検知（例: 202609 から 202610 への月替わり）
+        const calYM = getCurrentCalendarYM();
+        if (parsed.currentMonth && parsed.currentMonth < calYM) {
+          console.log(`新月を検知しました: 表示月を ${parsed.currentMonth} から当月 ${calYM} へ自動更新します`);
+          parsed.previousMonth = parsed.currentMonth;
+          parsed.currentMonth = calYM;
+
+          // 新月になったので引落チェック欄を未引落状態にリセット
+          if (Array.isArray(parsed.fixedExpenses)) {
+            parsed.fixedExpenses.forEach((f) => { f.settled = false; });
           }
-          // クレカ代の金額同期
-          if (parsed.currentMonthCardBill !== undefined) {
-            const cc = parsed.fixedExpenses.find(f => f.id === 'credit_card');
-            if (cc && cc.amount !== parsed.currentMonthCardBill) {
-              cc.amount = parsed.currentMonthCardBill;
-            }
-          }
-          // 家賃の金額同期
-          if (parsed.rentAmount !== undefined) {
-            const r = parsed.fixedExpenses.find(f => f.id === 'rent');
-            if (r) r.amount = parsed.rentAmount;
-          }
-          // 医療ローンの金額同期
-          if (parsed.loanAmount !== undefined) {
-            const l = parsed.fixedExpenses.find(f => f.id === 'medical_loan');
-            if (l) l.amount = parsed.loanAmount;
+          parsed.cardSettled = false;
+          parsed.rentSettled = false;
+          parsed.loanSettled = false;
+
+          // 利用可能な月リストに新月を追加
+          if (!Array.isArray(parsed.availableMonths)) {
+            parsed.availableMonths = [calYM, parsed.previousMonth];
+          } else if (!parsed.availableMonths.includes(calYM)) {
+            parsed.availableMonths.unshift(calYM);
           }
         }
+
         return parsed;
       }
     } catch (e) {
@@ -1087,7 +1093,13 @@ class KakeiboStore {
     if (apiData.currentMonth) {
       this.data.currentMonth = apiData.currentMonth;
     }
-    if (Array.isArray(apiData.transactions) && apiData.transactions.length > 0) {
+    if (Array.isArray(apiData.availableMonths)) {
+      this.data.availableMonths = apiData.availableMonths;
+    }
+    if (apiData.currentCalendarMonth) {
+      this.data.currentCalendarMonth = apiData.currentCalendarMonth;
+    }
+    if (Array.isArray(apiData.transactions)) {
       this.data.transactions = apiData.transactions;
     }
     if (Array.isArray(apiData.accounts) && apiData.accounts.length > 0) {
@@ -1167,6 +1179,13 @@ class KakeiboStore {
       this.data.salaries.nextMonth = Number(apiData.nextSalary);
     }
 
+    this.saveData();
+  }
+
+  // 表示月を手動で切り替える
+  switchMonth(targetMonth) {
+    if (!targetMonth || targetMonth === this.data.currentMonth) return;
+    this.data.currentMonth = targetMonth;
     this.saveData();
   }
 

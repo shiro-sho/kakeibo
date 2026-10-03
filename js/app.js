@@ -2,9 +2,9 @@
  * アプリメインコントローラー（UIレンダリング・インタラクション）
  */
 
-import { store, SPREADSHEET_CATEGORIES } from './store.js?v=20260928_5';
-import { ChartRenderer } from './charts.js?v=20260928_5';
-import { GasApiClient } from './api.js?v=20260928_5';
+import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM } from './store.js?v=20261003_1';
+import { ChartRenderer } from './charts.js?v=20261003_1';
+import { GasApiClient } from './api.js?v=20261003_1';
 
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toast-container');
@@ -96,6 +96,7 @@ class AppController {
     this.setupForms();
     this.setupSettings();
     this.setupThemeSwitcher();
+    this.setupMonthSwitcher();
     this.setupCalcInsight();
     this.setupPullToRefresh();
     this.setupEmailSync();
@@ -106,7 +107,8 @@ class AppController {
 
     // GAS URL設定済みの場合はバックグラウンドで最新データを同期
     if (this.api.isConfigured()) {
-      this.api.fetchMonthData(store.data.currentMonth || '202609')
+      const targetYM = store.data.currentMonth || getCurrentCalendarYM();
+      this.api.fetchMonthData(targetYM)
         .then((data) => {
           if (data) {
             store.applyMonthData(data);
@@ -311,6 +313,7 @@ class AppController {
 
   // --- 全体レンダリング ---
   render(summary) {
+    this.renderHeaderMonth(summary);
     this.renderCreditHero(summary);
     this.renderHomeAccounts(summary);
     this.renderForecast(summary);
@@ -320,6 +323,18 @@ class AppController {
     this.renderAccountsDetail(summary);
     this.renderAnalytics(summary);
     this.renderSettings(summary);
+  }
+
+  // ヘッダーの年月バッジ表示（例: 2026年10月）
+  renderHeaderMonth(s) {
+    const elText = document.getElementById('header-month-text');
+    if (!elText) return;
+    const ym = String(s.currentMonth || '');
+    if (ym.length >= 6) {
+      const y = ym.substring(0, 4);
+      const m = parseInt(ym.substring(4, 6), 10);
+      elText.textContent = `${y}年${m}月`;
+    }
   }
 
   // 1. メインヒーローカード（来月引落後の使えるお金・自由資金）
@@ -1406,6 +1421,55 @@ class AppController {
       }
     });
 
+    // 今月（10月）シートを作成 & 最新同期
+    document.getElementById('btn-create-current-month')?.addEventListener('click', async () => {
+      const btn = document.getElementById('btn-create-current-month');
+      btn.disabled = true;
+      btn.textContent = 'シート作成・同期中...';
+      try {
+        if (!this.api.isConfigured()) {
+          showToast('設定画面でGAS Web App URLを設定してください', 'warning');
+          return;
+        }
+        showToast('スプレッドシートに今月シートを作成しています...');
+        const currentCalYM = getCurrentCalendarYM();
+        const res = await this.api.postRequest('createMonthSheet', { targetMonth: currentCalYM });
+        if (res && res.status === 'success') {
+          showToast(`「${currentCalYM}」シートを作成しました！最新データを同期します`, 'success');
+          store.switchMonth(currentCalYM);
+        }
+        await this.triggerSync(false);
+      } catch (err) {
+        console.error('シート作成エラー:', err);
+        showToast('シート作成に失敗しました: ' + err.message, 'warning');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '📅 今月（10月）シートを作成 & 最新同期';
+      }
+    });
+
+    // 毎月1日 深夜自動作成トリガーを設定
+    document.getElementById('btn-setup-daily-trigger')?.addEventListener('click', async () => {
+      const btn = document.getElementById('btn-setup-daily-trigger');
+      btn.disabled = true;
+      try {
+        if (!this.api.isConfigured()) {
+          showToast('設定画面でGAS Web App URLを設定してください', 'warning');
+          return;
+        }
+        const res = await this.api.postRequest('setupTrigger');
+        if (res && res.status === 'success') {
+          alert('毎日深夜0時〜1時に実行される「新月シート自動作成トリガー」をスプレッドシートに設定しました！今後は毎月1日深夜に自動で翌月シートが作成されます。');
+        } else {
+          showToast(res?.message || 'トリガー設定に失敗しました', 'warning');
+        }
+      } catch (err) {
+        showToast('トリガー設定エラー: ' + err.message, 'warning');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
     // ヘッダーの同期ボタン（回転アニメーション対応）
     document.getElementById('btn-sync-quick')?.addEventListener('click', async () => {
       await this.triggerSync(false);
@@ -1425,7 +1489,8 @@ class AppController {
     }
 
     try {
-      const data = await this.api.fetchMonthData(store.data.currentMonth || '202609');
+      const targetYM = store.data.currentMonth || getCurrentCalendarYM();
+      const data = await this.api.fetchMonthData(targetYM);
       if (data) {
         store.applyMonthData(data);
         this.render(store.getSummary());
@@ -1635,6 +1700,79 @@ class AppController {
     } finally {
       allButtons.forEach((b) => b.classList.remove('loading'));
     }
+  }
+
+  // --- 表示年月選択モーダル制御 ---
+  setupMonthSwitcher() {
+    const badge = document.getElementById('header-month-badge');
+    const modal = document.getElementById('modal-select-month');
+    const btnClose = document.getElementById('btn-close-month');
+
+    badge?.addEventListener('click', () => {
+      this.renderMonthList();
+      modal?.classList.add('active');
+    });
+
+    btnClose?.addEventListener('click', () => {
+      modal?.classList.remove('active');
+    });
+
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('active');
+    });
+  }
+
+  renderMonthList() {
+    const container = document.getElementById('month-list-container');
+    if (!container) return;
+
+    const currentYM = String(store.data.currentMonth || getCurrentCalendarYM());
+    let available = store.data.availableMonths || [];
+    if (!available.includes(currentYM) && currentYM) {
+      available = [currentYM, ...available];
+    }
+    const calYM = getCurrentCalendarYM();
+    if (!available.includes(calYM)) {
+      available = [calYM, ...available];
+    }
+
+    // 重複除外＆降順ソート
+    const uniqueMonths = Array.from(new Set(available)).sort((a, b) => b.localeCompare(a));
+
+    container.innerHTML = uniqueMonths.map((ym) => {
+      const isCur = (ym === currentYM);
+      const isCalendarNow = (ym === calYM);
+      const y = ym.substring(0, 4);
+      const m = parseInt(ym.substring(4, 6), 10);
+      return `
+        <button class="month-choice-btn" data-month="${ym}" style="
+          display: flex; justify-content: space-between; align-items: center;
+          padding: 12px 16px; border-radius: 12px;
+          border: 1px solid ${isCur ? 'var(--accent-primary)' : 'rgba(255,255,255,0.08)'};
+          background: ${isCur ? 'rgba(16, 185, 129, 0.12)' : 'rgba(255,255,255,0.03)'};
+          color: ${isCur ? 'var(--accent-primary)' : 'var(--text-primary)'};
+          font-weight: ${isCur ? '600' : '400'}; cursor: pointer; text-align: left; width: 100%;
+        ">
+          <div>
+            <span style="font-size: 0.95rem;">${y}年${m}月</span>
+            ${isCalendarNow ? '<span style="font-size: 0.7rem; margin-left: 6px; padding: 2px 6px; border-radius: 4px; background: rgba(59,130,246,0.2); color: #60a5fa;">今月</span>' : ''}
+          </div>
+          <span style="font-size: 0.8rem; opacity: 0.8;">${isCur ? '✓ 表示中' : '切り替え'}</span>
+        </button>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.month-choice-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const targetYM = btn.dataset.month;
+        document.getElementById('modal-select-month')?.classList.remove('active');
+        if (targetYM !== store.data.currentMonth) {
+          store.switchMonth(targetYM);
+          showToast(`${targetYM.substring(0, 4)}年${parseInt(targetYM.substring(4, 6), 10)}月に切り替え中...`);
+          await this.triggerSync(false);
+        }
+      });
+    });
   }
 }
 

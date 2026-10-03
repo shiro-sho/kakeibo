@@ -18,7 +18,7 @@
   <meta name="theme-color" content="#090d16">
 
   <!-- Stylesheet (キャッシュバスター付き) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260930_1">
+  <link rel="stylesheet" href="./css/style.css?v=20261003_1">
 
   <!-- Chart.js CDN for interactive beautiful charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -32,7 +32,10 @@
         <img src="./icons/icon.png" alt="家計簿アプリ" class="app-icon" id="app-logo">
         <div class="app-title-wrap">
           <h1>家計簿アプリ</h1>
-          <span class="month-badge" id="header-month-badge">2026年9月</span>
+          <button class="month-badge" id="header-month-badge" style="cursor: pointer; border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; color: var(--text-primary);" title="表示月を切り替え">
+            <span id="header-month-text">2026年10月</span>
+            <svg style="width: 10px; height: 10px; opacity: 0.7;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
         </div>
       </div>
       <div class="header-actions">
@@ -595,6 +598,24 @@
         </div>
 
         <div class="glass-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h3 style="font-size: 0.95rem; margin-bottom: 0;">月別シートの管理</h3>
+            <span class="badge-mini" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3);">スプレッドシート</span>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5;">
+            新しい月のシート（例: 202610）をテンプレートから作成し、前月の銀行残高やクレカ使用額・給与見込みを引き継ぎます。
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button class="btn-primary" id="btn-create-current-month" style="background: linear-gradient(135deg, #10b981, #059669); border: none;">
+              📅 今月（10月）シートを作成 & 最新同期
+            </button>
+            <button class="btn-secondary" id="btn-setup-daily-trigger" style="font-size: 0.78rem; padding: 8px 12px;">
+              ⏱ 毎月1日 深夜自動作成トリガーを設定
+            </button>
+          </div>
+        </div>
+
+        <div class="glass-card">
           <h3 style="font-size: 0.95rem; margin-bottom: 8px;">データ管理</h3>
           <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 14px;">
             スプレッドシートから読み取った初期状態（2026年9月分）にデータをリセットできます。
@@ -955,13 +976,29 @@
         </div>
       </div>
     </div>
+
+    <!-- MODAL: Month Switcher (表示月の切り替え) -->
+    <div class="modal-overlay" id="modal-select-month">
+      <div class="modal-content" style="max-width: 360px;">
+        <div class="modal-header">
+          <h3 class="modal-title">表示年月の切り替え</h3>
+          <button class="close-btn" id="btn-close-month">✕</button>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px;">
+          スプレッドシート内の月別シートを選択してデータを切り替えます。
+        </p>
+        <div id="month-list-container" style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- 動的にJSで生成 -->
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Toast Notifications Container -->
   <div class="toast-container" id="toast-container"></div>
 
   <!-- App Scripts (キャッシュバスター付き) -->
-  <script type="module" src="./js/app.js?v=20260930_1"></script>
+  <script type="module" src="./js/app.js?v=20261003_1"></script>
 
   <!-- PWA Service Worker Registration & Cache Purge -->
   <script>
@@ -972,7 +1009,7 @@
             reg.update();
           }
         });
-        navigator.serviceWorker.register('./sw.js?v=20260930_1').catch((err) => {
+        navigator.serviceWorker.register('./sw.js?v=20261003_1').catch((err) => {
           console.log('SW registration skipped:', err);
         });
       });
