@@ -1421,11 +1421,17 @@ class AppController {
       }
     });
 
-    // 今月（10月）シートを作成 & 最新同期
+    // 今月シートを作成 & 最新同期
     document.getElementById('btn-create-current-month')?.addEventListener('click', async () => {
       const btn = document.getElementById('btn-create-current-month');
       btn.disabled = true;
-      btn.textContent = 'シート作成・同期中...';
+      btn.innerHTML = `
+        <svg class="svg-icon svg-icon-sm rotating" viewBox="0 0 24 24">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+        <span>シート作成・同期中...</span>
+      `;
       try {
         if (!this.api.isConfigured()) {
           showToast('設定画面でGAS Web App URLを設定してください', 'warning');
@@ -1444,7 +1450,15 @@ class AppController {
         showToast('シート作成に失敗しました: ' + err.message, 'warning');
       } finally {
         btn.disabled = false;
-        btn.textContent = '📅 今月（10月）シートを作成 & 最新同期';
+        btn.innerHTML = `
+          <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <span>今月のシートを作成 & 最新同期</span>
+        `;
       }
     });
 
@@ -1452,6 +1466,14 @@ class AppController {
     document.getElementById('btn-setup-daily-trigger')?.addEventListener('click', async () => {
       const btn = document.getElementById('btn-setup-daily-trigger');
       btn.disabled = true;
+      const originalHtml = btn.innerHTML;
+      btn.innerHTML = `
+        <svg class="svg-icon svg-icon-sm rotating" viewBox="0 0 24 24">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+        <span>トリガー設定中...</span>
+      `;
       try {
         if (!this.api.isConfigured()) {
           showToast('設定画面でGAS Web App URLを設定してください', 'warning');
@@ -1467,6 +1489,7 @@ class AppController {
         showToast('トリガー設定エラー: ' + err.message, 'warning');
       } finally {
         btn.disabled = false;
+        btn.innerHTML = originalHtml;
       }
     });
 
@@ -1641,6 +1664,50 @@ class AppController {
   setupEmailSync() {
     const btnSyncEmails = document.getElementById('btn-sync-emails');
     const btnRunEmailSync = document.getElementById('btn-run-email-sync');
+    const selectMode = document.getElementById('setting-email-sync-mode');
+    const descMode = document.getElementById('desc-email-sync-mode');
+    const wrapCustom = document.getElementById('wrap-custom-email-func');
+    const inputCustomFn = document.getElementById('setting-email-func-name');
+
+    // モード別の説明文マッピング
+    const modeDescriptions = {
+      standard: '直近2ヶ月間に届いたVpass・三井住友カードの利用通知から未登録の明細を自動取得します（推奨）。',
+      deep: '取りこぼしがあった場合用。過去3ヶ月（最大200件）にさかのぼって、登録されていない明細がないか徹底的に探索します。',
+      current_month: '利用日が今月（当月）になっているメールだけを取り込みます。他月分の通知は除外されます。',
+      custom: 'スプレッドシートのGASプロジェクト内に以前作成された独自のメール取り込み関数（fetchCardEmails等）を実行します。'
+    };
+
+    // 保存されている設定の復元
+    const savedMode = localStorage.getItem('kakeibo_email_sync_mode') || 'standard';
+    if (selectMode) {
+      selectMode.value = savedMode;
+      if (descMode && modeDescriptions[savedMode]) {
+        descMode.textContent = modeDescriptions[savedMode];
+      }
+      if (wrapCustom) {
+        wrapCustom.style.display = savedMode === 'custom' ? 'block' : 'none';
+      }
+    }
+    const savedFnName = localStorage.getItem('kakeibo_email_custom_fn') || '';
+    if (inputCustomFn) {
+      inputCustomFn.value = savedFnName;
+    }
+
+    // プルダウン変更イベント
+    selectMode?.addEventListener('change', (e) => {
+      const mode = e.target.value;
+      localStorage.setItem('kakeibo_email_sync_mode', mode);
+      if (descMode && modeDescriptions[mode]) {
+        descMode.textContent = modeDescriptions[mode];
+      }
+      if (wrapCustom) {
+        wrapCustom.style.display = mode === 'custom' ? 'block' : 'none';
+      }
+    });
+
+    inputCustomFn?.addEventListener('input', (e) => {
+      localStorage.setItem('kakeibo_email_custom_fn', e.target.value.trim());
+    });
 
     btnSyncEmails?.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1669,8 +1736,9 @@ class AppController {
     showToast('Gmailから利用通知メールを検索・同期中...', 'info');
 
     try {
-      const customFnName = document.getElementById('setting-email-func-name')?.value?.trim() || '';
-      const result = await this.api.syncCardEmails(store.data.currentMonth, customFnName);
+      const mode = document.getElementById('setting-email-sync-mode')?.value || 'standard';
+      const customFnName = (mode === 'custom') ? (document.getElementById('setting-email-func-name')?.value?.trim() || '') : '';
+      const result = await this.api.syncCardEmails(store.data.currentMonth, mode, customFnName);
 
       if (result && result.status === 'success') {
         const addedCount = result.addedCount || 0;
@@ -1687,7 +1755,7 @@ class AppController {
         }
 
         if (addedCount > 0) {
-          showToast(`✉ メールから${addedCount}件の利用明細を取り込みました！`, 'success');
+          showToast(`メールから${addedCount}件の利用明細を取り込みました！`, 'success');
         } else {
           showToast('新しい利用通知メールはありませんでした（最新状態です）', 'success');
         }
@@ -1757,7 +1825,9 @@ class AppController {
             <span style="font-size: 0.95rem;">${y}年${m}月</span>
             ${isCalendarNow ? '<span style="font-size: 0.7rem; margin-left: 6px; padding: 2px 6px; border-radius: 4px; background: rgba(59,130,246,0.2); color: #60a5fa;">今月</span>' : ''}
           </div>
-          <span style="font-size: 0.8rem; opacity: 0.8;">${isCur ? '✓ 表示中' : '切り替え'}</span>
+          <span style="font-size: 0.8rem; opacity: 0.85; display: inline-flex; align-items: center; gap: 4px;">
+            ${isCur ? '<svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" style="width: 14px; height: 14px; stroke-width: 2.5;"><polyline points="20 6 9 17 4 12"></polyline></svg> 表示中' : '切り替え'}
+          </span>
         </button>
       `;
     }).join('');

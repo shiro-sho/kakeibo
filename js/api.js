@@ -95,12 +95,12 @@ export class GasApiClient {
   }
 
   // クレカ利用通知メールの同期実行（スプレッドシート反映）
-  async syncCardEmails(monthStr, functionName) {
+  async syncCardEmails(monthStr, syncMode = 'standard', functionName = '') {
     if (!this.isConfigured()) {
       throw new Error('GAS Web App URLが設定されていません');
     }
     const month = monthStr || this.store.data.currentMonth;
-    return this.postRequest('syncCardEmails', { month, functionName });
+    return this.postRequest('syncCardEmails', { month, syncMode, functionName });
   }
 
   async postRequest(action, payload) {
