@@ -1801,7 +1801,9 @@ class AppController {
 
     try {
       const mode = document.getElementById('setting-email-sync-mode')?.value || 'standard';
-      const customFnName = (mode === 'custom') ? (document.getElementById('setting-email-func-name')?.value?.trim() || '') : '';
+      const inputCustom = document.getElementById('setting-email-func-name')?.value?.trim() || '';
+      // カスタム関数名が入力されていればそれを優先、なければモードに応じて送信（GAS側で自動探索も実行）
+      const customFnName = inputCustom;
       const result = await this.api.syncCardEmails(store.data.currentMonth, mode, customFnName);
 
       if (result && result.status === 'success') {
