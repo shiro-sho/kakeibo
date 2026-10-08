@@ -1488,16 +1488,13 @@ class AppController {
           return;
         }
 
-        showToast('ステップ1: テンプレシートをもとに今月シートを再作成中...');
+        showToast('ステップ1: テンプレシートをもとに今月シートを再作成＆クレカ全明細を取得中...');
         const recreateRes = await this.api.postRequest('recreateMonthSheet', { targetMonth: currentCalYM });
         if (!recreateRes || recreateRes.status !== 'success') {
           throw new Error(recreateRes?.message || 'シート再作成に失敗しました');
         }
 
-        showToast('ステップ2: Gmailから最新の利用通知メールを取得・反映中...');
-        await this.api.syncCardEmails(currentCalYM, 'standard');
-
-        showToast('ステップ3: 最新データを同期中...');
+        showToast('ステップ2: 復元後の最新データを同期中...');
         store.switchMonth(currentCalYM);
         const freshData = await this.api.fetchMonthData(currentCalYM);
         if (freshData) {
