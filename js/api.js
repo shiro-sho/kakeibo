@@ -80,6 +80,13 @@ export class GasApiClient {
     return this.postRequest('toggleSettled', { fixedId, settled });
   }
 
+  // クレジットカード今月引落額（D20）の更新
+  async updateCardBill(amount, monthStr) {
+    if (!this.isConfigured()) return { status: 'local_only', amount: -Math.abs(Number(amount)) };
+    const month = monthStr || this.store.data.currentMonth;
+    return this.postRequest('updateCardBill', { amount: Number(amount), month });
+  }
+
   // クレカ明細のカテゴリ（ジャンル）更新
   async updateTransactionCategory(txId, category, monthStr) {
     if (!this.isConfigured()) return;

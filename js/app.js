@@ -529,17 +529,26 @@ class AppController {
     };
 
     const createItemHtml = (f) => {
-      const displayName = (f.id === 'credit_card' || f.name === 'クレジットカード引落') ? 'クレカ引落' : f.name;
+      const isCard = (f.id === 'credit_card');
+      const displayName = (isCard || f.name === 'クレジットカード引落') ? 'クレカ引落' : f.name;
       return `
       <div class="fixed-expense-item ${f.settled ? 'settled' : ''}" data-fixed-id="${f.id}">
         <div class="fixed-left">
-          <div class="check-circle">${f.settled ? '✓' : ''}</div>
+          <div class="check-circle" title="タップして引落済を切り替え">${f.settled ? '✓' : ''}</div>
           <span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: rgba(255,255,255,0.06); color: var(--text-secondary); margin-right: 2px;">
             ${getFixedIconSvg(f.id)}
           </span>
           <span class="fixed-name">${displayName}</span>
         </div>
-        <span class="fixed-amount">¥${Math.abs(f.amount).toLocaleString()}</span>
+        <div class="fixed-right" style="display: flex; align-items: center; gap: 8px;">
+          <span class="fixed-amount" ${isCard ? 'data-action="edit-bill" title="タップして今月の確定引落額を修正" style="cursor: pointer; text-decoration: underline dotted; text-underline-offset: 4px;"' : ''}>
+            ¥${Math.abs(f.amount).toLocaleString()}
+          </span>
+          ${isCard ? `
+          <button type="button" class="btn-edit-bill-inline" data-action="edit-bill" title="今月のクレカ引落額を修正（D20）" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); border-radius: 6px; padding: 4px 6px; color: var(--text-secondary); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+            <svg class="svg-icon svg-icon-xs" style="width: 12px; height: 12px;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          </button>` : ''}
+        </div>
       </div>
     `;
     };
@@ -547,8 +556,11 @@ class AppController {
     const attachFixedClickListener = (container) => {
       if (!container) return;
       container.querySelectorAll('.fixed-expense-item').forEach((item) => {
-        item.addEventListener('click', async () => {
-          const fixedId = item.dataset.fixedId;
+        const fixedId = item.dataset.fixedId;
+        const isCard = (fixedId === 'credit_card');
+
+        // ① 引落済トグル処理
+        const handleToggleSettled = async () => {
           const newSettled = store.toggleFixedExpenseSettled(fixedId);
           const f = store.data.fixedExpenses.find((x) => x.id === fixedId);
           const itemName = f ? f.name : '項目';
@@ -569,7 +581,37 @@ class AppController {
           } else {
             showToast(newSettled ? `「${itemName}」を引落済みにしました（ローカル保存）` : `「${itemName}」を未引落に戻しました（ローカル保存）`);
           }
+        };
+
+        // チェックサークルをクリックした場合は確実に「引落済トグル」
+        const checkCircle = item.querySelector('.check-circle');
+        checkCircle?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          handleToggleSettled();
         });
+
+        // クレカ引落の場合：金額または鉛筆ボタンをクリックした時は「引落額修正モーダル」を開く
+        if (isCard) {
+          const editTriggers = item.querySelectorAll('[data-action="edit-bill"]');
+          editTriggers.forEach((trigger) => {
+            trigger.addEventListener('click', (e) => {
+              e.stopPropagation();
+              this.openEditCardBillModal();
+            });
+          });
+
+          // 行自体（それ以外の部分）をクリックした時も直感的に編集モーダルを開く
+          item.addEventListener('click', (e) => {
+            if (e.target.closest('.check-circle')) return;
+            this.openEditCardBillModal();
+          });
+        } else {
+          // 他の固定費（家賃・ローン）は行全体クリックで引落済トグル
+          item.addEventListener('click', (e) => {
+            if (e.target.closest('.check-circle')) return;
+            handleToggleSettled();
+          });
+        }
       });
     };
 
@@ -1088,6 +1130,11 @@ class AppController {
       salaryNext.value = nextSalaryVal;
     }
 
+    const cardBillInput = document.getElementById('setting-card-bill-amount');
+    if (cardBillInput && document.activeElement !== cardBillInput) {
+      cardBillInput.value = Math.abs(store.data.currentMonthCardBill || 0);
+    }
+
     // 給料推定 / 確定バッジおよびステータステキストの更新
     const badgeCur = document.getElementById('badge-salary-current');
     const badgeNext = document.getElementById('badge-salary-next');
@@ -1140,6 +1187,11 @@ class AppController {
     // 口座残高更新モーダル閉じる
     document.getElementById('btn-close-edit-account')?.addEventListener('click', () => {
       document.getElementById('modal-edit-account')?.classList.remove('active');
+    });
+
+    // クレカ引落額修正モーダル閉じる
+    document.getElementById('btn-close-edit-card-bill')?.addEventListener('click', () => {
+      document.getElementById('modal-edit-card-bill')?.classList.remove('active');
     });
 
     // 出入金モーダルの口座カラー動的適応ヘルパー
@@ -1205,6 +1257,19 @@ class AppController {
       content.setAttribute('data-account', acc.id || 'smbc');
     }
     m?.classList.add('active');
+  }
+
+  // 今月のクレカ確定引落額修正モーダルを開く
+  openEditCardBillModal() {
+    const input = document.getElementById('edit-card-bill-amount');
+    if (input) {
+      input.value = Math.abs(store.data.currentMonthCardBill || 0);
+    }
+    document.getElementById('modal-edit-card-bill')?.classList.add('active');
+    setTimeout(() => {
+      input?.focus();
+      input?.select();
+    }, 100);
   }
 
   openEditTransferModal(tf) {
@@ -1313,6 +1378,37 @@ class AppController {
 
       store.updateInitialBalance(id, amount);
       document.getElementById('modal-edit-account')?.classList.remove('active');
+    });
+
+    // 今月のクレカ確定引落額の更新（モーダル）
+    document.getElementById('form-edit-card-bill')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = document.getElementById('edit-card-bill-amount');
+      const val = Number(input.value);
+      if (isNaN(val) || val < 0) {
+        showToast('有効な金額を入力してください', 'warning');
+        return;
+      }
+
+      store.updateCardBill(val);
+      this.render(store.getSummary());
+      document.getElementById('modal-edit-card-bill')?.classList.remove('active');
+      showToast(`今月のクレカ引落額を ¥${val.toLocaleString()} に更新しました`);
+
+      // スプレッドシートD20セルへ非同期保存
+      if (this.api.isConfigured()) {
+        try {
+          const res = await this.api.updateCardBill(val, store.data.currentMonth);
+          if (res && res.status === 'success') {
+            showToast(`今月のクレカ引落額を ¥${val.toLocaleString()} に更新しました（スプシ D20 反映済）`, 'success');
+          } else {
+            showToast(`スプシ更新警告: ${res?.message || '不明な応答'}`, 'warning');
+          }
+        } catch (err) {
+          console.error('クレカ引落額スプシ同期エラー:', err);
+          showToast(`スプレッドシートへの反映に失敗しました: ${err.message}`, 'warning');
+        }
+      }
     });
 
     // 出入金登録
@@ -1457,6 +1553,34 @@ class AppController {
       store.updateSalary('nextMonth', nxt);
       this.render(store.getSummary());
       showToast('給料設定を保存しました！', 'success');
+    });
+
+    // クレカ引落額保存（設定画面）
+    document.getElementById('btn-save-card-bill')?.addEventListener('click', async () => {
+      const input = document.getElementById('setting-card-bill-amount');
+      const val = Number(input.value);
+      if (isNaN(val) || val < 0) {
+        showToast('有効な金額を入力してください', 'warning');
+        return;
+      }
+      store.updateCardBill(val);
+      this.render(store.getSummary());
+
+      if (this.api.isConfigured()) {
+        try {
+          const res = await this.api.updateCardBill(val, store.data.currentMonth);
+          if (res && res.status === 'success') {
+            showToast(`今月のクレカ引落額を ¥${val.toLocaleString()} に更新しました（スプシ D20 反映済）`, 'success');
+          } else {
+            showToast(`スプシ更新警告: ${res?.message || '不明な応答'}`, 'warning');
+          }
+        } catch (err) {
+          console.error('クレカ引落額同期エラー:', err);
+          showToast(`スプシ同期エラー: ${err.message}`, 'warning');
+        }
+      } else {
+        showToast(`クレカ引落額を ¥${val.toLocaleString()} に更新しました（ローカル保存）`);
+      }
     });
 
     // 今月データをテンプレから再復元（メール取込含む）一括処理

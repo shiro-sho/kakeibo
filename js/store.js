@@ -974,6 +974,18 @@ class KakeiboStore {
     }
   }
 
+  // 今月引落のクレカ代（手動更新 / D20連動）
+  updateCardBill(amount) {
+    const val = -Math.abs(Number(amount));
+    this.data.currentMonthCardBill = val;
+    const cc = this.data.fixedExpenses.find((f) => f.id === 'credit_card');
+    if (cc) {
+      cc.amount = val;
+    }
+    this.saveData();
+    return val;
+  }
+
   // 固定費の引落ステータス切替（〇を付ける・外す）
   toggleFixedExpenseSettled(id) {
     const f = this.data.fixedExpenses.find((x) => x.id === id);
