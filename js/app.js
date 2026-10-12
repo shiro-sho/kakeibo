@@ -2,9 +2,9 @@
  * アプリメインコントローラー（UIレンダリング・インタラクション）
  */
 
-import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM } from './store.js?v=20261003_1';
-import { ChartRenderer } from './charts.js?v=20261003_1';
-import { GasApiClient } from './api.js?v=20261003_1';
+import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM, DEFAULT_PENDING_ESTIMATES } from './store.js?v=20261013_1';
+import { ChartRenderer } from './charts.js?v=20261013_1';
+import { GasApiClient } from './api.js?v=20261013_1';
 
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toast-container');
@@ -729,7 +729,9 @@ class AppController {
         </div>
         ${isPending
           ? (() => {
-              const est = store.getRecurringPendingEstimate(tx, store.data.currentMonth);
+              const est = typeof store.getRecurringPendingEstimate === 'function'
+                ? store.getRecurringPendingEstimate(tx, store.data.currentMonth)
+                : 0;
               const isZero = (est === 0);
               const estText = isZero ? '引落なし月 (¥0)' : `未確定 (仮: ¥${est.toLocaleString()})`;
               const dotClass = isZero ? 'pending-dot-dim' : 'pending-dot';
@@ -802,7 +804,9 @@ class AppController {
     const valBtnEst = document.getElementById('val-btn-estimate');
     const btnResetPending = document.getElementById('btn-reset-to-pending');
 
-    const estAmount = store.getRecurringPendingEstimate(tx, store.data.currentMonth);
+    const estAmount = typeof store.getRecurringPendingEstimate === 'function'
+      ? store.getRecurringPendingEstimate(tx, store.data.currentMonth)
+      : 0;
     const hasEstimateRule = isRec && (tx.name.includes('ガス') || tx.name.includes('povo') || tx.name.includes('水道'));
 
     if (estimateBanner) {
@@ -967,7 +971,8 @@ class AppController {
     const cardTotal = cardTxList.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
     const recurringEstimatedTotal = recurringTxList.reduce((sum, t) => {
       const isP = t.amountPending || (!t.amount || Number(t.amount) === 0);
-      return sum + (isP ? store.getRecurringPendingEstimate(t, s.currentMonth) : (Number(t.amount) || 0));
+      const est = typeof store.getRecurringPendingEstimate === 'function' ? store.getRecurringPendingEstimate(t, s.currentMonth) : 0;
+      return sum + (isP ? est : (Number(t.amount) || 0));
     }, 0);
 
     // セグメントバッジの件数更新

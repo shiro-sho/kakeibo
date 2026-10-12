@@ -949,7 +949,7 @@
   <div class="toast-container" id="toast-container"></div>
 
   <!-- App Scripts (キャッシュバスター付き) -->
-  <script type="module" src="./js/app.js?v=20261011_1"></script>
+  <script type="module" src="./js/app.js?v=20261013_1"></script>
 
   <!-- PWA Service Worker Registration & Cache Purge -->
   <script>
@@ -960,7 +960,7 @@
             reg.update();
           }
         });
-        navigator.serviceWorker.register('./sw.js?v=20261011_1').catch((err) => {
+        navigator.serviceWorker.register('./sw.js?v=20261013_1').catch((err) => {
           console.log('SW registration skipped:', err);
         });
       });
