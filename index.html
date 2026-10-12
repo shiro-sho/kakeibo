@@ -85,7 +85,7 @@
         <!-- Hero: Forecast Available Amount (主役・最重要コンポーネント) -->
         <!-- Hero: Forecast Available Amount (主役・最重要コンポーネント) -->
         <div class="glass-card credit-hero" id="credit-hero-card">
-          <div class="hero-subtitle">来月引落後の使えるお金（推定自由資金）</div>
+          <div class="hero-subtitle">推定資産（来月引落後残った額）</div>
 
           <div class="hero-amount-display">
             <div class="available-amount-wrap">
@@ -169,7 +169,7 @@
                   <div class="flow-step-icon minus">−</div>
                   <div class="flow-step-info">
                     <span class="flow-step-label">今月クレカ利用分</span>
-                    <span class="flow-step-desc">来月引き落とされるカード代</span>
+                    <span class="flow-step-desc" id="desc-calc-card-spent">来月引き落とされるカード代</span>
                   </div>
                   <span class="flow-step-val minus" id="val-calc-card-spent">-¥0</span>
                 </div>
@@ -196,7 +196,7 @@
 
                 <!-- ゴール・ハイライト -->
                 <div class="flow-result-row">
-                  <span class="flow-result-label">＝ 来月引落後の使えるお金</span>
+                  <span class="flow-result-label">＝ 推定資産（来月引落後残った額）</span>
                   <span class="flow-result-val" id="val-calc-result">¥0</span>
                 </div>
 
@@ -696,6 +696,21 @@
           <div class="form-group">
             <label class="form-label" for="edit-tx-amount">金額 (¥)</label>
             <input type="number" id="edit-tx-amount" class="form-input" required>
+            <!-- 未確定固定費の目安案内＆ワンタップ入力ボタン -->
+            <div class="tx-estimate-banner" id="edit-tx-estimate-banner" style="display: none;">
+              <div class="estimate-banner-header">
+                <span class="estimate-banner-badge" id="estimate-banner-badge">💡 目安確保額</span>
+                <span class="estimate-banner-desc" id="estimate-banner-desc"></span>
+              </div>
+              <div class="estimate-banner-actions">
+                <button type="button" class="btn-estimate-apply" id="btn-apply-estimate">
+                  目安額をセット (<span id="val-btn-estimate">¥0</span>)
+                </button>
+                <button type="button" class="btn-estimate-reset" id="btn-reset-to-pending">
+                  未確定（目安確保）に戻す
+                </button>
+              </div>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label" for="edit-tx-category">ジャンル</label>

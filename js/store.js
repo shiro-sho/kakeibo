@@ -36,12 +36,22 @@ export function getCurrentCalendarYM() {
   return `${y}${m}`;
 }
 
+// 未確定光熱費・通信費のデフォルト目安確保額
+export const DEFAULT_PENDING_ESTIMATES = {
+  gas: 8500,       // 東京ガス（最近高めのため高めに設定）
+  povo: 350,       // povo（通常月基本料金・トッピング除外）
+  waterOdd: 4400   // 水道（奇数月の平均値・直近平均約4,430円、偶数月は0円）
+};
+
 // 基準となる初期データ
 const DEFAULT_DATA_202609 = {
   currentMonth: getCurrentCalendarYM(),
   cardLimit: 1000000,
   cardWarningThreshold: 200000,
   availableMonths: [getCurrentCalendarYM(), '202609'],
+  
+  // 未確定固定費の目安設定
+  pendingEstimates: { ...DEFAULT_PENDING_ESTIMATES },
   
   // 今月引落のクレカ代（手動入力セル D20）
   currentMonthCardBill: -318889,
@@ -745,6 +755,13 @@ class KakeiboStore {
           });
         }
 
+        // 未確定固定費の目安設定を初期化・マージ
+        if (!parsed.pendingEstimates) {
+          parsed.pendingEstimates = { ...DEFAULT_PENDING_ESTIMATES };
+        } else {
+          parsed.pendingEstimates = { ...DEFAULT_PENDING_ESTIMATES, ...parsed.pendingEstimates };
+        }
+
         // 新月自動ロールオーバー検知（例: 202609 から 202610 への月替わり）
         const calYM = getCurrentCalendarYM();
         if (parsed.currentMonth && parsed.currentMonth < calYM) {
@@ -818,18 +835,64 @@ class KakeiboStore {
     this.listeners.forEach((l) => l(this.getSummary()));
   }
 
+  // --- 未確定固定費の目安金額取得 ---
+  getRecurringPendingEstimate(tx, ym) {
+    if (!tx) return 0;
+    const targetYM = String(ym || this.data.currentMonth || getCurrentCalendarYM());
+    const m = parseInt(targetYM.length >= 6 ? targetYM.substring(4, 6) : String(new Date().getMonth() + 1), 10);
+    const isOddMonth = (m % 2 !== 0);
+
+    const estimates = this.data.pendingEstimates || DEFAULT_PENDING_ESTIMATES;
+    const name = String(tx.name || '');
+
+    if (name.includes('ガス')) {
+      return Number(estimates.gas ?? DEFAULT_PENDING_ESTIMATES.gas);
+    }
+    if (name.includes('povo')) {
+      return Number(estimates.povo ?? DEFAULT_PENDING_ESTIMATES.povo);
+    }
+    if (name.includes('水道')) {
+      // 偶数月は0円、奇数月は平均目安額
+      return isOddMonth ? Number(estimates.waterOdd ?? DEFAULT_PENDING_ESTIMATES.waterOdd) : 0;
+    }
+    return 0;
+  }
+
+  // 目安金額の設定更新
+  updatePendingEstimates(updates) {
+    if (!this.data.pendingEstimates) {
+      this.data.pendingEstimates = { ...DEFAULT_PENDING_ESTIMATES };
+    }
+    Object.assign(this.data.pendingEstimates, updates);
+    this.saveData();
+  }
+
   // --- 計算ロジック（スプレッドシートの数式を完全に再現） ---
   getSummary() {
     const d = this.data;
 
-    // 1. 今月のクレジットカード利用合計 (G33 = SUM(D33:D...))
-    const totalSpent = d.transactions.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+    // 1. 今月のクレジットカード利用合計
+    // (1) 確定済み利用額（未確定フラグなし ＆ 金額 > 0）
+    const actualSpent = d.transactions
+      .filter((tx) => !tx.amountPending && Number(tx.amount || 0) > 0)
+      .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+
+    // (2) 未確定固定費の目安仮確保額（ガス、povo、水道など）
+    const pendingRecurringItems = d.transactions.filter(
+      (tx) => tx.group === 'recurring' && (tx.amountPending || !tx.amount || Number(tx.amount) === 0)
+    );
+    const estimatedPendingTotal = pendingRecurringItems.reduce(
+      (sum, tx) => sum + this.getRecurringPendingEstimate(tx, d.currentMonth),
+      0
+    );
+
+    // 引落見込み総額（確定利用分 ＋ 未確定の仮確保分）
+    const totalSpent = actualSpent + estimatedPendingTotal;
 
     // 2. クレカ引落確定済みか？ (Row 4 の 引落有無「〇」)
     const cardSettled = d.fixedExpenses.find((f) => f.id === 'credit_card')?.settled || false;
 
-    // 3. クレジット利用可能額 (Row 32 J32 = 1000000 - G33 + IF(B4="〇", 0, D20))
-    // ※D20はマイナス値（例: -318,889）なので、未引落の時はカード枠から引かれている
+    // 3. クレジット利用可能額 (Row 32 J32 = 1000000 - totalSpent + IF(B4="〇", 0, D20))
     const cardAvailable = d.cardLimit - totalSpent + (cardSettled ? 0 : d.currentMonthCardBill);
     const isWarning = cardAvailable < d.cardWarningThreshold;
 
@@ -931,6 +994,10 @@ class KakeiboStore {
       cardLimit: d.cardLimit,
       cardWarningThreshold: d.cardWarningThreshold,
       totalSpent,
+      actualSpent,
+      estimatedPendingTotal,
+      pendingRecurringCount: pendingRecurringItems.length,
+      pendingEstimates: d.pendingEstimates || DEFAULT_PENDING_ESTIMATES,
       cardAvailable,
       isWarning,
       cardSettled,
@@ -1038,8 +1105,14 @@ class KakeiboStore {
     const tx = this.data.transactions.find((t) => t.id === id);
     if (tx) {
       Object.assign(tx, updates);
-      if (updates.amount !== undefined && Number(updates.amount) > 0) {
-        tx.amountPending = false;
+      if (updates.amountPending !== undefined) {
+        tx.amountPending = updates.amountPending;
+      } else if (updates.amount !== undefined) {
+        if (Number(updates.amount) > 0) {
+          tx.amountPending = false;
+        } else if (tx.group === 'recurring') {
+          tx.amountPending = true;
+        }
       }
       this.saveData();
     }

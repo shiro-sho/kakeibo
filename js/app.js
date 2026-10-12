@@ -351,7 +351,7 @@ class AppController {
     const elDailyBudget = document.getElementById('val-daily-budget');
     const elDailyPaceText = document.getElementById('daily-pace-text');
 
-    // 来月引落後の所持金（推定自由資金）
+    // 来月引落後の所持金（推定資産）
     const forecastVal = s.afterNextMonth ? s.afterNextMonth.total : 0;
     if (elForecastAvailable) {
       elForecastAvailable.textContent = forecastVal.toLocaleString();
@@ -415,6 +415,14 @@ class AppController {
     }
 
     if (elCalcCardSpent) elCalcCardSpent.textContent = `-¥${s.totalSpent.toLocaleString()}`;
+    const descCalcCardSpent = document.getElementById('desc-calc-card-spent');
+    if (descCalcCardSpent) {
+      if (s.estimatedPendingTotal && s.estimatedPendingTotal > 0) {
+        descCalcCardSpent.textContent = `カード利用 ¥${(s.actualSpent || 0).toLocaleString()} ＋ 未確定目安 ¥${s.estimatedPendingTotal.toLocaleString()} 確保`;
+      } else {
+        descCalcCardSpent.textContent = '来月引き落とされるカード代';
+      }
+    }
     if (elCalcNextFixed) elCalcNextFixed.textContent = `-¥${Math.abs(s.pureFixedTotal).toLocaleString()}`;
     if (elCalcNextSalary) elCalcNextSalary.textContent = `+¥${(s.salaries.nextMonth || 250000).toLocaleString()}`;
 
@@ -720,10 +728,18 @@ class AppController {
           </div>
         </div>
         ${isPending
-          ? `<button type="button" class="tx-amount-pending-badge" title="タップして金額を記入">
-               <span class="pending-dot"></span>
-               <span>未確定 (記入する)</span>
-             </button>`
+          ? (() => {
+              const est = store.getRecurringPendingEstimate(tx, store.data.currentMonth);
+              const isZero = (est === 0);
+              const estText = isZero ? '引落なし月 (¥0)' : `未確定 (仮: ¥${est.toLocaleString()})`;
+              const dotClass = isZero ? 'pending-dot-dim' : 'pending-dot';
+              return `
+                <button type="button" class="tx-amount-pending-badge ${isZero ? 'badge-zero' : ''}" title="タップして確定金額を入力">
+                  <span class="${dotClass}"></span>
+                  <span class="pending-badge-text">${estText}</span>
+                </button>
+              `;
+            })()
           : `<span class="tx-amount">¥${(Number(tx.amount) || 0).toLocaleString()}</span>`
         }
       </div>
@@ -777,6 +793,65 @@ class AppController {
     const modalTitle = m.querySelector('.modal-title');
     if (modalTitle) {
       modalTitle.textContent = isPending ? `「${tx.name}」の金額を入力` : '明細の編集';
+    }
+
+    // 未確定固定費（ガス・povo・水道）の目安案内バナー
+    const estimateBanner = document.getElementById('edit-tx-estimate-banner');
+    const badgeEst = document.getElementById('estimate-banner-badge');
+    const descEst = document.getElementById('estimate-banner-desc');
+    const valBtnEst = document.getElementById('val-btn-estimate');
+    const btnResetPending = document.getElementById('btn-reset-to-pending');
+
+    const estAmount = store.getRecurringPendingEstimate(tx, store.data.currentMonth);
+    const hasEstimateRule = isRec && (tx.name.includes('ガス') || tx.name.includes('povo') || tx.name.includes('水道'));
+
+    if (estimateBanner) {
+      if (hasEstimateRule) {
+        estimateBanner.style.display = 'flex';
+        const ym = String(store.data.currentMonth || '');
+        const mNum = parseInt(ym.length >= 6 ? ym.substring(4, 6) : String(new Date().getMonth() + 1), 10);
+        const isOdd = (mNum % 2 !== 0);
+
+        if (tx.name.includes('ガス')) {
+          if (badgeEst) badgeEst.textContent = '💡 東京ガス 目安設定';
+          if (descEst) descEst.textContent = `最近高めのため、未入力時は高めの ¥${estAmount.toLocaleString()} を仮確保して推定資産を計算しています。`;
+        } else if (tx.name.includes('povo')) {
+          if (badgeEst) badgeEst.textContent = '💡 povo通信費 目安設定';
+          if (descEst) descEst.textContent = `トッピング除外の通常月基本料として ¥${estAmount.toLocaleString()} を仮確保しています（トッピングは別途クレカ明細で反映）。`;
+        } else if (tx.name.includes('水道')) {
+          if (!isOdd) {
+            if (badgeEst) badgeEst.textContent = '💡 水道（偶数月）';
+            if (descEst) descEst.textContent = `当月(${mNum}月)は偶数月のため引落なし(¥0)予定です。請求がある場合のみ入力してください。`;
+          } else {
+            if (badgeEst) badgeEst.textContent = '💡 水道（奇数月）';
+            if (descEst) descEst.textContent = `当月(${mNum}月)は奇数月のため過去実績平均 ¥${estAmount.toLocaleString()} を仮確保しています。`;
+          }
+        }
+        if (valBtnEst) valBtnEst.textContent = `¥${estAmount.toLocaleString()}`;
+        if (btnResetPending) {
+          btnResetPending.style.display = isPending ? 'none' : 'inline-block';
+        }
+
+        // ワンタップ目安セットボタンのイベント
+        const btnApplyEst = document.getElementById('btn-apply-estimate');
+        if (btnApplyEst) {
+          btnApplyEst.onclick = () => {
+            if (amountInput) {
+              amountInput.value = estAmount;
+              amountInput.focus();
+            }
+          };
+        }
+        if (btnResetPending) {
+          btnResetPending.onclick = () => {
+            if (amountInput) {
+              amountInput.value = '';
+            }
+          };
+        }
+      } else {
+        estimateBanner.style.display = 'none';
+      }
     }
 
     m.classList.add('active');
@@ -890,7 +965,10 @@ class AppController {
     const recurringTxList = sortTransactionsDesc(s.transactions.filter(t => t.group === 'recurring'));
 
     const cardTotal = cardTxList.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
-    const recurringTotal = recurringTxList.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+    const recurringEstimatedTotal = recurringTxList.reduce((sum, t) => {
+      const isP = t.amountPending || (!t.amount || Number(t.amount) === 0);
+      return sum + (isP ? store.getRecurringPendingEstimate(t, s.currentMonth) : (Number(t.amount) || 0));
+    }, 0);
 
     // セグメントバッジの件数更新
     const badgeAll = document.getElementById('badge-count-all');
@@ -920,7 +998,7 @@ class AppController {
 
     const pendingCount = recurringTxList.filter(t => t.amountPending || (Number(t.amount) === 0)).length;
     const pendingBadgeHtml = pendingCount > 0 
-      ? `<span class="tx-pending-count-badge" title="${pendingCount}件の金額が未確定です">未確定 ${pendingCount}件</span>` 
+      ? `<span class="tx-pending-count-badge" title="${pendingCount}件の未確定項目に目安 ¥${(s.estimatedPendingTotal || 0).toLocaleString()} を仮確保中">未確定 ${pendingCount}件 (仮確保 ¥${(s.estimatedPendingTotal || 0).toLocaleString()})</span>` 
       : '';
 
     const recurringHeaderHtml = `
@@ -931,7 +1009,7 @@ class AppController {
           <span class="tx-group-count">${recurringTxList.length}件</span>
           ${pendingBadgeHtml}
         </div>
-        <span class="tx-group-total">¥${recurringTotal.toLocaleString()}</span>
+        <span class="tx-group-total">¥${recurringEstimatedTotal.toLocaleString()}</span>
       </div>
     `;
 

@@ -1450,6 +1450,105 @@ body {
   }
 }
 
+/* 偶数月などの0円（引落なし月）バッジスタイル */
+.tx-amount-pending-badge.badge-zero {
+  background: rgba(148, 163, 184, 0.1);
+  border-color: rgba(148, 163, 184, 0.35);
+  color: var(--text-secondary);
+}
+.tx-amount-pending-badge.badge-zero:hover {
+  background: rgba(148, 163, 184, 0.18);
+  border-color: rgba(148, 163, 184, 0.6);
+  box-shadow: 0 4px 12px rgba(148, 163, 184, 0.2);
+}
+.pending-dot-dim {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #94a3b8;
+  opacity: 0.6;
+}
+.pending-est-val {
+  font-weight: 800;
+  opacity: 0.95;
+  margin-left: 2px;
+}
+
+/* モーダル内の目安案内＆クイック反映バナー */
+.tx-estimate-banner {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.estimate-banner-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.estimate-banner-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.15);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+.estimate-banner-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+.estimate-banner-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.btn-estimate-apply {
+  flex: 1;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 7px 12px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.2));
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.btn-estimate-apply:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.35), rgba(217, 119, 6, 0.3));
+  border-color: #f59e0b;
+  transform: translateY(-1px);
+}
+.btn-estimate-reset {
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-estimate-reset:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
 /* ヘッダーの未確定件数バッジ */
 .tx-pending-count-badge {
   font-size: 0.65rem;
