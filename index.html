@@ -15,7 +15,18 @@
   <meta name="apple-mobile-web-app-title" content="家計簿アプリ">
   <link rel="apple-touch-icon" id="dynamic-touch-icon" href="./icons/icon.png">
   <link rel="icon" id="dynamic-favicon" type="image/png" href="./icons/icon.png">
-  <meta name="theme-color" content="#090d16">
+  <meta name="theme-color" content="#000000">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('kakeibo_theme') || 'onyx';
+        var valid = (t === 'platinum' || t === 'starlight' || t === 'light' || t === 'white') ? 'platinum' : 'onyx';
+        document.documentElement.setAttribute('data-theme', valid);
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.setAttribute('content', valid === 'platinum' ? '#f5f7fb' : '#000000');
+      } catch (e) {}
+    })();
+  </script>
 
   <!-- Google Fonts (非同期・並列読み込みでCSSレンダーブロッキングを解消) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,7 +34,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;900&display=swap">
 
   <!-- Stylesheet (キャッシュバスター付き) -->
-  <link rel="stylesheet" href="./css/style.css?v=20261110_4">
+  <link rel="stylesheet" href="./css/style.css?v=20261110_5">
 
   <!-- Chart.js CDN for interactive beautiful charts (deferで初期描画ブロックを解消) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
@@ -954,7 +965,7 @@
   <div class="toast-container" id="toast-container"></div>
 
   <!-- App Scripts (キャッシュバスター付き) -->
-  <script type="module" src="./js/app.js?v=20261110_4"></script>
+  <script type="module" src="./js/app.js?v=20261110_5"></script>
 
   <!-- PWA Service Worker Registration & Cache Purge -->
   <script>
@@ -965,7 +976,7 @@
             reg.update();
           }
         });
-        navigator.serviceWorker.register('./sw.js?v=20261110_4').catch((err) => {
+        navigator.serviceWorker.register('./sw.js?v=20261110_5').catch((err) => {
           console.log('SW registration skipped:', err);
         });
       });

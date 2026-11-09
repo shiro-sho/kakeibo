@@ -11,7 +11,7 @@
   /* Theme 1: Onyx Black Titanium (漆黒チタン × クールシルバー)
      最高峰の完成度を誇るダークチタングラスデザイン */
   --bg-main: #000000;
-  --bg-gradient: radial-gradient(ellipse 90% 60% at 50% -12%, rgba(148, 163, 184, 0.12) 0%, rgba(30, 41, 59, 0.06) 42%, #060709 72%, #000000 100%);
+  --bg-gradient: none;
   --surface-card: rgba(18, 20, 24, 0.82);
   --surface-card-hover: rgba(28, 32, 38, 0.92);
   --surface-glass: rgba(255, 255, 255, 0.04);
@@ -30,7 +30,7 @@
   --text-muted: #64748b;
 
   --card-hero-bg: linear-gradient(165deg, rgba(28, 30, 36, 0.95) 0%, rgba(10, 11, 13, 0.99) 100%);
-  --hero-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.95), 0 0 32px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  --hero-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.28);
 
   --radius-sm: 14px;
   --radius-md: 22px;
@@ -53,7 +53,7 @@
 [data-theme="starlight"] {
   color-scheme: light;
   --bg-main: #f5f7fb;
-  --bg-gradient: radial-gradient(ellipse 100% 55% at 50% -8%, #ffffff 0%, #f7f9fd 52%, #edf2f8 100%);
+  --bg-gradient: none;
   --surface-card: #ffffff;
   --surface-card-hover: #f8fafc;
   --surface-glass: rgba(15, 23, 42, 0.04);
@@ -102,12 +102,14 @@ body {
   width: 100%;
   min-height: 100%;
   overscroll-behavior-y: none;
+  background-color: var(--bg-main);
+  background-image: none !important;
 }
 
 body {
   font-family: var(--font-family);
   background-color: var(--bg-main);
-  background-image: var(--bg-gradient);
+  background-image: none !important;
   color: var(--text-primary);
   min-height: 100vh;
   min-height: 100dvh;
@@ -131,6 +133,22 @@ body {
   flex-direction: column;
 }
 
+/* 上部SafeArea（ステータスバー領域）の完全不透明カバー（iOSステータスバー自動ブラーや上部グラデーションぼやけを完全防止） */
+#app::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top, 0px);
+  background-color: var(--bg-main);
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  z-index: 95;
+  pointer-events: none;
+}
+
 /* ==========================================================================
    Header (Apple Style Minimal Bar)
    ========================================================================== */
@@ -140,6 +158,11 @@ body {
   align-items: center;
   margin-bottom: 24px;
   padding: 6px 4px;
+  background: transparent;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+  transform: none !important;
 }
 
 .brand-section {
@@ -4940,8 +4963,8 @@ select option,
 [data-theme="light"],
 [data-theme="white"] {
   color-scheme: light;
-  --bg-main: #f4f7fb;
-  --bg-gradient: radial-gradient(ellipse 95% 60% at 50% -10%, #ffffff 0%, #f6f8fc 52%, #edf2f8 100%);
+  --bg-main: #f5f7fb;
+  --bg-gradient: none;
   --surface-card: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.95) 100%);
   --surface-card-hover: #ffffff;
   --surface-glass: rgba(15, 23, 42, 0.035);
@@ -6826,7 +6849,7 @@ select option,
    くすみの完全排除・純白クリスタルカード・色文字/バッジの圧倒的コントラスト
    ========================================================================== */
 
-/* 1. 背景・基本サーフェス：くすみのないクリアなプラチナホワイト */
+/* 1. 背景・基本サーフェス：くすみのないクリアなプラチナホワイト（上部グラデーションぼやけを完全排除） */
 html[data-theme="platinum"],
 html[data-theme="light"],
 html[data-theme="white"],
@@ -6834,7 +6857,7 @@ html[data-theme="white"],
 [data-theme="light"] body,
 [data-theme="white"] body {
   background-color: #f5f7fb !important;
-  background-image: radial-gradient(ellipse 100% 50% at 50% -5%, #ffffff 0%, #f7f9fd 48%, #edf2f8 100%) !important;
+  background-image: none !important;
   color: #0f172a !important;
 }
 

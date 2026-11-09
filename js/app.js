@@ -2,9 +2,9 @@
  * アプリメインコントローラー（UIレンダリング・インタラクション）
  */
 
-import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM, DEFAULT_PENDING_ESTIMATES } from './store.js?v=20261110_4';
-import { ChartRenderer } from './charts.js?v=20261110_4';
-import { GasApiClient } from './api.js?v=20261110_4';
+import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM, DEFAULT_PENDING_ESTIMATES } from './store.js?v=20261110_5';
+import { ChartRenderer } from './charts.js?v=20261110_5';
+import { GasApiClient } from './api.js?v=20261110_5';
 
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toast-container');
