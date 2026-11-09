@@ -3,8 +3,6 @@
    Liquid Glass & Aerospace-Grade Titanium Edition
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;900&display=swap');
-
 :root,
 [data-theme="onyx"],
 [data-theme="black"],
@@ -108,7 +106,6 @@ body {
   font-family: var(--font-family);
   background-color: var(--bg-main);
   background-image: var(--bg-gradient);
-  background-attachment: fixed;
   color: var(--text-primary);
   min-height: 100vh;
   min-height: 100dvh;

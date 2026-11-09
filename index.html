@@ -17,11 +17,16 @@
   <link rel="icon" id="dynamic-favicon" type="image/png" href="./icons/icon.png">
   <meta name="theme-color" content="#090d16">
 
-  <!-- Stylesheet (キャッシュバスター付き) -->
-  <link rel="stylesheet" href="./css/style.css?v=20261003_7">
+  <!-- Google Fonts (非同期・並列読み込みでCSSレンダーブロッキングを解消) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;900&display=swap">
 
-  <!-- Chart.js CDN for interactive beautiful charts -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Stylesheet (キャッシュバスター付き) -->
+  <link rel="stylesheet" href="./css/style.css?v=20261110_2">
+
+  <!-- Chart.js CDN for interactive beautiful charts (deferで初期描画ブロックを解消) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
 </head>
 
 <body>
@@ -29,7 +34,7 @@
     <!-- Header -->
     <header class="app-header">
       <div class="brand-section">
-        <img src="./icons/icon.png" alt="家計簿アプリ" class="app-icon" id="app-logo">
+        <img src="./icons/icon.png" alt="家計簿アプリ" class="app-icon" id="app-logo" decoding="async">
         <div class="app-title-wrap">
           <h1>家計簿アプリ</h1>
           <button class="month-badge" id="header-month-badge" style="cursor: pointer; border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; color: var(--text-primary);" title="表示月を切り替え">
@@ -471,14 +476,14 @@
             <!-- ① チタン牛 (ダーク用) -->
             <div class="icon-choice-card active" data-icon-src="./icons/cow-titanium.png"
               style="text-align: center; cursor: pointer; padding: 8px; border-radius: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass);">
-              <img src="./icons/cow-titanium.png"
+              <img src="./icons/cow-titanium.png" loading="lazy" decoding="async"
                 style="width: 100%; max-width: 120px; aspect-ratio: 1; object-fit: cover; border-radius: 14px; border: 2px solid var(--accent-primary); box-shadow: 0 4px 16px rgba(0,0,0,0.4);" alt="チタン牛">
               <span style="font-size: 0.82rem; font-weight: 700; display: block; margin-top: 6px;">チタン（ダーク）</span>
             </div>
             <!-- ② プラチナ牛 (ライト用) -->
             <div class="icon-choice-card" data-icon-src="./icons/cow-platinum.png"
               style="text-align: center; cursor: pointer; padding: 8px; border-radius: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass);">
-              <img src="./icons/cow-platinum.png"
+              <img src="./icons/cow-platinum.png" loading="lazy" decoding="async"
                 style="width: 100%; max-width: 120px; aspect-ratio: 1; object-fit: cover; border-radius: 14px; border: 2px solid var(--border-glass);" alt="プラチナ牛">
               <span style="font-size: 0.82rem; font-weight: 700; display: block; margin-top: 6px;">プラチナ（ライト）</span>
             </div>
@@ -949,7 +954,7 @@
   <div class="toast-container" id="toast-container"></div>
 
   <!-- App Scripts (キャッシュバスター付き) -->
-  <script type="module" src="./js/app.js?v=20261110_1"></script>
+  <script type="module" src="./js/app.js?v=20261110_2"></script>
 
   <!-- PWA Service Worker Registration & Cache Purge -->
   <script>
@@ -960,7 +965,7 @@
             reg.update();
           }
         });
-        navigator.serviceWorker.register('./sw.js?v=20261110_1').catch((err) => {
+        navigator.serviceWorker.register('./sw.js?v=20261110_2').catch((err) => {
           console.log('SW registration skipped:', err);
         });
       });

@@ -2,9 +2,9 @@
  * アプリメインコントローラー（UIレンダリング・インタラクション）
  */
 
-import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM, DEFAULT_PENDING_ESTIMATES } from './store.js?v=20261110_1';
-import { ChartRenderer } from './charts.js?v=20261110_1';
-import { GasApiClient } from './api.js?v=20261110_1';
+import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM, DEFAULT_PENDING_ESTIMATES } from './store.js?v=20261110_2';
+import { ChartRenderer } from './charts.js?v=20261110_2';
+import { GasApiClient } from './api.js?v=20261110_2';
 
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toast-container');
@@ -21,21 +21,28 @@ function showToast(msg, type = 'success') {
   }, 3500);
 }
 
-// クレジットカード明細を日付の降順（最新日付が一番上）でソートする関数
+// クレジットカード明細を日付の降順（最新日付が一番上）でソートする関数（Schwartzian変換でDate生成をO(N)に最適化）
 function sortTransactionsDesc(list) {
-  if (!Array.isArray(list)) return [];
-  return [...list].sort((a, b) => {
-    if (!a.date && !b.date) return 0;
-    if (!a.date) return 1;
-    if (!b.date) return -1;
-    const timeA = new Date(String(a.date).replace(/-/g, '/')).getTime();
-    const timeB = new Date(String(b.date).replace(/-/g, '/')).getTime();
-    if (isNaN(timeA) && isNaN(timeB)) return String(b.date).localeCompare(String(a.date));
-    if (isNaN(timeA)) return 1;
-    if (isNaN(timeB)) return -1;
-    if (timeB !== timeA) return timeB - timeA;
-    return String(b.id || '').localeCompare(String(a.id || ''));
-  });
+  if (!Array.isArray(list) || list.length <= 1) return Array.isArray(list) ? [...list] : [];
+  return list
+    .map((tx) => {
+      const rawDate = tx.date ? String(tx.date) : '';
+      const time = rawDate ? Date.parse(rawDate.replace(/-/g, '/')) : null;
+      return { tx, rawDate, time, id: String(tx.id || '') };
+    })
+    .sort((a, b) => {
+      if (!a.rawDate && !b.rawDate) return 0;
+      if (!a.rawDate) return 1;
+      if (!b.rawDate) return -1;
+      const nanA = isNaN(a.time);
+      const nanB = isNaN(b.time);
+      if (nanA && nanB) return b.rawDate.localeCompare(a.rawDate);
+      if (nanA) return 1;
+      if (nanB) return -1;
+      if (b.time !== a.time) return b.time - a.time;
+      return b.id.localeCompare(a.id);
+    })
+    .map((w) => w.tx);
 }
 
 // カテゴリ別カラーパレット定義（デザインタブと連動した洗練されたチタンカラー）
@@ -72,6 +79,9 @@ class AppController {
     this.chartRenderer = null;
     this.currentView = 'home';
     this.currentTxGroupFilter = 'all';
+    this.lastSummary = null;
+    this.dirtyViews = new Set();
+    this._idleRenderTimer = null;
     window.store = store;
     window.app = this;
     this.init();
@@ -102,8 +112,8 @@ class AppController {
     this.setupEmailSync();
     this.initIcon();
 
-    // 初回レンダリング
-    this.render(store.getSummary());
+    // 初回レンダリング（初回は全ビューを描画してDOMを完全初期化）
+    this.render(store.getSummary(), true);
 
     // GAS URL設定済みの場合はバックグラウンドで最新データを同期
     if (this.api.isConfigured()) {
@@ -112,7 +122,6 @@ class AppController {
         .then((data) => {
           if (data) {
             store.applyMonthData(data);
-            this.render(store.getSummary());
           }
         })
         .catch((err) => {
@@ -282,6 +291,11 @@ class AppController {
   switchView(viewName) {
     this.currentView = viewName;
 
+    // 切り替え先タブに未反映の更新があれば即座に描画
+    if (this.dirtyViews.has(viewName)) {
+      this.renderView(viewName, this.lastSummary || store.getSummary());
+    }
+
     // パネル切り替え
     document.querySelectorAll('.view-panel').forEach((p) => p.classList.remove('active'));
     document.getElementById(`view-${viewName}`)?.classList.add('active');
@@ -298,31 +312,75 @@ class AppController {
     // 棒グラフ再描画（分析画面の場合）
     if (viewName === 'analytics') {
       setTimeout(() => {
-        this.chartRenderer.renderCategoryBarChart(store.getSummary().categoryTotals);
+        const s = this.lastSummary || store.getSummary();
+        this.chartRenderer.renderCategoryBarChart(s.categoryTotals);
       }, 150);
     }
 
     // 設定画面を開いた際に最新の給料・設定情報を確実に同期
     if (viewName === 'settings') {
-      this.renderSettings(store.getSummary());
+      this.renderSettings(this.lastSummary || store.getSummary());
     }
 
     // 画面トップへスクロール
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // --- 全体レンダリング ---
-  render(summary) {
+  // 指定したビューのみを描画するヘルパー
+  renderView(viewName, summary) {
+    if (!summary) return;
+    this.dirtyViews.delete(viewName);
+    switch (viewName) {
+      case 'home':
+        this.renderCreditHero(summary);
+        this.renderHomeAccounts(summary);
+        this.renderForecast(summary);
+        this.renderFixedExpenses(summary);
+        this.renderRecentTransactions(summary);
+        break;
+      case 'transactions':
+        this.renderFullTransactions(summary);
+        break;
+      case 'accounts':
+        this.renderAccountsDetail(summary);
+        break;
+      case 'analytics':
+        this.renderAnalytics(summary);
+        break;
+      case 'settings':
+        this.renderSettings(summary);
+        break;
+    }
+  }
+
+  // --- 全体レンダリング（表示中の画面を最優先で即時更新し、非表示タブはアイドル時にバックグラウンド更新） ---
+  render(summary, forceImmediateAll = false) {
+    this.lastSummary = summary;
     this.renderHeaderMonth(summary);
-    this.renderCreditHero(summary);
-    this.renderHomeAccounts(summary);
-    this.renderForecast(summary);
-    this.renderFixedExpenses(summary);
-    this.renderRecentTransactions(summary);
-    this.renderFullTransactions(summary);
-    this.renderAccountsDetail(summary);
-    this.renderAnalytics(summary);
-    this.renderSettings(summary);
+
+    const allViews = ['home', 'transactions', 'accounts', 'analytics', 'settings'];
+    if (forceImmediateAll) {
+      allViews.forEach((v) => this.renderView(v, summary));
+      return;
+    }
+
+    allViews.forEach((v) => this.dirtyViews.add(v));
+    // 現在表示中のビューのみ同期的に即時描画（体感ラグゼロ）
+    this.renderView(this.currentView, summary);
+
+    // 残りの非表示ビューはメインスレッドの描画完了後にバックグラウンドで更新
+    if (this._idleRenderTimer) {
+      clearTimeout(this._idleRenderTimer);
+    }
+    this._idleRenderTimer = setTimeout(() => {
+      this._idleRenderTimer = null;
+      const latest = this.lastSummary || summary;
+      allViews.forEach((v) => {
+        if (this.dirtyViews.has(v)) {
+          this.renderView(v, latest);
+        }
+      });
+    }, 32);
   }
 
   // ヘッダーの年月バッジ表示（例: 2026年10月）
@@ -749,27 +807,28 @@ class AppController {
   }
 
   attachTransactionClickEvents(container) {
-    if (!container) return;
+    if (!container || container.dataset.txDelegated === 'true') return;
+    container.dataset.txDelegated = 'true';
 
-    // カテゴリバッジクリックで美しいチタンテーマ連動のジャンル選択シートを開く
-    container.querySelectorAll('.tx-category-badge').forEach((badgeBtn) => {
-      badgeBtn.addEventListener('click', (e) => {
+    // イベント委譲（Event Delegation）により、再描画ごとの全要素リスナー登録をゼロに最適化
+    container.addEventListener('click', (e) => {
+      const badgeBtn = e.target.closest('.tx-category-badge');
+      if (badgeBtn && container.contains(badgeBtn)) {
         e.stopPropagation(); // 親の明細クリックイベントへの伝播を防ぐ
         const txId = badgeBtn.dataset.txId;
         const currentCat = badgeBtn.dataset.currentCat || badgeBtn.querySelector('.badge-cat-name')?.textContent?.trim() || '';
         this.openCategoryPicker(txId, currentCat);
-      });
-    });
+        return;
+      }
 
-    // 明細行クリック（または未確定バッジクリック）で編集モーダルを開く
-    container.querySelectorAll('.timeline-item').forEach((item) => {
-      item.addEventListener('click', () => {
+      const item = e.target.closest('.timeline-item');
+      if (item && container.contains(item)) {
         const txId = item.dataset.txId;
         const tx = store.data.transactions.find((t) => t.id === txId);
         if (tx) {
           this.openEditTxModal(tx);
         }
-      });
+      }
     });
   }
 
@@ -1466,7 +1525,6 @@ class AppController {
       }
 
       store.updateCardBill(val);
-      this.render(store.getSummary());
       document.getElementById('modal-edit-card-bill')?.classList.remove('active');
       showToast(`今月のクレカ引落額を ¥${val.toLocaleString()} に更新しました`);
 
@@ -1609,7 +1667,6 @@ class AppController {
           const data = await this.api.fetchMonthData(store.data.currentMonth || '202609');
           if (data) {
             store.applyMonthData(data);
-            this.render(store.getSummary());
           }
           alert('スプレッドシートとの接続・データ同期に成功しました！🎉');
         } catch (err) {
@@ -1633,7 +1690,6 @@ class AppController {
       }
 
       store.updateSalaries(cur, nxt);
-      this.render(store.getSummary());
 
       if (this.api.isConfigured()) {
         try {
@@ -1660,7 +1716,6 @@ class AppController {
         return;
       }
       store.updateCardBill(val);
-      this.render(store.getSummary());
 
       if (this.api.isConfigured()) {
         try {
@@ -1719,10 +1774,8 @@ class AppController {
         const freshData = await this.api.fetchMonthData(currentCalYM);
         if (freshData) {
           store.applyMonthData(freshData);
-          this.render(store.getSummary());
         }
 
-        await this.triggerSync(false);
         showToast(`「${currentCalYM}」シートのテンプレ復元とメール取り込みが完了しました！`, 'success');
       } catch (err) {
         console.error('一括再復元エラー:', err);
@@ -1797,7 +1850,6 @@ class AppController {
       const data = await this.api.fetchMonthData(targetYM);
       if (data) {
         store.applyMonthData(data);
-        this.render(store.getSummary());
       }
       btn?.classList.remove('spinning');
       showToast('スプレッドシートから最新データを同期しました！');
@@ -2026,12 +2078,11 @@ class AppController {
       if (result && result.status === 'success') {
         const addedCount = result.addedCount || 0;
 
-        // 最新のスプレッドシートデータを即座に取得して反映
+        // 最新のスプレッドシートデータを即座に取得して反映（1回の通信で完結）
         try {
           const freshData = await this.api.fetchMonthData(store.data.currentMonth);
           if (freshData) {
             store.applyMonthData(freshData);
-            this.render(store.getSummary());
           }
         } catch (fetchErr) {
           console.warn('メール同期後のデータ再取得警告:', fetchErr);
@@ -2042,9 +2093,6 @@ class AppController {
         } else {
           showToast('新しい利用通知メールはありませんでした（最新状態です）', 'success');
         }
-
-        // 全タブ・全サマリーカードを最新データで再同期・再描画
-        await this.triggerSync(false);
       } else {
         throw new Error(result?.message || 'メール同期処理に失敗しました');
       }
