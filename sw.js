@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kakeibo-v20261110_2';
+const CACHE_NAME = 'kakeibo-v20261110_4';
 
 self.addEventListener('install', (event) => {
   // 新しいService Workerを即座にアクティブ化

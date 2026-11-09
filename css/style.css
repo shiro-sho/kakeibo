@@ -21,6 +21,7 @@
   --accent-primary: #f8fafc;
   --accent-primary-glow: rgba(255, 255, 255, 0.3);
   --accent-secondary: #94a3b8;
+  --accent-emerald: #10b981;
   --accent-rose: #f43f5e;
   --accent-amber: #fbbf24;
 
@@ -41,37 +42,38 @@
   --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Outfit", "Noto Sans JP", sans-serif;
   --max-width: 480px;
   --bottom-nav-height: 66px;
-  --bottom-clearance: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 20px) + 54px);
+  --bottom-clearance: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 24px) + 76px);
 }
 
-/* Theme 2: Platinum White Titanium (白銀チタン × スノーシルバー)
-   オニキスブラックに対応した極上のライト系フロストチタングラスデザイン */
+/* Theme 2: Platinum White Titanium (白銀チタン × クリスタルパール)
+   オニキスブラックの重厚な高級感をそのままライトへと昇華させた極上の白銀チタングラスデザイン */
 [data-theme="platinum"],
 [data-theme="light"],
 [data-theme="white"],
 [data-theme="starlight"] {
   color-scheme: light;
-  --bg-main: #f8fafc;
-  --bg-gradient: radial-gradient(ellipse 90% 65% at 50% -12%, rgba(226, 232, 240, 0.95) 0%, rgba(248, 250, 252, 0.98) 50%, #e2e8f0 100%);
-  --surface-card: rgba(255, 255, 255, 0.88);
-  --surface-card-hover: rgba(255, 255, 255, 0.98);
-  --surface-glass: rgba(15, 23, 42, 0.03);
-  --border-glass: rgba(148, 163, 184, 0.32);
-  --border-glow: rgba(100, 116, 139, 0.35);
+  --bg-main: #f5f7fb;
+  --bg-gradient: radial-gradient(ellipse 100% 55% at 50% -8%, #ffffff 0%, #f7f9fd 52%, #edf2f8 100%);
+  --surface-card: #ffffff;
+  --surface-card-hover: #f8fafc;
+  --surface-glass: rgba(15, 23, 42, 0.04);
+  --border-glass: rgba(148, 163, 184, 0.34);
+  --border-glow: rgba(100, 116, 139, 0.45);
 
   --accent-primary: #0f172a;
-  --accent-primary-glow: rgba(15, 23, 42, 0.18);
-  --accent-secondary: #64748b;
-  --accent-rose: #e11d48;
-  --accent-amber: #d97706;
+  --accent-primary-glow: rgba(15, 23, 42, 0.14);
+  --accent-secondary: #334155;
+  --accent-emerald: #047857;
+  --accent-rose: #be123c;
+  --accent-amber: #b45309;
 
   --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
+  --text-secondary: #334155;
+  --text-muted: #475569;
 
-  --card-hero-bg: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(241, 245, 249, 0.94) 100%);
-  --hero-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.08), 0 0 24px rgba(148, 163, 184, 0.14), inset 0 1px 0 #ffffff;
-  --shadow-card: 0 12px 32px -6px rgba(15, 23, 42, 0.06), inset 0 1px 0 #ffffff;
+  --card-hero-bg: linear-gradient(165deg, #ffffff 0%, #f9fbff 55%, #f1f5fc 100%);
+  --hero-shadow: 0 20px 46px -12px rgba(15, 23, 42, 0.10), 0 4px 16px -2px rgba(15, 23, 42, 0.05), inset 0 2px 1px #ffffff, inset 0 -1px 0 rgba(148, 163, 184, 0.28);
+  --shadow-card: 0 12px 30px -8px rgba(15, 23, 42, 0.07), 0 2px 6px rgba(15, 23, 42, 0.03), inset 0 1px 0 #ffffff;
 }
 
 /* 後方互換用エイリアス */
@@ -169,9 +171,10 @@ body {
   line-height: 1.2;
 }
 
+[data-theme="platinum"] .app-title-wrap h1,
 [data-theme="white"] .app-title-wrap h1,
 [data-theme="light"] .app-title-wrap h1 {
-  color: #1d1d1f;
+  color: #0f172a;
 }
 
 .month-badge {
@@ -185,16 +188,15 @@ body {
   display: inline-block;
   margin-top: 2px;
   border: 1px solid rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 [data-theme="platinum"] .month-badge,
 [data-theme="white"] .month-badge,
 [data-theme="light"] .month-badge {
-  color: #0f172a;
-  background: rgba(15, 23, 42, 0.06);
-  border-color: rgba(15, 23, 42, 0.14);
+  color: #0f172a !important;
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08) !important;
 }
 
 .header-actions {
@@ -206,8 +208,6 @@ body {
 /* Apple Pro Circular Action Buttons */
 .icon-btn {
   background: var(--surface-card);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-glass);
   color: var(--text-primary);
   width: 40px;
@@ -246,8 +246,8 @@ body {
    ========================================================================== */
 .glass-card {
   background: var(--surface-card);
-  backdrop-filter: blur(32px) saturate(190%);
-  -webkit-backdrop-filter: blur(32px) saturate(190%);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
   padding: 22px;
@@ -262,6 +262,8 @@ body {
    ========================================================================== */
 .credit-hero {
   background: var(--card-hero-bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border: 1px solid var(--border-glow);
   box-shadow: var(--hero-shadow);
   padding: 28px 22px 24px;
@@ -309,7 +311,7 @@ body {
   letter-spacing: -0.04em;
   color: var(--text-primary);
   line-height: 1;
-  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  text-shadow: none;
 }
 
 .hero-card-status-bar {
@@ -325,10 +327,11 @@ body {
   color: var(--text-secondary);
 }
 
+[data-theme="platinum"] .hero-card-status-bar,
 [data-theme="white"] .hero-card-status-bar,
 [data-theme="light"] .hero-card-status-bar {
-  background: rgba(0, 0, 0, 0.03);
-  border-color: rgba(0, 0, 0, 0.08);
+  background: #f8fafc;
+  border-color: #cbd5e1;
 }
 
 .card-status-left {
@@ -1354,7 +1357,8 @@ body {
   align-items: center;
   gap: 10px;
   flex: 1;
-  min-width: 0; /* フレックス縮小を許可 */
+  min-width: 0;
+  /* フレックス縮小を許可 */
   overflow: hidden;
 }
 
@@ -1363,7 +1367,8 @@ body {
   flex-direction: column;
   gap: 2px;
   flex: 1;
-  min-width: 0; /* 店名の自動省略を確実に発動 */
+  min-width: 0;
+  /* 店名の自動省略を確実に発動 */
   overflow: hidden;
 }
 
@@ -1389,7 +1394,8 @@ body {
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-primary);
-  flex-shrink: 0; /* 金額は絶対に縮めずはみ出させない */
+  flex-shrink: 0;
+  /* 金額は絶対に縮めずはみ出させない */
   white-space: nowrap;
   text-align: right;
   margin-left: 10px;
@@ -1437,10 +1443,13 @@ body {
 }
 
 @keyframes pulsePendingDot {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.45;
     transform: scale(0.9);
   }
+
   50% {
     opacity: 1;
     transform: scale(1.25);
@@ -1453,11 +1462,13 @@ body {
   border-color: rgba(148, 163, 184, 0.35);
   color: var(--text-secondary);
 }
+
 .tx-amount-pending-badge.badge-zero:hover {
   background: rgba(148, 163, 184, 0.18);
   border-color: rgba(148, 163, 184, 0.6);
   box-shadow: 0 4px 12px rgba(148, 163, 184, 0.2);
 }
+
 .pending-dot-dim {
   width: 6px;
   height: 6px;
@@ -1465,6 +1476,7 @@ body {
   background: #94a3b8;
   opacity: 0.6;
 }
+
 .pending-est-val {
   font-weight: 800;
   opacity: 0.95;
@@ -1482,12 +1494,14 @@ body {
   flex-direction: column;
   gap: 8px;
 }
+
 .estimate-banner-header {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
+
 .estimate-banner-badge {
   font-size: 0.72rem;
   font-weight: 700;
@@ -1496,17 +1510,20 @@ body {
   padding: 2px 8px;
   border-radius: 6px;
 }
+
 .estimate-banner-desc {
   font-size: 0.75rem;
   color: var(--text-secondary);
   line-height: 1.35;
 }
+
 .estimate-banner-actions {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
   margin-top: 4px;
 }
+
 .btn-estimate-apply {
   flex: 1;
   font-family: inherit;
@@ -1524,11 +1541,13 @@ body {
   justify-content: center;
   gap: 4px;
 }
+
 .btn-estimate-apply:hover {
   background: linear-gradient(135deg, rgba(245, 158, 11, 0.35), rgba(217, 119, 6, 0.3));
   border-color: #f59e0b;
   transform: translateY(-1px);
 }
+
 .btn-estimate-reset {
   font-family: inherit;
   font-size: 0.75rem;
@@ -1541,6 +1560,7 @@ body {
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
 .btn-estimate-reset:hover {
   background: rgba(255, 255, 255, 0.1);
   color: var(--text-primary);
@@ -1567,11 +1587,13 @@ body {
   color: #b45309;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
+
 [data-theme="white"] .pending-dot,
 [data-theme="light"] .pending-dot {
   background: #d97706;
   box-shadow: 0 0 5px #d97706;
 }
+
 [data-theme="white"] .tx-pending-count-badge,
 [data-theme="light"] .tx-pending-count-badge {
   background: #fef3c7;
@@ -1585,11 +1607,13 @@ body {
   border-color: rgba(212, 175, 55, 0.5);
   color: #fde047;
 }
+
 [data-theme="desert"] .pending-dot,
 [data-theme="gold"] .pending-dot {
   background: #d4af37;
   box-shadow: 0 0 6px #d4af37;
 }
+
 [data-theme="desert"] .tx-pending-count-badge,
 [data-theme="gold"] .tx-pending-count-badge {
   background: rgba(212, 175, 55, 0.18);
@@ -1603,11 +1627,13 @@ body {
   border-color: rgba(99, 102, 241, 0.5);
   color: #c7d2fe;
 }
+
 [data-theme="natural"] .pending-dot,
 [data-theme="indigo"] .pending-dot {
   background: #818cf8;
   box-shadow: 0 0 6px #818cf8;
 }
+
 [data-theme="natural"] .tx-pending-count-badge,
 [data-theme="indigo"] .tx-pending-count-badge {
   background: rgba(99, 102, 241, 0.18);
@@ -1678,8 +1704,31 @@ body {
 
 /* ==========================================================================
    Apple Floating Liquid Dock (下部ナビゲーションバー)
-   絶対にボタンと被らない・iOSセーフエリア完全準拠
+   絶対にボタンと被らない・iOSセーフエリア完全準拠・下部透過＆誤タッチ完全防止
    ========================================================================== */
+/* フッター下および左右SafeAreaの透過・誤タッチ防止シールド */
+#app::after {
+  content: '';
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 16px) + 18px);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.88) 24%, #000000 44%, #000000 100%);
+  z-index: 95;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+[data-theme="platinum"] #app::after,
+[data-theme="light"] #app::after,
+[data-theme="white"] #app::after,
+[data-theme="starlight"] #app::after {
+  background: linear-gradient(180deg, rgba(245, 247, 251, 0) 0%, rgba(245, 247, 251, 0.92) 24%, #eff3f9 44%, #eff3f9 100%);
+}
+
 .bottom-nav {
   position: fixed;
   bottom: calc(env(safe-area-inset-bottom, 16px) + 8px);
@@ -1688,24 +1737,27 @@ body {
   width: calc(100% - 32px);
   max-width: 440px;
   height: 66px;
-  background: rgba(20, 23, 28, 0.82);
-  backdrop-filter: blur(40px) saturate(200%);
-  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  background: rgba(18, 20, 26, 0.96);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: var(--radius-full);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   z-index: 100;
   padding: 0 6px;
+  pointer-events: auto;
+  touch-action: manipulation;
 }
 
+[data-theme="platinum"] .bottom-nav,
 [data-theme="white"] .bottom-nav,
 [data-theme="light"] .bottom-nav {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(0, 0, 0, 0.1);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12), inset 0 1px 0 #ffffff;
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(15, 23, 42, 0.06), inset 0 1px 0 #ffffff;
 }
 
 .nav-item {
@@ -1815,23 +1867,26 @@ body {
 [data-theme="black"] .modal-content[data-account="smbc"] {
   background: linear-gradient(165deg, rgba(14, 34, 26, 0.98) 0%, rgba(8, 16, 12, 0.99) 100%) !important;
   border: 1px solid rgba(16, 185, 129, 0.4) !important;
-  box-shadow: 
+  box-shadow:
     0 -14px 48px rgba(0, 0, 0, 0.85),
     0 0 28px rgba(16, 185, 129, 0.18),
     inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
 }
+
 .modal-content[data-account="smbc"] .modal-title,
 [data-theme="onyx"] .modal-content[data-account="smbc"] .modal-title,
 [data-theme="black"] .modal-content[data-account="smbc"] .modal-title {
   color: #ffffff !important;
   text-shadow: 0 0 14px rgba(16, 185, 129, 0.3);
 }
+
 .modal-content[data-account="smbc"] .form-label,
 [data-theme="onyx"] .modal-content[data-account="smbc"] .form-label,
 [data-theme="black"] .modal-content[data-account="smbc"] .form-label {
   color: #a7f3d0 !important;
   font-weight: 600;
 }
+
 .modal-content[data-account="smbc"] .form-input,
 .modal-content[data-account="smbc"] .form-select,
 [data-theme="onyx"] .modal-content[data-account="smbc"] .form-input,
@@ -1842,6 +1897,7 @@ body {
   border: 1px solid rgba(16, 185, 129, 0.35) !important;
   color: #ffffff !important;
 }
+
 .modal-content[data-account="smbc"] .form-input:focus,
 .modal-content[data-account="smbc"] .form-select:focus,
 [data-theme="onyx"] .modal-content[data-account="smbc"] .form-input:focus,
@@ -1851,6 +1907,7 @@ body {
   border-color: #34d399 !important;
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25) !important;
 }
+
 .modal-content[data-account="smbc"] .btn-primary,
 [data-theme="onyx"] .modal-content[data-account="smbc"] .btn-primary,
 [data-theme="black"] .modal-content[data-account="smbc"] .btn-primary {
@@ -1859,6 +1916,7 @@ body {
   border: 1px solid rgba(110, 231, 183, 0.55) !important;
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
 }
+
 .modal-content[data-account="smbc"] .close-btn,
 [data-theme="onyx"] .modal-content[data-account="smbc"] .close-btn,
 [data-theme="black"] .modal-content[data-account="smbc"] .close-btn {
@@ -1866,6 +1924,7 @@ body {
   color: #a7f3d0 !important;
   border: 1px solid rgba(16, 185, 129, 0.35) !important;
 }
+
 .modal-content[data-account="smbc"] .btn-danger,
 [data-theme="onyx"] .modal-content[data-account="smbc"] .btn-danger,
 [data-theme="black"] .modal-content[data-account="smbc"] .btn-danger {
@@ -1880,23 +1939,26 @@ body {
 [data-theme="black"] .modal-content[data-account="mufg"] {
   background: linear-gradient(165deg, rgba(46, 18, 26, 0.98) 0%, rgba(18, 10, 14, 0.99) 100%) !important;
   border: 1px solid rgba(244, 63, 94, 0.4) !important;
-  box-shadow: 
+  box-shadow:
     0 -14px 48px rgba(0, 0, 0, 0.85),
     0 0 28px rgba(244, 63, 94, 0.18),
     inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
 }
+
 .modal-content[data-account="mufg"] .modal-title,
 [data-theme="onyx"] .modal-content[data-account="mufg"] .modal-title,
 [data-theme="black"] .modal-content[data-account="mufg"] .modal-title {
   color: #ffffff !important;
   text-shadow: 0 0 14px rgba(244, 63, 94, 0.3);
 }
+
 .modal-content[data-account="mufg"] .form-label,
 [data-theme="onyx"] .modal-content[data-account="mufg"] .form-label,
 [data-theme="black"] .modal-content[data-account="mufg"] .form-label {
   color: #fecdd3 !important;
   font-weight: 600;
 }
+
 .modal-content[data-account="mufg"] .form-input,
 .modal-content[data-account="mufg"] .form-select,
 [data-theme="onyx"] .modal-content[data-account="mufg"] .form-input,
@@ -1907,6 +1969,7 @@ body {
   border: 1px solid rgba(244, 63, 94, 0.35) !important;
   color: #ffffff !important;
 }
+
 .modal-content[data-account="mufg"] .form-input:focus,
 .modal-content[data-account="mufg"] .form-select:focus,
 [data-theme="onyx"] .modal-content[data-account="mufg"] .form-input:focus,
@@ -1916,6 +1979,7 @@ body {
   border-color: #fb7185 !important;
   box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.25) !important;
 }
+
 .modal-content[data-account="mufg"] .btn-primary,
 [data-theme="onyx"] .modal-content[data-account="mufg"] .btn-primary,
 [data-theme="black"] .modal-content[data-account="mufg"] .btn-primary {
@@ -1924,6 +1988,7 @@ body {
   border: 1px solid rgba(253, 164, 175, 0.55) !important;
   box-shadow: 0 6px 20px rgba(244, 63, 94, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
 }
+
 .modal-content[data-account="mufg"] .close-btn,
 [data-theme="onyx"] .modal-content[data-account="mufg"] .close-btn,
 [data-theme="black"] .modal-content[data-account="mufg"] .close-btn {
@@ -1931,6 +1996,7 @@ body {
   color: #fecdd3 !important;
   border: 1px solid rgba(244, 63, 94, 0.35) !important;
 }
+
 .modal-content[data-account="mufg"] .btn-danger,
 [data-theme="onyx"] .modal-content[data-account="mufg"] .btn-danger,
 [data-theme="black"] .modal-content[data-account="mufg"] .btn-danger {
@@ -1945,23 +2011,26 @@ body {
 [data-theme="black"] .modal-content[data-account="mizuho"] {
   background: linear-gradient(165deg, rgba(16, 26, 44, 0.98) 0%, rgba(8, 14, 22, 0.99) 100%) !important;
   border: 1px solid rgba(56, 189, 248, 0.4) !important;
-  box-shadow: 
+  box-shadow:
     0 -14px 48px rgba(0, 0, 0, 0.85),
     0 0 28px rgba(56, 189, 248, 0.18),
     inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
 }
+
 .modal-content[data-account="mizuho"] .modal-title,
 [data-theme="onyx"] .modal-content[data-account="mizuho"] .modal-title,
 [data-theme="black"] .modal-content[data-account="mizuho"] .modal-title {
   color: #ffffff !important;
   text-shadow: 0 0 14px rgba(56, 189, 248, 0.3);
 }
+
 .modal-content[data-account="mizuho"] .form-label,
 [data-theme="onyx"] .modal-content[data-account="mizuho"] .form-label,
 [data-theme="black"] .modal-content[data-account="mizuho"] .form-label {
   color: #bfdbfe !important;
   font-weight: 600;
 }
+
 .modal-content[data-account="mizuho"] .form-input,
 .modal-content[data-account="mizuho"] .form-select,
 [data-theme="onyx"] .modal-content[data-account="mizuho"] .form-input,
@@ -1972,6 +2041,7 @@ body {
   border: 1px solid rgba(56, 189, 248, 0.35) !important;
   color: #ffffff !important;
 }
+
 .modal-content[data-account="mizuho"] .form-input:focus,
 .modal-content[data-account="mizuho"] .form-select:focus,
 [data-theme="onyx"] .modal-content[data-account="mizuho"] .form-input:focus,
@@ -1981,6 +2051,7 @@ body {
   border-color: #60a5fa !important;
   box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25) !important;
 }
+
 .modal-content[data-account="mizuho"] .btn-primary,
 [data-theme="onyx"] .modal-content[data-account="mizuho"] .btn-primary,
 [data-theme="black"] .modal-content[data-account="mizuho"] .btn-primary {
@@ -1989,6 +2060,7 @@ body {
   border: 1px solid rgba(147, 197, 253, 0.55) !important;
   box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
 }
+
 .modal-content[data-account="mizuho"] .close-btn,
 [data-theme="onyx"] .modal-content[data-account="mizuho"] .close-btn,
 [data-theme="black"] .modal-content[data-account="mizuho"] .close-btn {
@@ -1996,6 +2068,7 @@ body {
   color: #bfdbfe !important;
   border: 1px solid rgba(56, 189, 248, 0.35) !important;
 }
+
 .modal-content[data-account="mizuho"] .btn-danger,
 [data-theme="onyx"] .modal-content[data-account="mizuho"] .btn-danger,
 [data-theme="black"] .modal-content[data-account="mizuho"] .btn-danger {
@@ -2016,24 +2089,27 @@ body {
 [data-theme="light"] .modal-content[data-account="smbc"] {
   background: linear-gradient(165deg, #ffffff 0%, #f4fbf7 60%, #eaf7f0 100%) !important;
   border: 1.5px solid rgba(16, 185, 129, 0.35) !important;
-  box-shadow: 
+  box-shadow:
     0 -12px 48px rgba(15, 23, 42, 0.1),
     0 0 24px rgba(16, 185, 129, 0.12),
     inset 0 1.5px 0.5px #ffffff !important;
   color: #0f172a !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="smbc"] .modal-title,
 [data-theme="white"] .modal-content[data-account="smbc"] .modal-title,
 [data-theme="light"] .modal-content[data-account="smbc"] .modal-title {
   color: #0f172a !important;
   font-weight: 800 !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="smbc"] .form-label,
 [data-theme="white"] .modal-content[data-account="smbc"] .form-label,
 [data-theme="light"] .modal-content[data-account="smbc"] .form-label {
   color: #047857 !important;
   font-weight: 700 !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="smbc"] .form-input,
 [data-theme="platinum"] .modal-content[data-account="smbc"] .form-select,
 [data-theme="white"] .modal-content[data-account="smbc"] .form-input,
@@ -2045,6 +2121,7 @@ body {
   color: #0f172a !important;
   font-weight: 600 !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="smbc"] .form-input:focus,
 [data-theme="platinum"] .modal-content[data-account="smbc"] .form-select:focus,
 [data-theme="white"] .modal-content[data-account="smbc"] .form-input:focus,
@@ -2054,6 +2131,7 @@ body {
   border-color: #059669 !important;
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="smbc"] .btn-primary,
 [data-theme="white"] .modal-content[data-account="smbc"] .btn-primary,
 [data-theme="light"] .modal-content[data-account="smbc"] .btn-primary {
@@ -2062,6 +2140,7 @@ body {
   color: #ffffff !important;
   box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3) !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="smbc"] .close-btn,
 [data-theme="white"] .modal-content[data-account="smbc"] .close-btn,
 [data-theme="light"] .modal-content[data-account="smbc"] .close-btn {
@@ -2069,6 +2148,7 @@ body {
   color: #047857 !important;
   border: 1px solid rgba(16, 185, 129, 0.3) !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="smbc"] .btn-danger,
 [data-theme="white"] .modal-content[data-account="smbc"] .btn-danger,
 [data-theme="light"] .modal-content[data-account="smbc"] .btn-danger {
@@ -2083,24 +2163,27 @@ body {
 [data-theme="light"] .modal-content[data-account="mufg"] {
   background: linear-gradient(165deg, #ffffff 0%, #fdf5f5 60%, #faebee 100%) !important;
   border: 1.5px solid rgba(244, 63, 94, 0.35) !important;
-  box-shadow: 
+  box-shadow:
     0 -12px 48px rgba(15, 23, 42, 0.1),
     0 0 24px rgba(244, 63, 94, 0.12),
     inset 0 1.5px 0.5px #ffffff !important;
   color: #0f172a !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mufg"] .modal-title,
 [data-theme="white"] .modal-content[data-account="mufg"] .modal-title,
 [data-theme="light"] .modal-content[data-account="mufg"] .modal-title {
   color: #0f172a !important;
   font-weight: 800 !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mufg"] .form-label,
 [data-theme="white"] .modal-content[data-account="mufg"] .form-label,
 [data-theme="light"] .modal-content[data-account="mufg"] .form-label {
   color: #be123c !important;
   font-weight: 700 !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mufg"] .form-input,
 [data-theme="platinum"] .modal-content[data-account="mufg"] .form-select,
 [data-theme="white"] .modal-content[data-account="mufg"] .form-input,
@@ -2112,6 +2195,7 @@ body {
   color: #0f172a !important;
   font-weight: 600 !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mufg"] .form-input:focus,
 [data-theme="platinum"] .modal-content[data-account="mufg"] .form-select:focus,
 [data-theme="white"] .modal-content[data-account="mufg"] .form-input:focus,
@@ -2121,6 +2205,7 @@ body {
   border-color: #e11d48 !important;
   box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.2) !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mufg"] .btn-primary,
 [data-theme="white"] .modal-content[data-account="mufg"] .btn-primary,
 [data-theme="light"] .modal-content[data-account="mufg"] .btn-primary {
@@ -2129,6 +2214,7 @@ body {
   color: #ffffff !important;
   box-shadow: 0 6px 20px rgba(225, 29, 72, 0.3) !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mufg"] .close-btn,
 [data-theme="white"] .modal-content[data-account="mufg"] .close-btn,
 [data-theme="light"] .modal-content[data-account="mufg"] .close-btn {
@@ -2136,6 +2222,7 @@ body {
   color: #be123c !important;
   border: 1px solid rgba(244, 63, 94, 0.3) !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mufg"] .btn-danger,
 [data-theme="white"] .modal-content[data-account="mufg"] .btn-danger,
 [data-theme="light"] .modal-content[data-account="mufg"] .btn-danger {
@@ -2150,24 +2237,27 @@ body {
 [data-theme="light"] .modal-content[data-account="mizuho"] {
   background: linear-gradient(165deg, #ffffff 0%, #f4f8fe 60%, #eaf2fd 100%) !important;
   border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
-  box-shadow: 
+  box-shadow:
     0 -12px 48px rgba(15, 23, 42, 0.1),
     0 0 24px rgba(56, 189, 248, 0.12),
     inset 0 1.5px 0.5px #ffffff !important;
   color: #0f172a !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mizuho"] .modal-title,
 [data-theme="white"] .modal-content[data-account="mizuho"] .modal-title,
 [data-theme="light"] .modal-content[data-account="mizuho"] .modal-title {
   color: #0f172a !important;
   font-weight: 800 !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mizuho"] .form-label,
 [data-theme="white"] .modal-content[data-account="mizuho"] .form-label,
 [data-theme="light"] .modal-content[data-account="mizuho"] .form-label {
   color: #0284c7 !important;
   font-weight: 700 !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mizuho"] .form-input,
 [data-theme="platinum"] .modal-content[data-account="mizuho"] .form-select,
 [data-theme="white"] .modal-content[data-account="mizuho"] .form-input,
@@ -2179,6 +2269,7 @@ body {
   color: #0f172a !important;
   font-weight: 600 !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mizuho"] .form-input:focus,
 [data-theme="platinum"] .modal-content[data-account="mizuho"] .form-select:focus,
 [data-theme="white"] .modal-content[data-account="mizuho"] .form-input:focus,
@@ -2188,6 +2279,7 @@ body {
   border-color: #2563eb !important;
   box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2) !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mizuho"] .btn-primary,
 [data-theme="white"] .modal-content[data-account="mizuho"] .btn-primary,
 [data-theme="light"] .modal-content[data-account="mizuho"] .btn-primary {
@@ -2196,6 +2288,7 @@ body {
   color: #ffffff !important;
   box-shadow: 0 6px 20px rgba(56, 189, 248, 0.3) !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mizuho"] .close-btn,
 [data-theme="white"] .modal-content[data-account="mizuho"] .close-btn,
 [data-theme="light"] .modal-content[data-account="mizuho"] .close-btn {
@@ -2203,6 +2296,7 @@ body {
   color: #0284c7 !important;
   border: 1px solid rgba(56, 189, 248, 0.3) !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mizuho"] .btn-danger,
 [data-theme="white"] .modal-content[data-account="mizuho"] .btn-danger,
 [data-theme="light"] .modal-content[data-account="mizuho"] .btn-danger {
@@ -2344,11 +2438,13 @@ select option,
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   color-scheme: dark;
 }
+
 [data-theme="desert"] .form-select:hover,
 [data-theme="gold"] .form-select:hover {
   background-color: #2a231b;
   border-color: rgba(212, 175, 55, 0.6);
 }
+
 [data-theme="desert"] select option,
 [data-theme="gold"] select option,
 [data-theme="desert"] .form-select option,
@@ -2366,11 +2462,13 @@ select option,
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23818cf8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   color-scheme: dark;
 }
+
 [data-theme="natural"] .form-select:hover,
 [data-theme="indigo"] .form-select:hover {
   background-color: #202532;
   border-color: rgba(99, 102, 241, 0.6);
 }
+
 [data-theme="natural"] select option,
 [data-theme="indigo"] select option,
 [data-theme="natural"] .form-select option,
@@ -2398,6 +2496,7 @@ select option,
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
   color-scheme: light;
 }
+
 [data-theme="platinum"] .form-select:hover,
 [data-theme="white"] .form-select:hover,
 [data-theme="light"] .form-select:hover {
@@ -2502,12 +2601,12 @@ select option,
 @keyframes appleFadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 
@@ -3693,6 +3792,7 @@ select option,
   color: #f3d476;
   border-color: rgba(212, 175, 55, 0.4);
 }
+
 [data-theme="desert"] .tx-category-badge:hover,
 [data-theme="gold"] .tx-category-badge:hover {
   background: rgba(212, 175, 55, 0.32);
@@ -3706,6 +3806,7 @@ select option,
   color: #a5b4fc;
   border-color: rgba(99, 102, 241, 0.4);
 }
+
 [data-theme="natural"] .tx-category-badge:hover,
 [data-theme="indigo"] .tx-category-badge:hover {
   background: rgba(99, 102, 241, 0.32);
@@ -3720,6 +3821,7 @@ select option,
   border-color: rgba(124, 58, 237, 0.28);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
+
 [data-theme="white"] .tx-category-badge:hover,
 [data-theme="light"] .tx-category-badge:hover {
   background: rgba(124, 58, 237, 0.18);
@@ -3733,6 +3835,7 @@ select option,
   color: #0e7490;
   border-color: rgba(8, 145, 178, 0.28);
 }
+
 [data-theme="white"] .tx-category-badge.tx-badge-recurring:hover,
 [data-theme="light"] .tx-category-badge.tx-badge-recurring:hover {
   background: rgba(8, 145, 178, 0.18);
@@ -3757,8 +3860,10 @@ select option,
 
 /* ドロップダウンメニューの option 要素のスタイリング（PC Windows/Mac 完全対応） */
 .tx-category-select-overlay option {
-  background-color: #181a20; /* 漆黒チタンの深い背景 */
-  color: #f5f5f7;            /* くっきり高視認性の白文字 */
+  background-color: #181a20;
+  /* 漆黒チタンの深い背景 */
+  color: #f5f5f7;
+  /* くっきり高視認性の白文字 */
   padding: 12px 16px;
   font-size: 0.95rem;
   font-family: var(--font-family);
@@ -3780,7 +3885,8 @@ select option,
 [data-theme="white"] .tx-category-select-overlay option,
 [data-theme="light"] .tx-category-select-overlay option {
   background-color: #ffffff;
-  color: #1d1d1f; /* ライトモード時のクリアブラック */
+  color: #1d1d1f;
+  /* ライトモード時のクリアブラック */
 }
 
 /* ==========================================================================
@@ -3936,21 +4042,25 @@ select option,
   background: rgba(45, 38, 30, 0.6);
   border-color: rgba(212, 175, 55, 0.25);
 }
+
 [data-theme="desert"] .category-picker-card:hover,
 [data-theme="gold"] .category-picker-card:hover {
   background: rgba(60, 50, 40, 0.85);
   border-color: #d4af37;
 }
+
 [data-theme="desert"] .category-picker-card.active,
 [data-theme="gold"] .category-picker-card.active {
   background: linear-gradient(135deg, rgba(212, 175, 55, 0.28) 0%, rgba(212, 175, 55, 0.12) 100%);
   border-color: #d4af37;
   box-shadow: 0 3px 12px rgba(212, 175, 55, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3);
 }
+
 [data-theme="desert"] .category-picker-card.active .cat-picker-name,
 [data-theme="gold"] .category-picker-card.active .cat-picker-name {
   color: #fef08a;
 }
+
 [data-theme="desert"] .cat-tab-check,
 [data-theme="gold"] .cat-tab-check {
   background: #d4af37;
@@ -3963,57 +4073,73 @@ select option,
   background: rgba(30, 36, 50, 0.6);
   border-color: rgba(99, 102, 241, 0.25);
 }
+
 [data-theme="natural"] .category-picker-card:hover,
 [data-theme="indigo"] .category-picker-card:hover {
   background: rgba(40, 48, 66, 0.85);
   border-color: #6366f1;
 }
+
 [data-theme="natural"] .category-picker-card.active,
 [data-theme="indigo"] .category-picker-card.active {
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.28) 0%, rgba(99, 102, 241, 0.12) 100%);
   border-color: #6366f1;
   box-shadow: 0 3px 12px rgba(99, 102, 241, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3);
 }
+
 [data-theme="natural"] .category-picker-card.active .cat-picker-name,
 [data-theme="indigo"] .category-picker-card.active .cat-picker-name {
   color: #ffffff;
 }
+
 [data-theme="natural"] .cat-tab-check,
 [data-theme="indigo"] .cat-tab-check {
   background: #6366f1;
   color: #ffffff;
 }
 
-/* テーマ別：White/Light モード */
+/* テーマ別：Platinum / White / Light モード */
+[data-theme="platinum"] .category-picker-card,
 [data-theme="white"] .category-picker-card,
 [data-theme="light"] .category-picker-card {
-  background: #f1f5f9;
+  background: #f8fafc;
   border-color: #cbd5e1;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.04), inset 0 1px 0 #ffffff;
 }
+
+[data-theme="platinum"] .category-picker-card:hover,
 [data-theme="white"] .category-picker-card:hover,
 [data-theme="light"] .category-picker-card:hover {
-  background: #e2e8f0;
-  border-color: #059669;
+  background: #f1f5f9;
+  border-color: #0f172a;
 }
+
+[data-theme="platinum"] .cat-picker-name,
 [data-theme="white"] .cat-picker-name,
 [data-theme="light"] .cat-picker-name {
   color: #0f172a;
+  font-weight: 700;
 }
+
+[data-theme="platinum"] .category-picker-card.active,
 [data-theme="white"] .category-picker-card.active,
 [data-theme="light"] .category-picker-card.active {
   background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-  border-color: #059669;
-  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.2);
+  border-color: #047857;
+  box-shadow: 0 4px 12px rgba(4, 120, 87, 0.18), inset 0 1px 0 #ffffff;
 }
+
+[data-theme="platinum"] .category-picker-card.active .cat-picker-name,
 [data-theme="white"] .category-picker-card.active .cat-picker-name,
 [data-theme="light"] .category-picker-card.active .cat-picker-name {
   color: #065f46;
-  font-weight: 700;
+  font-weight: 800;
 }
+
+[data-theme="platinum"] .cat-tab-check,
 [data-theme="white"] .cat-tab-check,
 [data-theme="light"] .cat-tab-check {
-  background: #059669;
+  background: #047857;
   color: #ffffff;
 }
 
@@ -4089,8 +4215,13 @@ select option,
 }
 
 @keyframes syncSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ==========================================================================
@@ -4112,7 +4243,8 @@ select option,
 }
 
 .ptr-indicator.pulling {
-  transition: none; /* ドラッグ中は指の動きに即座に追従 */
+  transition: none;
+  /* ドラッグ中は指の動きに即座に追従 */
 }
 
 .ptr-indicator.active {
@@ -4164,8 +4296,13 @@ select option,
 }
 
 @keyframes ptrSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ==========================================================================
@@ -4193,19 +4330,17 @@ select option,
   left: -120%;
   width: 340%;
   height: 340%;
-  background: conic-gradient(
-    from 0deg at 50% 50%,
-    transparent 0deg,
-    transparent 45deg,
-    var(--accent-primary) 70deg,
-    var(--accent-secondary) 95deg,
-    transparent 125deg,
-    transparent 225deg,
-    var(--accent-primary) 250deg,
-    var(--accent-secondary) 275deg,
-    transparent 305deg,
-    transparent 360deg
-  );
+  background: conic-gradient(from 0deg at 50% 50%,
+      transparent 0deg,
+      transparent 45deg,
+      var(--accent-primary) 70deg,
+      var(--accent-secondary) 95deg,
+      transparent 125deg,
+      transparent 225deg,
+      var(--accent-primary) 250deg,
+      var(--accent-secondary) 275deg,
+      transparent 305deg,
+      transparent 360deg);
   animation: borderBeamRotate 6s linear infinite;
   z-index: 1;
   pointer-events: none;
@@ -4224,7 +4359,7 @@ select option,
 }
 
 /* 繧ｫ繝ｼ繝牙・縺ｮ繧ｳ繝ｳ繝・Φ繝・ｒ譛蜑埼擇縺ｫ */
-.credit-hero > * {
+.credit-hero>* {
   position: relative;
   z-index: 3;
 }
@@ -4233,6 +4368,7 @@ select option,
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -4254,10 +4390,13 @@ select option,
 }
 
 @keyframes borderLightPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     border-color: var(--border-glass);
     box-shadow: var(--shadow-card), 0 0 0px transparent;
   }
+
   50% {
     border-color: var(--border-glow);
     box-shadow: var(--shadow-card), 0 0 16px var(--accent-primary-glow);
@@ -4270,33 +4409,28 @@ select option,
 }
 
 @keyframes pendingBorderShimmer {
-  0%, 100% {
+
+  0%,
+  100% {
     border-color: rgba(245, 158, 11, 0.4);
     box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
   }
+
   50% {
     border-color: rgba(245, 158, 11, 0.95);
     box-shadow: 0 0 20px rgba(245, 158, 11, 0.45), inset 0 0 10px rgba(245, 158, 11, 0.15);
   }
 }
 
-/* 2. 自由資金の金額数字：上品なシマーハイライト（hoverまたは表示時） */
+/* 2. 自由資金の金額数字：くっきり鮮明なクリスタル表示（上部のぼやけ防止のためdrop-shadowフィルタを除外） */
 .available-amount {
   position: relative;
   display: inline-block;
   background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-primary) 50%, var(--accent-primary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: subtleAmountPulse 6s ease-in-out infinite;
-}
-
-@keyframes subtleAmountPulse {
-  0%, 100% {
-    filter: drop-shadow(0 0 14px rgba(16, 185, 129, 0.15));
-  }
-  50% {
-    filter: drop-shadow(0 0 24px rgba(16, 185, 129, 0.32));
-  }
+  filter: none;
+  text-shadow: none;
 }
 
 /* 3. 口座ステータスドット：生きている呼吸アニメーション (Alive Breathe) */
@@ -4321,10 +4455,13 @@ select option,
 }
 
 @keyframes dotBreath {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.45;
   }
+
   50% {
     transform: scale(1.7);
     opacity: 0;
@@ -4349,8 +4486,14 @@ select option,
 }
 
 @keyframes barLightSweep {
-  0% { left: -80%; }
-  35%, 100% { left: 160%; }
+  0% {
+    left: -80%;
+  }
+
+  35%,
+  100% {
+    left: 160%;
+  }
 }
 
 /* 5. 今月支払いのもの（固定引落・変動引落）：完了トグル時のスムーズ波紋 */
@@ -4376,9 +4519,17 @@ select option,
 }
 
 @keyframes badgePop {
-  0% { transform: scale(0.85); }
-  50% { transform: scale(1.12); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0.85);
+  }
+
+  50% {
+    transform: scale(1.12);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* 6. 未確定バッジのリッチグロー */
@@ -4653,6 +4804,7 @@ select option,
 [data-theme="light"] .theme-name {
   color: #0f172a;
 }
+
 /* ========================================================
    譏守ｴｰ繧ｻ繧ｯ繧ｷ繝ｧ繝ｳ & 繧ｫ繝ｼ繝峨し繝槭Μ繝ｼ: 繝ｩ繧､繝医Δ繝ｼ繝芽ｦ冶ｪ肴ｧ蜷台ｸ翫せ繧ｿ繧､繝ｫ
    ======================================================== */
@@ -4778,195 +4930,575 @@ select option,
 }
 
 /* ==========================================================================
-   ラグジュアリー・白銀フロストチタンデザイン（プラチナ・ホワイト専用）
-   オニキスブラックの「漆黒チタン」と対をなす最高峰のライト系デザイン
+   ラグジュアリー・白銀クリスタルチタンデザイン（プラチナ・ホワイト専用）
+   オニキスブラックの「漆黒チタン」と完全な対をなす最高峰のライト系デザイン
+   くすみを一切排した純白パール＆ブラッシュドシルバーと、高コントラスト深色ジュエル文字
    ========================================================================== */
 
-/* 1. プラチナ・ホワイトのテーマ変数（最高峰ソリッド・プラチナチタニウム） */
+/* 1. プラチナ・ホワイトのテーマ変数（純白クリスタルパール × オブシディアンチタン） */
 [data-theme="platinum"],
 [data-theme="light"],
 [data-theme="white"] {
   color-scheme: light;
-  --bg-main: #e2e8f0;
-  --bg-gradient: radial-gradient(ellipse 110% 75% at 50% -12%, #f1f5f9 0%, #e2e8f0 40%, #cbd5e1 100%);
-  --surface-card: linear-gradient(165deg, rgba(255, 255, 255, 0.94) 0%, rgba(241, 245, 249, 0.88) 100%);
-  --surface-card-hover: linear-gradient(165deg, #ffffff 0%, rgba(248, 250, 252, 0.95) 100%);
-  --surface-glass: rgba(15, 23, 42, 0.04);
-  --border-glass: rgba(148, 163, 184, 0.45);
-  --border-glow: rgba(100, 116, 139, 0.45);
+  --bg-main: #f4f7fb;
+  --bg-gradient: radial-gradient(ellipse 95% 60% at 50% -10%, #ffffff 0%, #f6f8fc 52%, #edf2f8 100%);
+  --surface-card: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.95) 100%);
+  --surface-card-hover: #ffffff;
+  --surface-glass: rgba(15, 23, 42, 0.035);
+  --border-glass: rgba(148, 163, 184, 0.36);
+  --border-glow: rgba(100, 116, 139, 0.42);
 
   --accent-primary: #0f172a;
-  --accent-primary-glow: rgba(15, 23, 42, 0.2);
+  --accent-primary-glow: rgba(148, 163, 184, 0.22);
   --accent-secondary: #475569;
+  --accent-emerald: #047857;
   --accent-rose: #be123c;
   --accent-amber: #b45309;
 
   --text-primary: #0f172a;
   --text-secondary: #334155;
-  --text-muted: #64748b;
+  --text-muted: #475569;
 
-  --card-hero-bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 25%, #e9eef5 55%, #f1f5f9 80%, #ffffff 100%);
-  --hero-shadow: 0 20px 48px -12px rgba(15, 23, 42, 0.14), 0 4px 16px rgba(100, 116, 139, 0.15), inset 0 1.5px 0.5px #ffffff, inset 0 -1px 0 rgba(148, 163, 184, 0.25);
-  --shadow-card: 0 12px 30px -6px rgba(15, 23, 42, 0.09), 0 2px 6px rgba(100, 116, 139, 0.08), inset 0 1.5px 0.5px #ffffff, inset 0 -1px 0 rgba(148, 163, 184, 0.2);
+  --card-hero-bg: linear-gradient(165deg, #ffffff 0%, #fafcff 52%, #f0f4fa 100%);
+  --hero-shadow: 0 22px 48px -12px rgba(15, 23, 42, 0.11), 0 4px 16px -2px rgba(15, 23, 42, 0.06), inset 0 2px 1px #ffffff, inset 0 -1px 0 rgba(148, 163, 184, 0.22);
+  --shadow-card: 0 10px 28px -6px rgba(15, 23, 42, 0.07), 0 2px 6px rgba(15, 23, 42, 0.03), inset 0 1.5px 0.5px #ffffff;
 }
 
-/* 2. プラチナ・ホワイトのガラスカード（重厚な彫刻チタンプレート＆クリスタルガラス） */
+/* 2. プラチナ・ホワイトのガラスカード（澄み切ったクリスタルホワイト＆繊細なシルバーリム） */
 [data-theme="platinum"] .glass-card,
 [data-theme="light"] .glass-card,
 [data-theme="white"] .glass-card {
   background: var(--surface-card) !important;
   backdrop-filter: blur(28px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
-  border: 1px solid rgba(148, 163, 184, 0.45) !important;
-  box-shadow: 
-    0 12px 32px -6px rgba(15, 23, 42, 0.09), 
-    0 2px 6px rgba(100, 116, 139, 0.08), 
-    inset 0 1.5px 0.5px #ffffff, 
-    inset 0 -1px 0 rgba(148, 163, 184, 0.22) !important;
+  border: 1px solid rgba(148, 163, 184, 0.36) !important;
+  box-shadow:
+    0 12px 30px -6px rgba(15, 23, 42, 0.07),
+    0 2px 6px rgba(15, 23, 42, 0.03),
+    inset 0 1.5px 0.5px #ffffff,
+    inset 0 -1px 0 rgba(148, 163, 184, 0.15) !important;
 }
 
-/* 3. クレジット利用枠メインヒーローカード（本物のApple Card Titaniumサテン白銀チタン） */
+/* ライトモード時の呼吸アニメーション（黒っぽい濁り影を排除し、上品なシルバーリムの輝きにする） */
+[data-theme="platinum"] .expense-segment-card,
+[data-theme="platinum"] .account-card,
+[data-theme="platinum"] .forecast-card,
+[data-theme="light"] .expense-segment-card,
+[data-theme="light"] .account-card,
+[data-theme="light"] .forecast-card,
+[data-theme="white"] .expense-segment-card,
+[data-theme="white"] .account-card,
+[data-theme="white"] .forecast-card {
+  animation: none !important;
+}
+
+/* 3. メインヒーローカード（オニキスブラックの対となる純白パール＆プラチナチタン） */
 [data-theme="platinum"] .credit-hero,
 [data-theme="light"] .credit-hero,
 [data-theme="white"] .credit-hero {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 25%, #e9eef5 55%, #f1f5f9 80%, #ffffff 100%) !important;
-  border: 1px solid rgba(148, 163, 184, 0.5) !important;
-  box-shadow: 
-    0 24px 52px -12px rgba(15, 23, 42, 0.16), 
-    0 6px 18px rgba(100, 116, 139, 0.18), 
-    inset 0 2px 1px #ffffff, 
-    inset 0 -1.5px 1px rgba(148, 163, 184, 0.3) !important;
+  background: linear-gradient(165deg, #ffffff 0%, #fafcff 52%, #f0f4fa 100%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.45) !important;
+  box-shadow:
+    0 22px 50px -12px rgba(15, 23, 42, 0.12),
+    0 6px 18px -2px rgba(15, 23, 42, 0.06),
+    inset 0 2px 1px #ffffff,
+    inset 0 -1px 0 rgba(148, 163, 184, 0.25) !important;
 }
 
-/* ヒーローカードの金額刻印タイポグラフィ（レーザーエングレービング立体感） */
-[data-theme="platinum"] .hero-total-amount,
-[data-theme="light"] .hero-total-amount,
-[data-theme="white"] .hero-total-amount,
-[data-theme="platinum"] .apple-card-amount,
-[data-theme="light"] .apple-card-amount,
-[data-theme="white"] .apple-card-amount {
-  color: #0f172a !important;
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.95), 0 -1px 0 rgba(15, 23, 42, 0.1) !important;
-  letter-spacing: -0.03em !important;
+[data-theme="platinum"] .credit-hero::after,
+[data-theme="light"] .credit-hero::after,
+[data-theme="white"] .credit-hero::after {
+  background: linear-gradient(165deg, #ffffff 0%, #fafcff 52%, #f0f4fa 100%) !important;
+  box-shadow: inset 0 1.5px 0 #ffffff !important;
 }
 
-/* ヒーローカード境界線の白銀チタン光アニメーション */
+/* ヒーローカード境界線のプラチナ＆オブシディアン光沢ビームアニメーション（オニキスブラックと同機構） */
 [data-theme="platinum"] .credit-hero::before,
 [data-theme="light"] .credit-hero::before,
 [data-theme="white"] .credit-hero::before {
-  background: conic-gradient(
-    from var(--border-angle, 0deg),
-    transparent 0%,
-    rgba(255, 255, 255, 0.8) 10%,
-    rgba(148, 163, 184, 0.6) 20%,
-    rgba(100, 116, 139, 0.7) 25%,
-    transparent 35%,
-    transparent 100%
-  ) !important;
+  background: conic-gradient(from 0deg at 50% 50%,
+      transparent 0deg,
+      transparent 45deg,
+      #0f172a 70deg,
+      #64748b 95deg,
+      transparent 125deg,
+      transparent 225deg,
+      #0f172a 250deg,
+      #64748b 275deg,
+      transparent 305deg,
+      transparent 360deg) !important;
+  opacity: 0.75 !important;
 }
 
-/* 4. ヒーローカード内の計算内訳アコーディオン */
+/* ヒーローカードのメイン金額（黒いくすみ影・緑ドロップシャドウを完全排除し、漆黒チタンのシャープな刻印に） */
+[data-theme="platinum"] .available-amount,
+[data-theme="light"] .available-amount,
+[data-theme="white"] .available-amount {
+  background: linear-gradient(135deg, #090d16 0%, #0f172a 60%, #334155 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: #0f172a !important;
+  text-shadow: none !important;
+  animation: none !important;
+  filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.06)) !important;
+}
+
+[data-theme="platinum"] .credit-hero.warning .available-amount,
+[data-theme="light"] .credit-hero.warning .available-amount,
+[data-theme="white"] .credit-hero.warning .available-amount,
+[data-theme="platinum"] .credit-hero.warning .currency-symbol,
+[data-theme="light"] .credit-hero.warning .currency-symbol,
+[data-theme="white"] .credit-hero.warning .currency-symbol {
+  background: none !important;
+  -webkit-text-fill-color: #be123c !important;
+  color: #be123c !important;
+}
+
+[data-theme="platinum"] .hero-subtitle,
+[data-theme="light"] .hero-subtitle,
+[data-theme="white"] .hero-subtitle {
+  color: #475569 !important;
+}
+
+[data-theme="platinum"] .hero-card-status-bar,
+[data-theme="light"] .hero-card-status-bar,
+[data-theme="white"] .hero-card-status-bar {
+  background: #f4f7fb !important;
+  border: 1px solid rgba(148, 163, 184, 0.36) !important;
+  color: #334155 !important;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.03), 0 1px 0 #ffffff !important;
+}
+
+[data-theme="platinum"] .card-status-left strong,
+[data-theme="light"] .card-status-left strong,
+[data-theme="white"] .card-status-left strong {
+  color: #0f172a !important;
+}
+
+[data-theme="platinum"] .card-status-spent,
+[data-theme="light"] .card-status-spent,
+[data-theme="white"] .card-status-spent {
+  color: #475569 !important;
+  font-weight: 600 !important;
+}
+
+/* 4. ヒーローカード内の計算内訳アコーディオン（高コントラスト深色ジュエル文字で抜群の視認性） */
 [data-theme="platinum"] .calc-insight-card,
 [data-theme="light"] .calc-insight-card,
 [data-theme="white"] .calc-insight-card {
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.92) 0%, rgba(241, 245, 249, 0.9) 100%) !important;
-  border: 1px solid rgba(148, 163, 184, 0.42) !important;
-  box-shadow: 
-    0 4px 16px rgba(15, 23, 42, 0.06), 
-    inset 0 1.5px 0 #ffffff,
-    inset 0 -1px 0 rgba(148, 163, 184, 0.2) !important;
+  background: linear-gradient(165deg, #f4f7fb 0%, #edf2f8 100%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.38) !important;
+  box-shadow:
+    inset 0 1px 3px rgba(15, 23, 42, 0.04),
+    0 1px 0 #ffffff !important;
+}
+
+[data-theme="platinum"] .calc-flow-timeline,
+[data-theme="light"] .calc-flow-timeline,
+[data-theme="white"] .calc-flow-timeline {
+  border-top: 1px solid rgba(148, 163, 184, 0.3) !important;
+}
+
+[data-theme="platinum"] .flow-connector,
+[data-theme="light"] .flow-connector,
+[data-theme="white"] .flow-connector {
+  color: #475569 !important;
+}
+
+[data-theme="platinum"] .flow-connector::after,
+[data-theme="light"] .flow-connector::after,
+[data-theme="white"] .flow-connector::after {
+  background: rgba(148, 163, 184, 0.35) !important;
 }
 
 [data-theme="platinum"] .flow-step,
 [data-theme="light"] .flow-step,
 [data-theme="white"] .flow-step {
-  background: linear-gradient(165deg, #ffffff 0%, #f8fafc 100%) !important;
-  border: 1px solid rgba(148, 163, 184, 0.38) !important;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05), inset 0 1px 0 #ffffff !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(148, 163, 184, 0.32) !important;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03) !important;
 }
 
-/* 5. Apple Card Hero (明細カード) の白銀チタンメタル質感 */
+[data-theme="platinum"] .flow-step-icon.base,
+[data-theme="light"] .flow-step-icon.base,
+[data-theme="white"] .flow-step-icon.base {
+  background: rgba(37, 99, 235, 0.12) !important;
+  color: #1d4ed8 !important;
+}
+
+[data-theme="platinum"] .flow-step-icon.minus,
+[data-theme="light"] .flow-step-icon.minus,
+[data-theme="white"] .flow-step-icon.minus {
+  background: rgba(225, 29, 72, 0.12) !important;
+  color: #be123c !important;
+}
+
+[data-theme="platinum"] .flow-step-icon.plus,
+[data-theme="light"] .flow-step-icon.plus,
+[data-theme="white"] .flow-step-icon.plus {
+  background: rgba(5, 150, 105, 0.12) !important;
+  color: #047857 !important;
+}
+
+[data-theme="platinum"] .flow-step-label,
+[data-theme="light"] .flow-step-label,
+[data-theme="white"] .flow-step-label {
+  color: #0f172a !important;
+}
+
+[data-theme="platinum"] .flow-step-desc,
+[data-theme="light"] .flow-step-desc,
+[data-theme="white"] .flow-step-desc {
+  color: #475569 !important;
+}
+
+[data-theme="platinum"] .flow-step-val,
+[data-theme="light"] .flow-step-val,
+[data-theme="white"] .flow-step-val {
+  color: #0f172a !important;
+}
+
+[data-theme="platinum"] .flow-step-val.minus,
+[data-theme="light"] .flow-step-val.minus,
+[data-theme="white"] .flow-step-val.minus {
+  color: #be123c !important;
+}
+
+[data-theme="platinum"] .flow-step-val.plus,
+[data-theme="light"] .flow-step-val.plus,
+[data-theme="white"] .flow-step-val.plus {
+  color: #047857 !important;
+}
+
+[data-theme="platinum"] .flow-result-row,
+[data-theme="light"] .flow-result-row,
+[data-theme="white"] .flow-result-row {
+  background: linear-gradient(90deg, rgba(5, 150, 105, 0.1) 0%, rgba(15, 23, 42, 0.06) 100%) !important;
+  border: 1px solid rgba(5, 150, 105, 0.35) !important;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+[data-theme="platinum"] .flow-result-label,
+[data-theme="light"] .flow-result-label,
+[data-theme="white"] .flow-result-label {
+  color: #047857 !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="platinum"] .flow-result-val,
+[data-theme="light"] .flow-result-val,
+[data-theme="white"] .flow-result-val {
+  color: #0f172a !important;
+  font-weight: 900 !important;
+}
+
+/* 5. Apple Card Hero (明細サマリーカード) の純白パール＆ブラッシュドチタン質感 */
 [data-theme="platinum"] .tx-apple-card-hero,
 [data-theme="light"] .tx-apple-card-hero,
 [data-theme="white"] .tx-apple-card-hero {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 30%, #e9eef5 60%, #ffffff 100%) !important;
-  border: 1px solid rgba(148, 163, 184, 0.48) !important;
-  box-shadow: 
-    0 22px 48px -12px rgba(15, 23, 42, 0.14), 
-    0 4px 14px rgba(100, 116, 139, 0.12), 
-    inset 0 2px 1px #ffffff, 
-    inset 0 -1px 0 rgba(148, 163, 184, 0.25) !important;
+  background: radial-gradient(ellipse at 85% 0%, rgba(14, 165, 233, 0.09) 0%, transparent 65%), linear-gradient(145deg, #ffffff 0%, #fafcff 50%, #f0f4fa 100%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.42) !important;
+  box-shadow:
+    0 20px 44px -12px rgba(15, 23, 42, 0.11),
+    0 4px 14px -2px rgba(15, 23, 42, 0.05),
+    inset 0 2px 1px #ffffff,
+    inset 0 -1px 0 rgba(148, 163, 184, 0.2) !important;
 }
 
-/* 6. 明細リストアイテムの高級アクリルガラス＆チタン質感 */
-[data-theme="platinum"] .tx-item-card,
-[data-theme="light"] .tx-item-card,
-[data-theme="white"] .tx-item-card {
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%) !important;
-  backdrop-filter: blur(16px) saturate(170%) !important;
-  border: 1px solid rgba(148, 163, 184, 0.4) !important;
-  box-shadow: 
-    0 3px 10px rgba(15, 23, 42, 0.05), 
-    0 8px 22px -4px rgba(15, 23, 42, 0.07), 
-    inset 0 1.5px 0 #ffffff,
-    inset 0 -1px 0 rgba(148, 163, 184, 0.18) !important;
+[data-theme="platinum"] .apple-card-amount,
+[data-theme="light"] .apple-card-amount,
+[data-theme="white"] .apple-card-amount {
+  color: #0f172a !important;
+  text-shadow: none !important;
+  letter-spacing: -0.04em !important;
 }
 
-[data-theme="platinum"] .tx-item-card:active,
-[data-theme="light"] .tx-item-card:active,
-[data-theme="white"] .tx-item-card:active {
-  background: linear-gradient(165deg, #f8fafc 0%, #edf2f7 100%) !important;
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08), inset 0 1px 0 #ffffff !important;
+/* 6. 明細リストアイテム（.timeline-item）の純白クリスタルカード質感 */
+[data-theme="platinum"] .timeline-item,
+[data-theme="light"] .timeline-item,
+[data-theme="white"] .timeline-item {
+  background: linear-gradient(165deg, #ffffff 0%, #fafcff 100%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.34) !important;
+  box-shadow:
+    0 4px 14px -2px rgba(15, 23, 42, 0.05),
+    0 1px 3px rgba(15, 23, 42, 0.03),
+    inset 0 1.5px 0 #ffffff !important;
 }
 
-/* 7. セグメントタブのラグジュアリー・エンボスフィニッシュ（彫刻金属窪み） */
+[data-theme="platinum"] .timeline-item:active,
+[data-theme="light"] .timeline-item:active,
+[data-theme="white"] .timeline-item:active {
+  background: #f8fafc !important;
+}
+
+[data-theme="platinum"] .tx-name,
+[data-theme="light"] .tx-name,
+[data-theme="white"] .tx-name {
+  color: #0f172a !important;
+}
+
+[data-theme="platinum"] .tx-date,
+[data-theme="light"] .tx-date,
+[data-theme="white"] .tx-date {
+  color: #475569 !important;
+}
+
+[data-theme="platinum"] .tx-amount,
+[data-theme="light"] .tx-amount,
+[data-theme="white"] .tx-amount {
+  color: #0f172a !important;
+}
+
+/* 明細のカテゴリバッジ＆未確定バッジ（プラチナ・ホワイトでくっきり読める深色ジュエル設計） */
+[data-theme="platinum"] .tx-category-badge,
+[data-theme="light"] .tx-category-badge,
+[data-theme="white"] .tx-category-badge {
+  background: rgba(109, 40, 217, 0.08) !important;
+  color: #5b21b6 !important;
+  border: 1px solid rgba(109, 40, 217, 0.26) !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03) !important;
+}
+
+[data-theme="platinum"] .tx-category-badge:hover,
+[data-theme="light"] .tx-category-badge:hover,
+[data-theme="white"] .tx-category-badge:hover {
+  background: rgba(109, 40, 217, 0.14) !important;
+  color: #4c1d95 !important;
+  border-color: rgba(109, 40, 217, 0.45) !important;
+}
+
+[data-theme="platinum"] .tx-category-badge.tx-badge-recurring,
+[data-theme="light"] .tx-category-badge.tx-badge-recurring,
+[data-theme="white"] .tx-category-badge.tx-badge-recurring {
+  background: rgba(14, 116, 144, 0.09) !important;
+  color: #0e7490 !important;
+  border: 1px solid rgba(14, 116, 144, 0.28) !important;
+}
+
+[data-theme="platinum"] .tx-category-badge.tx-badge-recurring:hover,
+[data-theme="light"] .tx-category-badge.tx-badge-recurring:hover,
+[data-theme="white"] .tx-category-badge.tx-badge-recurring:hover {
+  background: rgba(14, 116, 144, 0.16) !important;
+  color: #155e75 !important;
+  border-color: rgba(14, 116, 144, 0.45) !important;
+}
+
+[data-theme="platinum"] .tx-amount-pending-badge,
+[data-theme="light"] .tx-amount-pending-badge,
+[data-theme="white"] .tx-amount-pending-badge {
+  background: #fef3c7 !important;
+  border: 1px dashed #d97706 !important;
+  color: #b45309 !important;
+  box-shadow: 0 1px 3px rgba(180, 83, 9, 0.08) !important;
+}
+
+[data-theme="platinum"] .tx-amount-pending-badge.badge-zero,
+[data-theme="light"] .tx-amount-pending-badge.badge-zero,
+[data-theme="white"] .tx-amount-pending-badge.badge-zero {
+  background: #f1f5f9 !important;
+  border: 1px dashed #94a3b8 !important;
+  color: #475569 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="platinum"] .pending-dot,
+[data-theme="light"] .pending-dot,
+[data-theme="white"] .pending-dot {
+  background: #d97706 !important;
+  box-shadow: 0 0 5px rgba(217, 119, 6, 0.6) !important;
+}
+
+[data-theme="platinum"] .tx-pending-count-badge,
+[data-theme="light"] .tx-pending-count-badge,
+[data-theme="white"] .tx-pending-count-badge {
+  background: #fef3c7 !important;
+  border: 1px solid #f59e0b !important;
+  color: #b45309 !important;
+}
+
+/* 7. セグメントタブのラグジュアリー・エンボスフィニッシュ */
 [data-theme="platinum"] .tx-segment-control,
 [data-theme="light"] .tx-segment-control,
 [data-theme="white"] .tx-segment-control {
-  background: rgba(15, 23, 42, 0.08) !important;
-  border: 1px solid rgba(148, 163, 184, 0.4) !important;
-  box-shadow: inset 0 2px 5px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(255, 255, 255, 0.6) !important;
+  background: #e9eef5 !important;
+  border: 1px solid rgba(148, 163, 184, 0.36) !important;
+  box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.06) !important;
+}
+
+[data-theme="platinum"] .tx-segment-btn,
+[data-theme="light"] .tx-segment-btn,
+[data-theme="white"] .tx-segment-btn {
+  color: #475569 !important;
 }
 
 [data-theme="platinum"] .tx-segment-btn.active,
 [data-theme="light"] .tx-segment-btn.active,
 [data-theme="white"] .tx-segment-btn.active {
-  background: linear-gradient(165deg, #ffffff 0%, #f1f5f9 100%) !important;
+  background: #ffffff !important;
   color: #0f172a !important;
   font-weight: 700 !important;
-  border: 1px solid rgba(148, 163, 184, 0.45) !important;
-  box-shadow: 
-    0 4px 12px rgba(15, 23, 42, 0.11), 
-    0 1px 2px rgba(15, 23, 42, 0.06), 
-    inset 0 1.5px 0 #ffffff !important;
+  border: 1px solid rgba(148, 163, 184, 0.38) !important;
+  box-shadow:
+    0 3px 10px rgba(15, 23, 42, 0.08),
+    0 1px 2px rgba(15, 23, 42, 0.04) !important;
 }
 
-/* 8. ヘッダーとボトムナビのソリッドフロストチタン（彫刻メタルフレーム） */
+/* 8. ヘッダー（オニキスブラックと同じく背景ボックス無しのミニマル透過バー）とフローティングカプセルナビ */
 [data-theme="platinum"] .app-header,
 [data-theme="light"] .app-header,
 [data-theme="white"] .app-header {
-  background: rgba(235, 240, 246, 0.88) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.4) !important;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04) !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="platinum"] #header-month-badge,
+[data-theme="platinum"] .month-badge,
+[data-theme="light"] #header-month-badge,
+[data-theme="light"] .month-badge,
+[data-theme="white"] #header-month-badge,
+[data-theme="white"] .month-badge {
+  background: #ffffff !important;
+  border: 1px solid rgba(148, 163, 184, 0.42) !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05), inset 0 1px 0 #ffffff !important;
+}
+
+[data-theme="platinum"] .icon-btn,
+[data-theme="light"] .icon-btn,
+[data-theme="white"] .icon-btn {
+  background: #ffffff !important;
+  border: 1px solid rgba(148, 163, 184, 0.38) !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.07), inset 0 1px 0 #ffffff !important;
+}
+
+[data-theme="platinum"] .icon-btn:hover,
+[data-theme="light"] .icon-btn:hover,
+[data-theme="white"] .icon-btn:hover {
+  border-color: rgba(100, 116, 139, 0.55) !important;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.11), inset 0 1px 0 #ffffff !important;
 }
 
 [data-theme="platinum"] .bottom-nav,
 [data-theme="light"] .bottom-nav,
 [data-theme="white"] .bottom-nav {
-  background: rgba(235, 240, 246, 0.9) !important;
-  backdrop-filter: blur(28px) saturate(180%) !important;
-  border-top: 1px solid rgba(148, 163, 184, 0.4) !important;
-  box-shadow: 0 -6px 28px rgba(15, 23, 42, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(40px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.38) !important;
+  box-shadow: 0 16px 40px -6px rgba(15, 23, 42, 0.14), 0 4px 12px rgba(15, 23, 42, 0.05), inset 0 1.5px 0 #ffffff !important;
 }
 
-/* 9. 口座セクションの入出金履歴枠（ライトモード対応） */
+[data-theme="platinum"] .nav-item,
+[data-theme="light"] .nav-item,
+[data-theme="white"] .nav-item {
+  color: #64748b !important;
+}
+
+[data-theme="platinum"] .nav-item.active,
+[data-theme="light"] .nav-item.active,
+[data-theme="white"] .nav-item.active {
+  color: #0f172a !important;
+  background: rgba(15, 23, 42, 0.06) !important;
+}
+
+/* 9. 口座セクションの入出金履歴枠・ボタン・合計バー・今月支払いのもの（ライトモード完全対応） */
 [data-theme="platinum"] .account-transfers-box,
 [data-theme="light"] .account-transfers-box,
 [data-theme="white"] .account-transfers-box {
-  background: rgba(255, 255, 255, 0.75) !important;
+  background: rgba(255, 255, 255, 0.8) !important;
   border: 1px solid rgba(148, 163, 184, 0.28) !important;
   box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+}
+
+[data-theme="platinum"] .total-balance-bar,
+[data-theme="light"] .total-balance-bar,
+[data-theme="white"] .total-balance-bar {
+  background: linear-gradient(165deg, #ffffff 0%, #f4f7fb 100%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.42) !important;
+  box-shadow: 0 10px 26px -6px rgba(15, 23, 42, 0.08), inset 0 1.5px 0 #ffffff !important;
+}
+
+[data-theme="platinum"] .total-label,
+[data-theme="light"] .total-label,
+[data-theme="white"] .total-label {
+  color: #334155 !important;
+}
+
+[data-theme="platinum"] .total-amount,
+[data-theme="light"] .total-amount,
+[data-theme="white"] .total-amount {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+/* 変動引落・固定引落のピルバッジと明細行 */
+[data-theme="platinum"] .segment-pill.cyan,
+[data-theme="light"] .segment-pill.cyan,
+[data-theme="white"] .segment-pill.cyan {
+  background: rgba(14, 165, 233, 0.12) !important;
+  border: 1px solid rgba(14, 165, 233, 0.34) !important;
+  color: #0369a1 !important;
+}
+
+[data-theme="platinum"] .segment-pill.purple,
+[data-theme="light"] .segment-pill.purple,
+[data-theme="white"] .segment-pill.purple {
+  background: rgba(124, 58, 237, 0.11) !important;
+  border: 1px solid rgba(124, 58, 237, 0.32) !important;
+  color: #6d28d9 !important;
+}
+
+[data-theme="platinum"] .segment-card-header,
+[data-theme="light"] .segment-card-header,
+[data-theme="white"] .segment-card-header {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25) !important;
+}
+
+[data-theme="platinum"] .fixed-expense-item,
+[data-theme="light"] .fixed-expense-item,
+[data-theme="white"] .fixed-expense-item {
+  background: #f8fafc !important;
+  border: 1px solid rgba(148, 163, 184, 0.32) !important;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03), inset 0 1px 0 #ffffff !important;
+}
+
+[data-theme="platinum"] .fixed-item-icon-box,
+[data-theme="light"] .fixed-item-icon-box,
+[data-theme="white"] .fixed-item-icon-box {
+  background: #ffffff !important;
+  border: 1px solid rgba(148, 163, 184, 0.32) !important;
+  color: #334155 !important;
+}
+
+[data-theme="platinum"] .btn-edit-bill-inline,
+[data-theme="light"] .btn-edit-bill-inline,
+[data-theme="white"] .btn-edit-bill-inline {
+  background: #ffffff !important;
+  border: 1px solid rgba(148, 163, 184, 0.4) !important;
+  color: #334155 !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+}
+
+[data-theme="platinum"] .forecast-row:not(:last-child),
+[data-theme="light"] .forecast-row:not(:last-child),
+[data-theme="white"] .forecast-row:not(:last-child) {
+  border-bottom-color: rgba(148, 163, 184, 0.25) !important;
+}
+
+[data-theme="platinum"] .forecast-val.positive,
+[data-theme="light"] .forecast-val.positive,
+[data-theme="white"] .forecast-val.positive {
+  color: #0f172a !important;
+}
+
+[data-theme="platinum"] .forecast-val.negative,
+[data-theme="light"] .forecast-val.negative,
+[data-theme="white"] .forecast-val.negative {
+  color: #be123c !important;
 }
 
 /* ==========================================================================
@@ -5019,7 +5551,7 @@ select option,
   background: linear-gradient(165deg, rgba(34, 38, 46, 0.95) 0%, rgba(14, 16, 20, 0.99) 100%) !important;
   color: #ffffff !important;
   border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  box-shadow: 
+  box-shadow:
     0 8px 24px -4px rgba(0, 0, 0, 0.85),
     0 0 16px rgba(255, 255, 255, 0.05),
     inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
@@ -5039,7 +5571,7 @@ select option,
 [data-theme="black"] .view-settings .btn-primary:hover {
   background: linear-gradient(165deg, rgba(44, 50, 60, 0.98) 0%, rgba(20, 22, 28, 1) 100%) !important;
   border-color: rgba(255, 255, 255, 0.35) !important;
-  box-shadow: 
+  box-shadow:
     0 12px 30px -4px rgba(0, 0, 0, 0.95),
     0 0 22px rgba(255, 255, 255, 0.12),
     inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
@@ -5054,7 +5586,7 @@ select option,
   background: linear-gradient(165deg, rgba(46, 18, 26, 0.95) 0%, rgba(18, 10, 14, 0.99) 100%) !important;
   color: #ffffff !important;
   border: 1px solid rgba(244, 63, 94, 0.38) !important;
-  box-shadow: 
+  box-shadow:
     0 8px 24px -4px rgba(0, 0, 0, 0.85),
     0 0 18px rgba(244, 63, 94, 0.18),
     inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
@@ -5073,7 +5605,7 @@ select option,
 [data-theme="black"] .view-settings .btn-danger:hover {
   background: linear-gradient(165deg, rgba(62, 22, 34, 0.98) 0%, rgba(26, 12, 18, 1) 100%) !important;
   border-color: rgba(244, 63, 94, 0.65) !important;
-  box-shadow: 
+  box-shadow:
     0 12px 30px -4px rgba(0, 0, 0, 0.95),
     0 0 24px rgba(244, 63, 94, 0.35),
     inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
@@ -5086,7 +5618,7 @@ select option,
   background: linear-gradient(165deg, rgba(32, 36, 44, 0.92) 0%, rgba(14, 16, 20, 0.96) 100%) !important;
   border: 1px solid rgba(255, 255, 255, 0.18) !important;
   color: #ffffff !important;
-  box-shadow: 
+  box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.6),
     inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
 }
@@ -5100,7 +5632,7 @@ select option,
 [data-theme="black"] .btn-email-sync:hover {
   background: linear-gradient(165deg, rgba(42, 48, 58, 0.96) 0%, rgba(20, 22, 28, 1) 100%) !important;
   border-color: rgba(255, 255, 255, 0.35) !important;
-  box-shadow: 
+  box-shadow:
     0 4px 14px rgba(0, 0, 0, 0.75),
     0 0 12px rgba(255, 255, 255, 0.1) !important;
 }
@@ -5134,7 +5666,7 @@ select option,
 [data-theme="black"] [data-account-id="smbc"] {
   background: linear-gradient(165deg, rgba(14, 34, 26, 0.95) 0%, rgba(8, 16, 12, 0.99) 100%) !important;
   border: 1px solid rgba(16, 185, 129, 0.38) !important;
-  box-shadow: 
+  box-shadow:
     0 12px 32px -6px rgba(0, 0, 0, 0.9),
     0 0 18px rgba(16, 185, 129, 0.14),
     inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
@@ -5145,7 +5677,7 @@ select option,
 [data-theme="onyx"] .account-detail-card.smbc:hover,
 [data-theme="black"] .account-detail-card.smbc:hover {
   border-color: rgba(16, 185, 129, 0.6) !important;
-  box-shadow: 
+  box-shadow:
     0 16px 38px -6px rgba(0, 0, 0, 0.95),
     0 0 24px rgba(16, 185, 129, 0.25),
     inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
@@ -5195,7 +5727,7 @@ select option,
 [data-theme="black"] [data-account-id="mufg"] {
   background: linear-gradient(165deg, rgba(46, 18, 26, 0.95) 0%, rgba(18, 10, 14, 0.99) 100%) !important;
   border: 1px solid rgba(244, 63, 94, 0.38) !important;
-  box-shadow: 
+  box-shadow:
     0 12px 32px -6px rgba(0, 0, 0, 0.9),
     0 0 18px rgba(244, 63, 94, 0.14),
     inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
@@ -5206,7 +5738,7 @@ select option,
 [data-theme="onyx"] .account-detail-card.mufg:hover,
 [data-theme="black"] .account-detail-card.mufg:hover {
   border-color: rgba(244, 63, 94, 0.6) !important;
-  box-shadow: 
+  box-shadow:
     0 16px 38px -6px rgba(0, 0, 0, 0.95),
     0 0 24px rgba(244, 63, 94, 0.25),
     inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
@@ -5256,7 +5788,7 @@ select option,
 [data-theme="black"] [data-account-id="mizuho"] {
   background: linear-gradient(165deg, rgba(16, 26, 44, 0.95) 0%, rgba(8, 14, 22, 0.99) 100%) !important;
   border: 1px solid rgba(56, 189, 248, 0.38) !important;
-  box-shadow: 
+  box-shadow:
     0 12px 32px -6px rgba(0, 0, 0, 0.9),
     0 0 18px rgba(56, 189, 248, 0.14),
     inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
@@ -5267,7 +5799,7 @@ select option,
 [data-theme="onyx"] .account-detail-card.mizuho:hover,
 [data-theme="black"] .account-detail-card.mizuho:hover {
   border-color: rgba(56, 189, 248, 0.6) !important;
-  box-shadow: 
+  box-shadow:
     0 16px 38px -6px rgba(0, 0, 0, 0.95),
     0 0 24px rgba(56, 189, 248, 0.25),
     inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
@@ -5318,7 +5850,7 @@ select option,
   padding: 14px 20px !important;
   font-size: 0.92rem !important;
   font-weight: 700 !important;
-  box-shadow: 
+  box-shadow:
     0 8px 24px -4px rgba(0, 0, 0, 0.85),
     0 0 16px rgba(255, 255, 255, 0.05),
     inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
@@ -5329,7 +5861,7 @@ select option,
 [data-theme="black"] .modal-content:not([data-account]) .btn-primary:hover {
   background: linear-gradient(165deg, rgba(46, 52, 64, 0.98) 0%, rgba(20, 24, 30, 1) 100%) !important;
   border-color: rgba(255, 255, 255, 0.35) !important;
-  box-shadow: 
+  box-shadow:
     0 12px 30px -4px rgba(0, 0, 0, 0.95),
     0 0 20px rgba(255, 255, 255, 0.1),
     inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
@@ -5345,7 +5877,7 @@ select option,
   padding: 14px 20px !important;
   font-size: 0.92rem !important;
   font-weight: 700 !important;
-  box-shadow: 
+  box-shadow:
     0 8px 24px -4px rgba(0, 0, 0, 0.85),
     0 0 18px rgba(244, 63, 94, 0.18),
     inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
@@ -5356,7 +5888,7 @@ select option,
 [data-theme="black"] .modal-content .btn-danger:hover {
   background: linear-gradient(165deg, rgba(62, 22, 34, 0.98) 0%, rgba(26, 12, 18, 1) 100%) !important;
   border-color: rgba(244, 63, 94, 0.65) !important;
-  box-shadow: 
+  box-shadow:
     0 12px 30px -4px rgba(0, 0, 0, 0.95),
     0 0 24px rgba(244, 63, 94, 0.35),
     inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
@@ -5369,7 +5901,7 @@ select option,
   background: linear-gradient(165deg, rgba(28, 32, 40, 0.9) 0%, rgba(12, 14, 18, 0.98) 100%) !important;
   border: 1px solid rgba(255, 255, 255, 0.16) !important;
   border-radius: 16px !important;
-  box-shadow: 
+  box-shadow:
     0 6px 20px -2px rgba(0, 0, 0, 0.7),
     inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
 }
@@ -5410,21 +5942,19 @@ select option,
    オニキスブラックに対応した極上の白銀チタンフロストガラス UI スタイル
    ========================================================================== */
 
-/* 1. 設定セクションの設定ボタン（白銀チタンインゴット仕上げ） */
+/* 1. 設定セクションのプライマリ設定ボタン（オニキスと対になる重厚オブシディアン・チタン仕上げ） */
 [data-theme="platinum"] #view-settings .btn-primary,
 [data-theme="platinum"] .view-settings .btn-primary,
 [data-theme="light"] #view-settings .btn-primary,
 [data-theme="light"] .view-settings .btn-primary,
 [data-theme="white"] #view-settings .btn-primary,
 [data-theme="white"] .view-settings .btn-primary {
-  background: linear-gradient(165deg, #ffffff 0%, #f8fafc 45%, #e2e8f0 100%) !important;
-  color: #0f172a !important;
-  border: 1px solid rgba(148, 163, 184, 0.5) !important;
-  box-shadow: 
-    0 6px 20px -2px rgba(15, 23, 42, 0.1),
-    0 0 16px rgba(148, 163, 184, 0.15),
-    inset 0 1.5px 0.5px #ffffff,
-    inset 0 -1px 0 rgba(148, 163, 184, 0.25) !important;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid #0f172a !important;
+  box-shadow:
+    0 8px 22px -4px rgba(15, 23, 42, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
 }
 
 [data-theme="platinum"] #view-settings .btn-primary svg,
@@ -5433,8 +5963,8 @@ select option,
 [data-theme="light"] .view-settings .btn-primary svg,
 [data-theme="white"] #view-settings .btn-primary svg,
 [data-theme="white"] .view-settings .btn-primary svg {
-  stroke: #0f172a !important;
-  color: #0f172a !important;
+  stroke: #ffffff !important;
+  color: #ffffff !important;
 }
 
 [data-theme="platinum"] #view-settings .btn-primary:hover,
@@ -5443,12 +5973,11 @@ select option,
 [data-theme="light"] .view-settings .btn-primary:hover,
 [data-theme="white"] #view-settings .btn-primary:hover,
 [data-theme="white"] .view-settings .btn-primary:hover {
-  background: linear-gradient(165deg, #ffffff 0%, #ffffff 50%, #edf2f7 100%) !important;
-  border-color: rgba(100, 116, 139, 0.65) !important;
-  box-shadow: 
-    0 10px 28px -2px rgba(15, 23, 42, 0.15),
-    0 0 22px rgba(148, 163, 184, 0.25),
-    inset 0 1.5px 0.5px #ffffff !important;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+  border-color: #1e293b !important;
+  box-shadow:
+    0 12px 28px -4px rgba(15, 23, 42, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
   transform: translateY(-1px);
 }
 
@@ -5462,7 +5991,7 @@ select option,
   background: linear-gradient(165deg, #ffffff 0%, #fff1f2 45%, #ffe4e6 100%) !important;
   color: #e11d48 !important;
   border: 1px solid rgba(244, 63, 94, 0.45) !important;
-  box-shadow: 
+  box-shadow:
     0 6px 20px -2px rgba(225, 29, 72, 0.1),
     0 0 16px rgba(244, 63, 94, 0.12),
     inset 0 1.5px 0.5px #ffffff,
@@ -5486,7 +6015,7 @@ select option,
 [data-theme="white"] .view-settings .btn-danger:hover {
   background: linear-gradient(165deg, #ffffff 0%, #ffe4e6 50%, #fecdd3 100%) !important;
   border-color: rgba(244, 63, 94, 0.7) !important;
-  box-shadow: 
+  box-shadow:
     0 10px 28px -2px rgba(225, 29, 72, 0.18),
     0 0 22px rgba(244, 63, 94, 0.25),
     inset 0 1.5px 0.5px #ffffff !important;
@@ -5500,7 +6029,7 @@ select option,
   background: linear-gradient(165deg, #ffffff 0%, #f8fafc 50%, #edf2f7 100%) !important;
   border: 1px solid rgba(148, 163, 184, 0.45) !important;
   color: #0f172a !important;
-  box-shadow: 
+  box-shadow:
     0 3px 10px rgba(15, 23, 42, 0.08),
     inset 0 1.5px 0.5px #ffffff,
     inset 0 -1px 0 rgba(148, 163, 184, 0.2) !important;
@@ -5517,7 +6046,7 @@ select option,
 [data-theme="white"] .btn-email-sync:hover {
   background: #ffffff !important;
   border-color: rgba(100, 116, 139, 0.6) !important;
-  box-shadow: 
+  box-shadow:
     0 6px 18px rgba(15, 23, 42, 0.12),
     0 0 14px rgba(148, 163, 184, 0.2) !important;
 }
@@ -5555,7 +6084,7 @@ select option,
 [data-theme="white"] [data-account-id="smbc"] {
   background: linear-gradient(165deg, #ffffff 0%, #f4fbf7 60%, #eaf7f0 100%) !important;
   border: 1.5px solid rgba(16, 185, 129, 0.35) !important;
-  box-shadow: 
+  box-shadow:
     0 8px 24px -4px rgba(15, 23, 42, 0.06),
     0 0 16px rgba(16, 185, 129, 0.08),
     inset 0 1.5px 0.5px #ffffff !important;
@@ -5590,7 +6119,7 @@ select option,
 [data-theme="light"] .account-detail-card.smbc:hover,
 [data-theme="white"] .account-detail-card.smbc:hover {
   border-color: rgba(16, 185, 129, 0.6) !important;
-  box-shadow: 
+  box-shadow:
     0 12px 30px -4px rgba(16, 185, 129, 0.15),
     0 0 20px rgba(16, 185, 129, 0.15),
     inset 0 1.5px 0.5px #ffffff !important;
@@ -5621,6 +6150,7 @@ select option,
   padding: 10px 12px !important;
   color: #064e3b !important;
 }
+
 [data-theme="platinum"] .account-detail-card.smbc .transfer-item-row:hover,
 [data-theme="light"] .account-detail-card.smbc .transfer-item-row:hover,
 [data-theme="white"] .account-detail-card.smbc .transfer-item-row:hover {
@@ -5628,12 +6158,14 @@ select option,
   border-color: rgba(16, 185, 129, 0.45) !important;
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.12) !important;
 }
+
 [data-theme="platinum"] .account-detail-card.smbc .transfer-item-date,
 [data-theme="light"] .account-detail-card.smbc .transfer-item-date,
 [data-theme="white"] .account-detail-card.smbc .transfer-item-date {
   color: #047857 !important;
   font-weight: 700 !important;
 }
+
 [data-theme="platinum"] .account-detail-card.smbc .transfer-item-name,
 [data-theme="light"] .account-detail-card.smbc .transfer-item-name,
 [data-theme="white"] .account-detail-card.smbc .transfer-item-name {
@@ -5673,7 +6205,7 @@ select option,
 [data-theme="white"] [data-account-id="mufg"] {
   background: linear-gradient(165deg, #ffffff 0%, #fdf5f5 60%, #faebee 100%) !important;
   border: 1.5px solid rgba(244, 63, 94, 0.35) !important;
-  box-shadow: 
+  box-shadow:
     0 8px 24px -4px rgba(15, 23, 42, 0.06),
     0 0 16px rgba(244, 63, 94, 0.08),
     inset 0 1.5px 0.5px #ffffff !important;
@@ -5708,7 +6240,7 @@ select option,
 [data-theme="light"] .account-detail-card.mufg:hover,
 [data-theme="white"] .account-detail-card.mufg:hover {
   border-color: rgba(244, 63, 94, 0.6) !important;
-  box-shadow: 
+  box-shadow:
     0 12px 30px -4px rgba(244, 63, 94, 0.15),
     0 0 20px rgba(244, 63, 94, 0.15),
     inset 0 1.5px 0.5px #ffffff !important;
@@ -5739,6 +6271,7 @@ select option,
   padding: 10px 12px !important;
   color: #881337 !important;
 }
+
 [data-theme="platinum"] .account-detail-card.mufg .transfer-item-row:hover,
 [data-theme="light"] .account-detail-card.mufg .transfer-item-row:hover,
 [data-theme="white"] .account-detail-card.mufg .transfer-item-row:hover {
@@ -5746,12 +6279,14 @@ select option,
   border-color: rgba(244, 63, 94, 0.45) !important;
   box-shadow: 0 4px 12px rgba(244, 63, 94, 0.12) !important;
 }
+
 [data-theme="platinum"] .account-detail-card.mufg .transfer-item-date,
 [data-theme="light"] .account-detail-card.mufg .transfer-item-date,
 [data-theme="white"] .account-detail-card.mufg .transfer-item-date {
   color: #be123c !important;
   font-weight: 700 !important;
 }
+
 [data-theme="platinum"] .account-detail-card.mufg .transfer-item-name,
 [data-theme="light"] .account-detail-card.mufg .transfer-item-name,
 [data-theme="white"] .account-detail-card.mufg .transfer-item-name {
@@ -5791,7 +6326,7 @@ select option,
 [data-theme="white"] [data-account-id="mizuho"] {
   background: linear-gradient(165deg, #ffffff 0%, #f4f8fe 60%, #eaf2fd 100%) !important;
   border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
-  box-shadow: 
+  box-shadow:
     0 8px 24px -4px rgba(15, 23, 42, 0.06),
     0 0 16px rgba(56, 189, 248, 0.08),
     inset 0 1.5px 0.5px #ffffff !important;
@@ -5826,7 +6361,7 @@ select option,
 [data-theme="light"] .account-detail-card.mizuho:hover,
 [data-theme="white"] .account-detail-card.mizuho:hover {
   border-color: rgba(56, 189, 248, 0.6) !important;
-  box-shadow: 
+  box-shadow:
     0 12px 30px -4px rgba(56, 189, 248, 0.15),
     0 0 20px rgba(56, 189, 248, 0.15),
     inset 0 1.5px 0.5px #ffffff !important;
@@ -5857,6 +6392,7 @@ select option,
   padding: 10px 12px !important;
   color: #1e3a8a !important;
 }
+
 [data-theme="platinum"] .account-detail-card.mizuho .transfer-item-row:hover,
 [data-theme="light"] .account-detail-card.mizuho .transfer-item-row:hover,
 [data-theme="white"] .account-detail-card.mizuho .transfer-item-row:hover {
@@ -5864,12 +6400,14 @@ select option,
   border-color: rgba(56, 189, 248, 0.45) !important;
   box-shadow: 0 4px 12px rgba(56, 189, 248, 0.12) !important;
 }
+
 [data-theme="platinum"] .account-detail-card.mizuho .transfer-item-date,
 [data-theme="light"] .account-detail-card.mizuho .transfer-item-date,
 [data-theme="white"] .account-detail-card.mizuho .transfer-item-date {
   color: #0284c7 !important;
   font-weight: 700 !important;
 }
+
 [data-theme="platinum"] .account-detail-card.mizuho .transfer-item-name,
 [data-theme="light"] .account-detail-card.mizuho .transfer-item-name,
 [data-theme="white"] .account-detail-card.mizuho .transfer-item-name {
@@ -5908,7 +6446,7 @@ select option,
   padding: 14px 20px !important;
   font-size: 0.92rem !important;
   font-weight: 700 !important;
-  box-shadow: 
+  box-shadow:
     0 8px 24px -4px rgba(15, 23, 42, 0.28),
     inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
   transition: all 0.25s ease !important;
@@ -5919,7 +6457,7 @@ select option,
 [data-theme="white"] .modal-content:not([data-account]) .btn-primary:hover {
   background: linear-gradient(165deg, #1e293b 0%, #334155 100%) !important;
   border-color: rgba(15, 23, 42, 1) !important;
-  box-shadow: 
+  box-shadow:
     0 12px 30px -4px rgba(15, 23, 42, 0.38),
     inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
   transform: translateY(-1px);
@@ -5935,7 +6473,7 @@ select option,
   padding: 14px 20px !important;
   font-size: 0.92rem !important;
   font-weight: 700 !important;
-  box-shadow: 
+  box-shadow:
     0 4px 16px -2px rgba(225, 29, 72, 0.1),
     inset 0 1.5px 0.5px #ffffff !important;
   transition: all 0.25s ease !important;
@@ -5946,7 +6484,7 @@ select option,
 [data-theme="white"] .modal-content:not([data-account]) .btn-danger:hover {
   background: linear-gradient(165deg, #ffffff 0%, #ffe4e6 50%, #fecdd3 100%) !important;
   border-color: rgba(244, 63, 94, 0.7) !important;
-  box-shadow: 
+  box-shadow:
     0 8px 24px -2px rgba(225, 29, 72, 0.18),
     inset 0 1.5px 0.5px #ffffff !important;
   transform: translateY(-1px);
@@ -5959,7 +6497,7 @@ select option,
   background: linear-gradient(165deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.92) 50%, rgba(241, 245, 249, 0.88) 100%) !important;
   border: 1px solid rgba(148, 163, 184, 0.45) !important;
   border-radius: 16px !important;
-  box-shadow: 
+  box-shadow:
     0 8px 24px -2px rgba(15, 23, 42, 0.07),
     inset 0 1.5px 0.5px #ffffff,
     inset 0 -1px 0 rgba(148, 163, 184, 0.2) !important;
@@ -6007,7 +6545,7 @@ select option,
   background: linear-gradient(165deg, #0f172a 0%, #1e293b 100%) !important;
   color: #ffffff !important;
   border: 1px solid rgba(15, 23, 42, 0.95) !important;
-  box-shadow: 
+  box-shadow:
     0 8px 24px -4px rgba(15, 23, 42, 0.3),
     inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -6023,7 +6561,7 @@ select option,
 [data-theme="light"] .hero-quick-action-btn:hover,
 [data-theme="white"] .hero-quick-action-btn:hover {
   background: linear-gradient(165deg, #1e293b 0%, #334155 100%) !important;
-  box-shadow: 
+  box-shadow:
     0 12px 30px -4px rgba(15, 23, 42, 0.4),
     inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
   transform: translateY(-1px);
@@ -6040,20 +6578,24 @@ select option,
   border: 1px solid rgba(16, 185, 129, 0.4) !important;
   box-shadow: 0 -14px 48px rgba(0, 0, 0, 0.85), 0 0 28px rgba(16, 185, 129, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
 }
+
 .modal-content[data-account="smbc"] .modal-title {
   color: #ffffff !important;
   text-shadow: 0 0 14px rgba(16, 185, 129, 0.3) !important;
 }
+
 .modal-content[data-account="smbc"] .form-label {
   color: #a7f3d0 !important;
   font-weight: 600 !important;
 }
+
 .modal-content[data-account="smbc"] .form-input,
 .modal-content[data-account="smbc"] .form-select {
   background: rgba(8, 16, 12, 0.85) !important;
   border: 1px solid rgba(16, 185, 129, 0.35) !important;
   color: #ffffff !important;
 }
+
 .modal-content[data-account="smbc"] .btn-primary,
 .modal-content[data-account="smbc"] button[type="submit"] {
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.4) 0%, rgba(5, 150, 105, 0.65) 100%) !important;
@@ -6061,6 +6603,7 @@ select option,
   border: 1px solid rgba(110, 231, 183, 0.55) !important;
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
 }
+
 .modal-content[data-account="smbc"] .btn-primary:hover,
 .modal-content[data-account="smbc"] button[type="submit"]:hover {
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.55) 0%, rgba(5, 150, 105, 0.8) 100%) !important;
@@ -6076,16 +6619,19 @@ select option,
   box-shadow: 0 -12px 48px rgba(15, 23, 42, 0.1), 0 0 24px rgba(16, 185, 129, 0.12), inset 0 1.5px 0.5px #ffffff !important;
   color: #0f172a !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="smbc"] .modal-title,
 [data-theme="light"] .modal-content[data-account="smbc"] .modal-title,
 [data-theme="white"] .modal-content[data-account="smbc"] .modal-title {
   color: #0f172a !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="smbc"] .form-label,
 [data-theme="light"] .modal-content[data-account="smbc"] .form-label,
 [data-theme="white"] .modal-content[data-account="smbc"] .form-label {
   color: #047857 !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="smbc"] .form-input,
 [data-theme="platinum"] .modal-content[data-account="smbc"] .form-select,
 [data-theme="light"] .modal-content[data-account="smbc"] .form-input,
@@ -6096,6 +6642,7 @@ select option,
   border: 1.5px solid rgba(16, 185, 129, 0.35) !important;
   color: #0f172a !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="smbc"] .btn-primary,
 [data-theme="platinum"] .modal-content[data-account="smbc"] button[type="submit"],
 [data-theme="light"] .modal-content[data-account="smbc"] .btn-primary,
@@ -6114,20 +6661,24 @@ select option,
   border: 1px solid rgba(244, 63, 94, 0.4) !important;
   box-shadow: 0 -14px 48px rgba(0, 0, 0, 0.85), 0 0 28px rgba(244, 63, 94, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
 }
+
 .modal-content[data-account="mufg"] .modal-title {
   color: #ffffff !important;
   text-shadow: 0 0 14px rgba(244, 63, 94, 0.3) !important;
 }
+
 .modal-content[data-account="mufg"] .form-label {
   color: #fecdd3 !important;
   font-weight: 600 !important;
 }
+
 .modal-content[data-account="mufg"] .form-input,
 .modal-content[data-account="mufg"] .form-select {
   background: rgba(18, 10, 14, 0.85) !important;
   border: 1px solid rgba(244, 63, 94, 0.35) !important;
   color: #ffffff !important;
 }
+
 .modal-content[data-account="mufg"] .btn-primary,
 .modal-content[data-account="mufg"] button[type="submit"] {
   background: linear-gradient(135deg, rgba(244, 63, 94, 0.4) 0%, rgba(225, 29, 72, 0.65) 100%) !important;
@@ -6135,6 +6686,7 @@ select option,
   border: 1px solid rgba(253, 164, 175, 0.55) !important;
   box-shadow: 0 6px 20px rgba(244, 63, 94, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
 }
+
 .modal-content[data-account="mufg"] .btn-primary:hover,
 .modal-content[data-account="mufg"] button[type="submit"]:hover {
   background: linear-gradient(135deg, rgba(244, 63, 94, 0.55) 0%, rgba(225, 29, 72, 0.8) 100%) !important;
@@ -6150,16 +6702,19 @@ select option,
   box-shadow: 0 -12px 48px rgba(15, 23, 42, 0.1), 0 0 24px rgba(244, 63, 94, 0.12), inset 0 1.5px 0.5px #ffffff !important;
   color: #0f172a !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mufg"] .modal-title,
 [data-theme="light"] .modal-content[data-account="mufg"] .modal-title,
 [data-theme="white"] .modal-content[data-account="mufg"] .modal-title {
   color: #0f172a !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mufg"] .form-label,
 [data-theme="light"] .modal-content[data-account="mufg"] .form-label,
 [data-theme="white"] .modal-content[data-account="mufg"] .form-label {
   color: #be123c !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mufg"] .form-input,
 [data-theme="platinum"] .modal-content[data-account="mufg"] .form-select,
 [data-theme="light"] .modal-content[data-account="mufg"] .form-input,
@@ -6170,6 +6725,7 @@ select option,
   border: 1.5px solid rgba(244, 63, 94, 0.35) !important;
   color: #0f172a !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mufg"] .btn-primary,
 [data-theme="platinum"] .modal-content[data-account="mufg"] button[type="submit"],
 [data-theme="light"] .modal-content[data-account="mufg"] .btn-primary,
@@ -6188,20 +6744,24 @@ select option,
   border: 1px solid rgba(56, 189, 248, 0.4) !important;
   box-shadow: 0 -14px 48px rgba(0, 0, 0, 0.85), 0 0 28px rgba(56, 189, 248, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
 }
+
 .modal-content[data-account="mizuho"] .modal-title {
   color: #ffffff !important;
   text-shadow: 0 0 14px rgba(56, 189, 248, 0.3) !important;
 }
+
 .modal-content[data-account="mizuho"] .form-label {
   color: #bfdbfe !important;
   font-weight: 600 !important;
 }
+
 .modal-content[data-account="mizuho"] .form-input,
 .modal-content[data-account="mizuho"] .form-select {
   background: rgba(8, 14, 22, 0.85) !important;
   border: 1px solid rgba(56, 189, 248, 0.35) !important;
   color: #ffffff !important;
 }
+
 .modal-content[data-account="mizuho"] .btn-primary,
 .modal-content[data-account="mizuho"] button[type="submit"] {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.4) 0%, rgba(37, 99, 235, 0.65) 100%) !important;
@@ -6209,6 +6769,7 @@ select option,
   border: 1px solid rgba(147, 197, 253, 0.55) !important;
   box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
 }
+
 .modal-content[data-account="mizuho"] .btn-primary:hover,
 .modal-content[data-account="mizuho"] button[type="submit"]:hover {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.55) 0%, rgba(37, 99, 235, 0.8) 100%) !important;
@@ -6224,16 +6785,19 @@ select option,
   box-shadow: 0 -12px 48px rgba(15, 23, 42, 0.1), 0 0 24px rgba(56, 189, 248, 0.12), inset 0 1.5px 0.5px #ffffff !important;
   color: #0f172a !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mizuho"] .modal-title,
 [data-theme="light"] .modal-content[data-account="mizuho"] .modal-title,
 [data-theme="white"] .modal-content[data-account="mizuho"] .modal-title {
   color: #0f172a !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mizuho"] .form-label,
 [data-theme="light"] .modal-content[data-account="mizuho"] .form-label,
 [data-theme="white"] .modal-content[data-account="mizuho"] .form-label {
   color: #0284c7 !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mizuho"] .form-input,
 [data-theme="platinum"] .modal-content[data-account="mizuho"] .form-select,
 [data-theme="light"] .modal-content[data-account="mizuho"] .form-input,
@@ -6244,6 +6808,7 @@ select option,
   border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
   color: #0f172a !important;
 }
+
 [data-theme="platinum"] .modal-content[data-account="mizuho"] .btn-primary,
 [data-theme="platinum"] .modal-content[data-account="mizuho"] button[type="submit"],
 [data-theme="light"] .modal-content[data-account="mizuho"] .btn-primary,
@@ -6254,4 +6819,280 @@ select option,
   color: #ffffff !important;
   border: 1px solid #0369a1 !important;
   box-shadow: 0 6px 20px rgba(56, 189, 248, 0.3) !important;
+}
+
+/* ==========================================================================
+   Platinum White Edition Master Brush-up (オニキスと対になる極上クリスタル・プラチナ)
+   くすみの完全排除・純白クリスタルカード・色文字/バッジの圧倒的コントラスト
+   ========================================================================== */
+
+/* 1. 背景・基本サーフェス：くすみのないクリアなプラチナホワイト */
+html[data-theme="platinum"],
+html[data-theme="light"],
+html[data-theme="white"],
+[data-theme="platinum"] body,
+[data-theme="light"] body,
+[data-theme="white"] body {
+  background-color: #f5f7fb !important;
+  background-image: radial-gradient(ellipse 100% 50% at 50% -5%, #ffffff 0%, #f7f9fd 48%, #edf2f8 100%) !important;
+  color: #0f172a !important;
+}
+
+/* 2. ガラスカード・コンテナ：純白クリスタル × シルバーチタンエッジ */
+[data-theme="platinum"] .glass-card,
+[data-theme="light"] .glass-card,
+[data-theme="white"] .glass-card {
+  background: linear-gradient(165deg, #ffffff 0%, #fcfdff 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid #d5dee9 !important;
+  box-shadow:
+    0 12px 32px -8px rgba(15, 23, 42, 0.07),
+    0 2px 6px rgba(15, 23, 42, 0.03),
+    inset 0 1px 0 #ffffff !important;
+}
+
+/* 3. ヒーローカード（今月使えるお金）：プラチナの輝きと漆黒文字のコントラスト */
+[data-theme="platinum"] .credit-hero,
+[data-theme="light"] .credit-hero,
+[data-theme="white"] .credit-hero {
+  background: linear-gradient(165deg, #ffffff 0%, #f9fbff 55%, #f0f5fc 100%) !important;
+  border: 1.5px solid #c5d1e0 !important;
+  box-shadow:
+    0 22px 48px -12px rgba(15, 23, 42, 0.11),
+    0 4px 14px -2px rgba(15, 23, 42, 0.05),
+    inset 0 2px 0 #ffffff !important;
+}
+
+[data-theme="platinum"] .credit-hero::before,
+[data-theme="light"] .credit-hero::before,
+[data-theme="white"] .credit-hero::before {
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    rgba(148, 163, 184, 0.18) 12%,
+    rgba(15, 23, 42, 0.12) 24%,
+    transparent 36%,
+    transparent 50%,
+    rgba(148, 163, 184, 0.18) 62%,
+    rgba(15, 23, 42, 0.12) 74%,
+    transparent 86%
+  ) !important;
+  opacity: 0.55 !important;
+}
+
+[data-theme="platinum"] .credit-hero::after,
+[data-theme="light"] .credit-hero::after,
+[data-theme="white"] .credit-hero::after {
+  background: linear-gradient(165deg, #ffffff 0%, #fafcff 55%, #f2f6fc 100%) !important;
+}
+
+[data-theme="platinum"] .available-amount,
+[data-theme="light"] .available-amount,
+[data-theme="white"] .available-amount {
+  background: linear-gradient(180deg, #090d16 0%, #0f172a 65%, #1e293b 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: #0f172a !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+[data-theme="platinum"] .credit-hero.warning .available-amount,
+[data-theme="platinum"] .credit-hero.warning .currency-symbol,
+[data-theme="light"] .credit-hero.warning .available-amount,
+[data-theme="light"] .credit-hero.warning .currency-symbol {
+  background: none !important;
+  -webkit-text-fill-color: #be123c !important;
+  color: #be123c !important;
+}
+
+/* 4. ヘッダーボタン・月バッジ・クローズボタンの鮮明化 */
+[data-theme="platinum"] .icon-btn,
+[data-theme="light"] .icon-btn,
+[data-theme="white"] .icon-btn {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08), inset 0 1px 0 #ffffff !important;
+}
+
+[data-theme="platinum"] .close-btn,
+[data-theme="light"] .close-btn,
+[data-theme="white"] .close-btn {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="platinum"] .close-btn:hover,
+[data-theme="light"] .close-btn:hover,
+[data-theme="white"] .close-btn:hover {
+  background: #e2e8f0 !important;
+}
+
+/* 5. 色付き文字・ステータスバッジ・ピルの高コントラスト化（背景に絶対埋もれないジュエル配色） */
+[data-theme="platinum"] .salary-status-badge.estimated,
+[data-theme="light"] .salary-status-badge.estimated,
+[data-theme="white"] .salary-status-badge.estimated {
+  background: #f0f9ff !important;
+  color: #0369a1 !important;
+  border: 1px solid #7dd3fc !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="platinum"] .salary-status-badge.settled,
+[data-theme="light"] .salary-status-badge.settled,
+[data-theme="white"] .salary-status-badge.settled {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #6ee7b7 !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="platinum"] .status-badge.settled,
+[data-theme="light"] .status-badge.settled,
+[data-theme="white"] .status-badge.settled {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #6ee7b7 !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="platinum"] .status-badge.unsettled,
+[data-theme="light"] .status-badge.unsettled,
+[data-theme="white"] .status-badge.unsettled {
+  background: #fff1f2 !important;
+  color: #be123c !important;
+  border: 1px solid #fda4af !important;
+  font-weight: 800 !important;
+}
+
+/* 未確定・目安確保バナーとボタンの高視認性化 */
+[data-theme="platinum"] .tx-estimate-banner,
+[data-theme="light"] .tx-estimate-banner,
+[data-theme="white"] .tx-estimate-banner {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
+  border: 1px solid #7dd3fc !important;
+  color: #0c4a6e !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08) !important;
+}
+
+[data-theme="platinum"] .tx-estimate-banner-title,
+[data-theme="light"] .tx-estimate-banner-title,
+[data-theme="white"] .tx-estimate-banner-title {
+  color: #0369a1 !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="platinum"] .tx-estimate-banner-sub,
+[data-theme="light"] .tx-estimate-banner-sub,
+[data-theme="white"] .tx-estimate-banner-sub {
+  color: #334155 !important;
+}
+
+[data-theme="platinum"] .btn-estimate-apply,
+[data-theme="light"] .btn-estimate-apply,
+[data-theme="white"] .btn-estimate-apply {
+  background: #eff6ff !important;
+  border: 1px solid #60a5fa !important;
+  color: #1d4ed8 !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="platinum"] .btn-estimate-reset,
+[data-theme="light"] .btn-estimate-reset,
+[data-theme="white"] .btn-estimate-reset {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="platinum"] .tx-amount-pending-badge,
+[data-theme="light"] .tx-amount-pending-badge,
+[data-theme="white"] .tx-amount-pending-badge {
+  background: #fffbeb !important;
+  border: 1px solid #f59e0b !important;
+  color: #b45309 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.14) !important;
+}
+
+/* 6. 明細グループ件数・口座入出金ボタン・月選択/アイコン選択カードの視認性向上 */
+[data-theme="platinum"] .tx-group-count,
+[data-theme="light"] .tx-group-count,
+[data-theme="white"] .tx-group-count {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="platinum"] .transfer-btn.income,
+[data-theme="light"] .transfer-btn.income,
+[data-theme="white"] .transfer-btn.income {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #6ee7b7 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="platinum"] .transfer-btn.expense,
+[data-theme="light"] .transfer-btn.expense,
+[data-theme="white"] .transfer-btn.expense {
+  background: #fff1f2 !important;
+  color: #be123c !important;
+  border: 1px solid #fda4af !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="platinum"] .icon-choice-card,
+[data-theme="light"] .icon-choice-card,
+[data-theme="white"] .icon-choice-card,
+[data-theme="platinum"] .month-choice-btn,
+[data-theme="light"] .month-choice-btn,
+[data-theme="white"] .month-choice-btn {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="platinum"] .icon-choice-card.active,
+[data-theme="light"] .icon-choice-card.active,
+[data-theme="white"] .icon-choice-card.active,
+[data-theme="platinum"] .month-choice-btn.active,
+[data-theme="light"] .month-choice-btn.active,
+[data-theme="white"] .month-choice-btn.active {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+  border-color: #0f172a !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.22) !important;
+}
+
+[data-theme="platinum"] .icon-choice-card.active span,
+[data-theme="platinum"] .month-choice-btn.active span {
+  color: #ffffff !important;
+}
+
+/* 7. プラス・マイナス金額表示のコントラスト強化 */
+[data-theme="platinum"] .plus-val,
+[data-theme="platinum"] .income-val,
+[data-theme="platinum"] .transfer-item-amount.income,
+[data-theme="light"] .plus-val,
+[data-theme="light"] .income-val,
+[data-theme="light"] .transfer-item-amount.income {
+  color: #047857 !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="platinum"] .minus-val,
+[data-theme="platinum"] .expense-val,
+[data-theme="platinum"] .transfer-item-amount.expense,
+[data-theme="light"] .minus-val,
+[data-theme="light"] .expense-val,
+[data-theme="light"] .transfer-item-amount.expense {
+  color: #be123c !important;
+  font-weight: 800 !important;
 }

@@ -2,9 +2,9 @@
  * アプリメインコントローラー（UIレンダリング・インタラクション）
  */
 
-import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM, DEFAULT_PENDING_ESTIMATES } from './store.js?v=20261110_2';
-import { ChartRenderer } from './charts.js?v=20261110_2';
-import { GasApiClient } from './api.js?v=20261110_2';
+import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM, DEFAULT_PENDING_ESTIMATES } from './store.js?v=20261110_4';
+import { ChartRenderer } from './charts.js?v=20261110_4';
+import { GasApiClient } from './api.js?v=20261110_4';
 
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toast-container');
@@ -229,6 +229,12 @@ class AppController {
     document.documentElement.setAttribute('data-theme', validTheme);
     localStorage.setItem('kakeibo_theme', validTheme);
 
+    // ステータスバーのテーマカラーを連動
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', validTheme === 'platinum' ? '#f5f7fb' : '#000000');
+    }
+
     // モーダル内のカードアクティブ表示
     document.querySelectorAll('.theme-card').forEach((c) => {
       if (c.dataset.setTheme === validTheme) {
@@ -263,6 +269,16 @@ class AppController {
 
   // --- ナビゲーション制御 ---
   setupNavigation() {
+    const bottomNav = document.querySelector('.bottom-nav');
+    if (bottomNav) {
+      // フッター余白タップ時に背後要素へイベントが貫通するのを防止
+      ['click', 'touchstart', 'touchend'].forEach((evt) => {
+        bottomNav.addEventListener(evt, (e) => {
+          e.stopPropagation();
+        }, { passive: true });
+      });
+    }
+
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -601,7 +617,7 @@ class AppController {
       <div class="fixed-expense-item ${f.settled ? 'settled' : ''}" data-fixed-id="${f.id}">
         <div class="fixed-left">
           <div class="check-circle" title="タップして引落済を切り替え">${f.settled ? '✓' : ''}</div>
-          <span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: rgba(255,255,255,0.06); color: var(--text-secondary); margin-right: 2px;">
+          <span class="fixed-item-icon-box" style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: rgba(255,255,255,0.06); color: var(--text-secondary); margin-right: 2px;">
             ${getFixedIconSvg(f.id)}
           </span>
           <span class="fixed-name">${displayName}</span>
@@ -2147,19 +2163,19 @@ class AppController {
       const y = ym.substring(0, 4);
       const m = parseInt(ym.substring(4, 6), 10);
       return `
-        <button class="month-choice-btn" data-month="${ym}" style="
+        <button class="month-choice-btn ${isCur ? 'active' : ''}" data-month="${ym}" style="
           display: flex; justify-content: space-between; align-items: center;
           padding: 12px 16px; border-radius: 12px;
-          border: 1px solid ${isCur ? 'var(--accent-primary)' : 'rgba(255,255,255,0.08)'};
-          background: ${isCur ? 'rgba(16, 185, 129, 0.12)' : 'rgba(255,255,255,0.03)'};
-          color: ${isCur ? 'var(--accent-primary)' : 'var(--text-primary)'};
-          font-weight: ${isCur ? '600' : '400'}; cursor: pointer; text-align: left; width: 100%;
+          border: 1px solid ${isCur ? 'var(--accent-primary)' : 'var(--border-glass)'};
+          background: ${isCur ? 'rgba(255, 255, 255, 0.1)' : 'var(--surface-glass)'};
+          color: var(--text-primary);
+          font-weight: ${isCur ? '700' : '500'}; cursor: pointer; text-align: left; width: 100%;
         ">
           <div>
             <span style="font-size: 0.95rem;">${y}年${m}月</span>
-            ${isCalendarNow ? '<span style="font-size: 0.7rem; margin-left: 6px; padding: 2px 6px; border-radius: 4px; background: rgba(59,130,246,0.2); color: #60a5fa;">今月</span>' : ''}
+            ${isCalendarNow ? '<span class="month-now-badge" style="font-size: 0.7rem; font-weight: 700; margin-left: 6px; padding: 2px 6px; border-radius: 4px; background: rgba(59,130,246,0.2); color: #60a5fa;">今月</span>' : ''}
           </div>
-          <span style="font-size: 0.8rem; opacity: 0.85; display: inline-flex; align-items: center; gap: 4px;">
+          <span class="month-status-label" style="font-size: 0.8rem; opacity: 0.85; display: inline-flex; align-items: center; gap: 4px;">
             ${isCur ? '<svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24" style="width: 14px; height: 14px; stroke-width: 2.5;"><polyline points="20 6 9 17 4 12"></polyline></svg> 表示中' : '切り替え'}
           </span>
         </button>

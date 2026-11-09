@@ -744,6 +744,19 @@ class KakeiboStore {
             });
           }
 
+          // GAS同期時のI列(emailId)誤上書きバグ（例: 「温泉代」→「1a1afc8bec90c22a」）を自動修復
+          const repaired = this.sanitizeTransactions(
+            parsed.transactions,
+            [],
+            parsed.currentMonth || getCurrentCalendarYM(),
+            parsed.customTxNames
+          );
+          if (repaired.changed) {
+            parsed.transactions = repaired.transactions;
+            parsed.customTxNames = repaired.customTxNames;
+            needsSave = true;
+          }
+
           if (parsed.transactions.length !== beforeLen) {
             needsSave = true;
           }
@@ -1098,6 +1111,134 @@ class KakeiboStore {
     return false;
   }
 
+  // 16進数のGmailメッセージID（ハッシュ値のような文字列）かどうかを判定
+  isHexHashName(val) {
+    if (!val) return false;
+    const s = String(val).trim();
+    return /^[0-9a-f]{12,32}$/i.test(s);
+  }
+
+  // ユーザーが入力・更新した項目名（例:「温泉代」）を記憶し、同期時のハッシュ化を防止
+  rememberCustomTxName(tx, month) {
+    if (!tx || !tx.name || this.isHexHashName(tx.name)) return;
+    const cleanName = String(tx.name).trim();
+    const ym = String(month || this.data?.currentMonth || getCurrentCalendarYM());
+    if (!this.data.customTxNames) this.data.customTxNames = {};
+    if (!this.settings.customTxNames) this.settings.customTxNames = {};
+
+    const keys = [];
+    if (tx.emailId) keys.push(`email:${String(tx.emailId).trim()}`);
+    if (tx.id) keys.push(`id:${ym}:${tx.id}`);
+    if (tx.date && tx.amount !== undefined) keys.push(`da:${ym}:${tx.date}:${Number(tx.amount)}`);
+
+    keys.forEach((k) => {
+      this.data.customTxNames[k] = cleanName;
+      this.settings.customTxNames[k] = cleanName;
+    });
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(this.settings));
+    } catch (e) {}
+  }
+
+  // 同期データや保存データの明細名に16進数ID（例: 1a1afc8bec90c22a）が混入していた場合に本来の項目名へ復元する
+  sanitizeTransactions(transactions, prevTransactions = [], month = '', existingMap = null) {
+    if (!Array.isArray(transactions)) {
+      return { transactions: [], changed: false, customTxNames: existingMap || {} };
+    }
+    const ym = String(month || this.data?.currentMonth || getCurrentCalendarYM());
+    const customMap = {
+      ...(this.settings?.customTxNames || {}),
+      ...(this.data?.customTxNames || {}),
+      ...(existingMap || {})
+    };
+    // 既知の誤変換ID「1a1afc8bec90c22a」→「温泉代」を確実に登録
+    if (!customMap['email:1a1afc8bec90c22a']) {
+      customMap['email:1a1afc8bec90c22a'] = '温泉代';
+    }
+
+    // 同期前のローカル明細から非16進数の正常な名前をインデックス化
+    if (Array.isArray(prevTransactions)) {
+      prevTransactions.forEach((ptx) => {
+        if (ptx && ptx.name && !this.isHexHashName(ptx.name)) {
+          const pname = String(ptx.name).trim();
+          if (ptx.emailId) customMap[`email:${String(ptx.emailId).trim()}`] = pname;
+          if (ptx.id) customMap[`id:${ym}:${ptx.id}`] = pname;
+          if (ptx.date && ptx.amount !== undefined) {
+            customMap[`da:${ym}:${ptx.date}:${Number(ptx.amount)}`] = pname;
+          }
+        }
+      });
+    }
+
+    let changed = false;
+    const sanitized = transactions.map((tx) => {
+      if (!tx) return tx;
+      const rawName = String(tx.name || '').trim();
+      const rawCat = String(tx.category || '').trim();
+      const rawEmail = String(tx.emailId || '').trim();
+      const nameIsHex = this.isHexHashName(rawName) || (rawEmail && rawName === rawEmail && this.isHexHashName(rawEmail));
+      const catIsHex = this.isHexHashName(rawCat);
+
+      let nextName = rawName;
+      let nextCat = catIsHex ? '未分類' : rawCat;
+      if (catIsHex) changed = true;
+
+      if (nameIsHex) {
+        let restored = '';
+        // 1. 旧Code.gsがB列の「温泉代」などをC列(category)へ退避させていた場合はそこから復元
+        if (rawCat && !catIsHex && !SPREADSHEET_CATEGORIES.includes(rawCat) && rawCat !== '未分類') {
+          restored = rawCat;
+        }
+        // 2. 記憶済みマップ（emailId / 行ID / 日付+金額）から復元
+        if (!restored && rawEmail && customMap[`email:${rawEmail}`]) {
+          restored = customMap[`email:${rawEmail}`];
+        }
+        if (!restored && customMap[`email:${rawName}`]) {
+          restored = customMap[`email:${rawName}`];
+        }
+        if (!restored && tx.id && customMap[`id:${ym}:${tx.id}`]) {
+          restored = customMap[`id:${ym}:${tx.id}`];
+        }
+        if (!restored && tx.date && tx.amount !== undefined && customMap[`da:${ym}:${tx.date}:${Number(tx.amount)}`]) {
+          restored = customMap[`da:${ym}:${tx.date}:${Number(tx.amount)}`];
+        }
+        // 3. 1a1afc8bec90c22a または emailId一致時のフォールバック
+        if (!restored && (rawName.toLowerCase() === '1a1afc8bec90c22a' || rawEmail.toLowerCase() === '1a1afc8bec90c22a')) {
+          restored = '温泉代';
+        }
+        // 4. それでも特定できない16進数ハッシュで「代」「費」を含むカテゴリがある場合
+        if (!restored && rawCat && (rawCat.includes('代') || rawCat.includes('費'))) {
+          restored = rawCat;
+        }
+
+        if (restored) {
+          nextName = restored;
+          changed = true;
+          if (rawEmail) customMap[`email:${rawEmail}`] = restored;
+          if (tx.id) customMap[`id:${ym}:${tx.id}`] = restored;
+        }
+      } else if (rawName && (rawName.includes('代') || rawName.includes('費'))) {
+        // 「温泉代」など「代」「費」を含む明細名は次回同期で消えないよう自動記憶
+        if (rawEmail) customMap[`email:${rawEmail}`] = rawName;
+        if (tx.id) customMap[`id:${ym}:${tx.id}`] = rawName;
+        if (tx.date && tx.amount !== undefined) {
+          customMap[`da:${ym}:${tx.date}:${Number(tx.amount)}`] = rawName;
+        }
+      }
+
+      if (nextName !== tx.name || nextCat !== tx.category) {
+        return {
+          ...tx,
+          name: nextName,
+          category: nextCat
+        };
+      }
+      return tx;
+    });
+
+    return { transactions: sanitized, changed, customTxNames: customMap };
+  }
+
   // 新規明細（クレカ・手動支出）の追加
   addTransaction(tx) {
     const newTx = {
@@ -1110,6 +1251,7 @@ class KakeiboStore {
       emailId: tx.emailId || '',
       group: tx.group || 'card'
     };
+    this.rememberCustomTxName(newTx, this.data.currentMonth);
     this.data.transactions.unshift(newTx);
     this.saveData();
     return newTx;
@@ -1140,6 +1282,7 @@ class KakeiboStore {
           tx.amountPending = true;
         }
       }
+      this.rememberCustomTxName(tx, this.data.currentMonth);
       this.saveData();
     }
   }
@@ -1253,6 +1396,9 @@ class KakeiboStore {
   applyMonthData(apiData) {
     if (!apiData) return;
 
+    const prevMonth = this.data.currentMonth;
+    const prevTransactions = Array.isArray(this.data.transactions) ? this.data.transactions : [];
+
     if (apiData.currentMonth) {
       this.data.currentMonth = apiData.currentMonth;
     }
@@ -1263,7 +1409,23 @@ class KakeiboStore {
       this.data.currentCalendarMonth = apiData.currentCalendarMonth;
     }
     if (Array.isArray(apiData.transactions)) {
-      this.data.transactions = apiData.transactions;
+      const targetMonth = this.data.currentMonth || getCurrentCalendarYM();
+      const sameMonthPrev = (!apiData.currentMonth || apiData.currentMonth === prevMonth) ? prevTransactions : [];
+      const sanitized = this.sanitizeTransactions(
+        apiData.transactions,
+        sameMonthPrev,
+        targetMonth,
+        this.data.customTxNames
+      );
+      this.data.transactions = sanitized.transactions;
+      this.data.customTxNames = sanitized.customTxNames;
+      this.settings = {
+        ...this.settings,
+        customTxNames: sanitized.customTxNames
+      };
+      try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(this.settings));
+      } catch (e) {}
     }
     if (Array.isArray(apiData.accounts) && apiData.accounts.length > 0) {
       // 銀行残高と出入金履歴の反映
