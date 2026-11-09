@@ -706,8 +706,8 @@ const SETTINGS_KEY = 'kakeibo_settings_v1';
 
 class KakeiboStore {
   constructor() {
-    this.data = this.loadData();
     this.settings = this.loadSettings();
+    this.data = this.loadData();
     this.listeners = [];
   }
 
@@ -722,37 +722,31 @@ class KakeiboStore {
 
       if (saved) {
         const parsed = JSON.parse(saved);
+        let needsSave = false;
+
         if (Array.isArray(parsed.transactions)) {
-          // 不正なゴミデータ（tx-117等）や誤った店名（サブスク、月額課金）をスプレッドシート基準でクリーンアップ
+          const beforeLen = parsed.transactions.length;
+          // 不正なゴミデータ（tx-117等）や誤った店名（サブスク）をクリーンアップ
           parsed.transactions = parsed.transactions.filter(t => t.id !== 'tx-117' && t.name !== 'サブスク');
 
-          // 固定費・生活引落（Row 101〜115）をスプレッドシートの最新定義と整合させる
-          const defaultRecurringMap = new Map();
-          DEFAULT_DATA_202609.transactions
-            .filter(t => t.group === 'recurring')
-            .forEach(defTx => defaultRecurringMap.set(defTx.id, defTx));
-
-          parsed.transactions.forEach(tx => {
-            if (defaultRecurringMap.has(tx.id)) {
-              const def = defaultRecurringMap.get(tx.id);
-              tx.name = def.name;
-              tx.category = def.category;
-              tx.group = 'recurring';
-              // 未確定項目でユーザーが入力した金額がなければデフォルト
-              if (tx.amount === undefined || (def.amount > 0 && tx.amount === 0)) {
-                tx.amount = def.amount;
-                tx.amountPending = def.amountPending;
+          // 202609以外の月に、旧バージョンのバグで混入した2026年9月の初期デモ明細があれば除去
+          if (parsed.currentMonth && parsed.currentMonth !== '202609') {
+            const demoEmailIds = new Set(
+              DEFAULT_DATA_202609.transactions
+                .filter(t => t.group !== 'recurring' && t.emailId)
+                .map(t => t.emailId)
+            );
+            parsed.transactions = parsed.transactions.filter(t => {
+              if (t.group !== 'recurring' && t.emailId && demoEmailIds.has(t.emailId) && String(t.date || '').startsWith('2026/09/')) {
+                return false;
               }
-            }
-          });
+              return true;
+            });
+          }
 
-          // 未登録の固定費項目を追加
-          const existingIds = new Set(parsed.transactions.map(t => t.id));
-          DEFAULT_DATA_202609.transactions.forEach(defTx => {
-            if (!existingIds.has(defTx.id)) {
-              parsed.transactions.push(JSON.parse(JSON.stringify(defTx)));
-            }
-          });
+          if (parsed.transactions.length !== beforeLen) {
+            needsSave = true;
+          }
         }
 
         // 未確定固定費の目安設定を初期化・マージ
@@ -762,12 +756,37 @@ class KakeiboStore {
           parsed.pendingEstimates = { ...DEFAULT_PENDING_ESTIMATES, ...parsed.pendingEstimates };
         }
 
+        // 給料設定の復元（ユーザー設定値があれば確実に維持）
+        if (!parsed.salaries) {
+          parsed.salaries = { currentMonth: 250000, nextMonth: 250000 };
+        }
+        if (!parsed.customSalariesByMonth) {
+          parsed.customSalariesByMonth = {};
+        }
+        const monthKey = parsed.currentMonth || getCurrentCalendarYM();
+        const savedMonthSal = parsed.customSalariesByMonth[monthKey];
+        const savedGlobalSal = this.settings?.customSalaries;
+        if (savedMonthSal) {
+          if (savedMonthSal.currentMonth !== undefined) parsed.salaries.currentMonth = Number(savedMonthSal.currentMonth);
+          if (savedMonthSal.nextMonth !== undefined) parsed.salaries.nextMonth = Number(savedMonthSal.nextMonth);
+        } else if (savedGlobalSal) {
+          if (savedGlobalSal.currentMonth !== undefined) parsed.salaries.currentMonth = Number(savedGlobalSal.currentMonth);
+          if (savedGlobalSal.nextMonth !== undefined) parsed.salaries.nextMonth = Number(savedGlobalSal.nextMonth);
+        }
+
         // 新月自動ロールオーバー検知（例: 202609 から 202610 への月替わり）
         const calYM = getCurrentCalendarYM();
         if (parsed.currentMonth && parsed.currentMonth < calYM) {
           console.log(`新月を検知しました: 表示月を ${parsed.currentMonth} から当月 ${calYM} へ自動更新します`);
           parsed.previousMonth = parsed.currentMonth;
           parsed.currentMonth = calYM;
+
+          // 前月の「来月の給料」設定を新月の給料見込みへ引き継ぐ
+          const carryOverSalary = Number(parsed.salaries?.nextMonth ?? savedGlobalSal?.nextMonth ?? 250000);
+          parsed.salaries = {
+            currentMonth: carryOverSalary,
+            nextMonth: carryOverSalary
+          };
 
           // 新月になったので引落チェック欄を未引落状態にリセット
           if (Array.isArray(parsed.fixedExpenses)) {
@@ -783,6 +802,13 @@ class KakeiboStore {
           } else if (!parsed.availableMonths.includes(calYM)) {
             parsed.availableMonths.unshift(calYM);
           }
+          needsSave = true;
+        }
+
+        if (needsSave) {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+          } catch (e) {}
         }
 
         return parsed;
@@ -968,7 +994,7 @@ class KakeiboStore {
     const actualSalary = salaryTransfers.reduce((sum, tf) => sum + Number(tf.amount || 0), 0);
     const isSalarySettled = salaryTransfers.length > 0;
     // 実際に給料振込があれば通帳残高（smbcCurrent）にすでに給料が含まれているため見込み額は二重加算せず0、未振込の場合のみ見込みを加算。
-    const effectiveCurrentSalary = isSalarySettled ? 0 : Number(d.salaries.currentMonth || 250000);
+    const effectiveCurrentSalary = isSalarySettled ? 0 : Number(d.salaries?.currentMonth ?? 250000);
 
     const smbcAfterCurrent = smbcCurrent + d.currentMonthCardBill + pureFixedTotal - settledDeduction + effectiveCurrentSalary;
     const mizuhoAfterCurrent = mizuhoCurrent;
@@ -977,7 +1003,7 @@ class KakeiboStore {
 
     // 9. 来月引落後の所持金（推定） (スプレッドシート Row 25-29)
     // 来月の給料（nextSalary）も将来予測シミュレーションの計算上でのみ加算
-    const smbcAfterNext = smbcAfterCurrent - totalSpent + pureFixedTotal + Number(d.salaries.nextMonth || 0);
+    const smbcAfterNext = smbcAfterCurrent - totalSpent + pureFixedTotal + Number(d.salaries?.nextMonth ?? 250000);
     const mizuhoAfterNext = mizuhoAfterCurrent;
     const mufgAfterNext = mufgAfterCurrent;
     const totalAfterNext = smbcAfterNext + mizuhoAfterNext + mufgAfterNext;
@@ -1165,10 +1191,62 @@ class KakeiboStore {
 
   // 給料や固定費の金額更新
   updateSalary(type, amount) {
+    if (!this.data.salaries) {
+      this.data.salaries = { currentMonth: 250000, nextMonth: 250000 };
+    }
     if (this.data.salaries[type] !== undefined) {
       this.data.salaries[type] = Number(amount);
+      const monthKey = this.data.currentMonth || getCurrentCalendarYM();
+      if (!this.data.customSalariesByMonth) {
+        this.data.customSalariesByMonth = {};
+      }
+      this.data.customSalariesByMonth[monthKey] = {
+        currentMonth: this.data.salaries.currentMonth,
+        nextMonth: this.data.salaries.nextMonth,
+        updatedAt: Date.now()
+      };
+      this.settings = {
+        ...this.settings,
+        customSalaries: {
+          currentMonth: this.data.salaries.currentMonth,
+          nextMonth: this.data.salaries.nextMonth
+        }
+      };
+      try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(this.settings));
+      } catch (e) {}
       this.saveData();
     }
+  }
+
+  // 今月・来月の給料設定を一括更新
+  updateSalaries(currentMonthAmount, nextMonthAmount) {
+    if (!this.data.salaries) {
+      this.data.salaries = { currentMonth: 250000, nextMonth: 250000 };
+    }
+    this.data.salaries.currentMonth = Number(currentMonthAmount);
+    this.data.salaries.nextMonth = Number(nextMonthAmount);
+
+    const monthKey = this.data.currentMonth || getCurrentCalendarYM();
+    if (!this.data.customSalariesByMonth) {
+      this.data.customSalariesByMonth = {};
+    }
+    this.data.customSalariesByMonth[monthKey] = {
+      currentMonth: this.data.salaries.currentMonth,
+      nextMonth: this.data.salaries.nextMonth,
+      updatedAt: Date.now()
+    };
+    this.settings = {
+      ...this.settings,
+      customSalaries: {
+        currentMonth: this.data.salaries.currentMonth,
+        nextMonth: this.data.salaries.nextMonth
+      }
+    };
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(this.settings));
+    } catch (e) {}
+    this.saveData();
   }
 
   // スプレッドシートから取得した最新データを適用・保存
@@ -1254,14 +1332,39 @@ class KakeiboStore {
     }
 
     // 4. 給与見込み（手入力 D22 / D26）
+    // アプリの設定画面でユーザーが変更した給料設定がある場合、スプシ側の初期値(250000)でリセットされないよう保護する
     if (!this.data.salaries) {
       this.data.salaries = { currentMonth: 250000, nextMonth: 250000 };
     }
-    if (apiData.currentSalary !== undefined) {
-      this.data.salaries.currentMonth = Number(apiData.currentSalary);
-    }
-    if (apiData.nextSalary !== undefined) {
-      this.data.salaries.nextMonth = Number(apiData.nextSalary);
+    const monthKey = this.data.currentMonth || getCurrentCalendarYM();
+    const customMonthSal = this.data.customSalariesByMonth?.[monthKey];
+    const customGlobalSal = this.settings?.customSalaries;
+
+    if (customMonthSal) {
+      if (customMonthSal.currentMonth !== undefined) {
+        this.data.salaries.currentMonth = Number(customMonthSal.currentMonth);
+      }
+      if (customMonthSal.nextMonth !== undefined) {
+        this.data.salaries.nextMonth = Number(customMonthSal.nextMonth);
+      }
+    } else if (customGlobalSal) {
+      if (apiData.currentSalary !== undefined && Number(apiData.currentSalary) !== 250000) {
+        this.data.salaries.currentMonth = Number(apiData.currentSalary);
+      } else if (customGlobalSal.currentMonth !== undefined) {
+        this.data.salaries.currentMonth = Number(customGlobalSal.currentMonth);
+      }
+      if (apiData.nextSalary !== undefined && Number(apiData.nextSalary) !== 250000) {
+        this.data.salaries.nextMonth = Number(apiData.nextSalary);
+      } else if (customGlobalSal.nextMonth !== undefined) {
+        this.data.salaries.nextMonth = Number(customGlobalSal.nextMonth);
+      }
+    } else {
+      if (apiData.currentSalary !== undefined) {
+        this.data.salaries.currentMonth = Number(apiData.currentSalary);
+      }
+      if (apiData.nextSalary !== undefined) {
+        this.data.salaries.nextMonth = Number(apiData.nextSalary);
+      }
     }
 
     this.saveData();
@@ -1271,6 +1374,11 @@ class KakeiboStore {
   switchMonth(targetMonth) {
     if (!targetMonth || targetMonth === this.data.currentMonth) return;
     this.data.currentMonth = targetMonth;
+    const customMonthSal = this.data.customSalariesByMonth?.[targetMonth];
+    if (customMonthSal && this.data.salaries) {
+      if (customMonthSal.currentMonth !== undefined) this.data.salaries.currentMonth = Number(customMonthSal.currentMonth);
+      if (customMonthSal.nextMonth !== undefined) this.data.salaries.nextMonth = Number(customMonthSal.nextMonth);
+    }
     this.saveData();
   }
 

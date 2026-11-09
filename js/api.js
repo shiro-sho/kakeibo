@@ -87,6 +87,17 @@ export class GasApiClient {
     return this.postRequest('updateCardBill', { amount: Number(amount), month });
   }
 
+  // 給料見込み額（D22: 今月、D26: 来月）の更新
+  async updateSalaries(currentSalary, nextSalary, monthStr) {
+    if (!this.isConfigured()) return { status: 'local_only' };
+    const month = monthStr || this.store.data.currentMonth;
+    return this.postRequest('updateSalaries', {
+      currentSalary: Number(currentSalary),
+      nextSalary: Number(nextSalary),
+      month
+    });
+  }
+
   // クレカ明細のカテゴリ（ジャンル）更新
   async updateTransactionCategory(txId, category, monthStr) {
     if (!this.isConfigured()) return;

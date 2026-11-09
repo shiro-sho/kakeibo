@@ -2,9 +2,9 @@
  * アプリメインコントローラー（UIレンダリング・インタラクション）
  */
 
-import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM, DEFAULT_PENDING_ESTIMATES } from './store.js?v=20261013_1';
-import { ChartRenderer } from './charts.js?v=20261013_1';
-import { GasApiClient } from './api.js?v=20261013_1';
+import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM, DEFAULT_PENDING_ESTIMATES } from './store.js?v=20261110_1';
+import { ChartRenderer } from './charts.js?v=20261110_1';
+import { GasApiClient } from './api.js?v=20261110_1';
 
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toast-container');
@@ -408,7 +408,7 @@ class AppController {
         if (labelCurSalary) labelCurSalary.textContent = '今月給料見込み';
         if (descCurSalary) descCurSalary.textContent = '三井住友銀行振込予定';
         if (elCalcCurSalary) {
-          elCalcCurSalary.textContent = `+¥${(s.salaries.currentMonth || 250000).toLocaleString()}`;
+          elCalcCurSalary.textContent = `+¥${(s.salaries.currentMonth ?? 250000).toLocaleString()}`;
           elCalcCurSalary.className = 'flow-step-val plus';
         }
       }
@@ -424,7 +424,7 @@ class AppController {
       }
     }
     if (elCalcNextFixed) elCalcNextFixed.textContent = `-¥${Math.abs(s.pureFixedTotal).toLocaleString()}`;
-    if (elCalcNextSalary) elCalcNextSalary.textContent = `+¥${(s.salaries.nextMonth || 250000).toLocaleString()}`;
+    if (elCalcNextSalary) elCalcNextSalary.textContent = `+¥${(s.salaries.nextMonth ?? 250000).toLocaleString()}`;
 
     // ゴール行ハイライト
     const elCalcResult = document.getElementById('val-calc-result');
@@ -436,7 +436,7 @@ class AppController {
       const totalDeductions = Math.abs(curUnsettledTotal + s.totalSpent + Math.abs(s.pureFixedTotal));
       elDeductions.textContent = `-¥${totalDeductions.toLocaleString()}`;
     }
-    if (elNextSalary) elNextSalary.textContent = `+¥${(s.salaries.nextMonth || 250000).toLocaleString()}`;
+    if (elNextSalary) elNextSalary.textContent = `+¥${(s.salaries.nextMonth ?? 250000).toLocaleString()}`;
 
     // クレカ枠ステータス
     if (elCardAvailable) elCardAvailable.textContent = `¥${s.cardAvailable.toLocaleString()}`;
@@ -1202,8 +1202,8 @@ class AppController {
 
     const isCurrentSettled = s.salaries && s.salaries.isCurrentSettled;
     // 確定時は口座入金から検出された実際の確定給与額、未確定時は設定の推定値
-    const currentSalaryVal = isCurrentSettled ? (s.salaries.actualSalary || s.salaries.currentMonth) : (s.salaries.currentMonth || 250000);
-    const nextSalaryVal = s.salaries.nextMonth || 250000;
+    const currentSalaryVal = isCurrentSettled ? (s.salaries.actualSalary || s.salaries.currentMonth) : (s.salaries.currentMonth ?? 250000);
+    const nextSalaryVal = s.salaries.nextMonth ?? 250000;
 
     // ユーザーが現在入力フォーカス中でない場合に正しい数値を自動反映
     if (salaryCurrent && document.activeElement !== salaryCurrent) {
@@ -1320,14 +1320,6 @@ class AppController {
         if (e.target === modal) modal.classList.remove('active');
       });
     });
-  }
-
-  openEditTxModal(tx) {
-    document.getElementById('edit-tx-id').value = tx.id;
-    document.getElementById('edit-tx-name').value = tx.name;
-    document.getElementById('edit-tx-amount').value = tx.amount;
-    document.getElementById('edit-tx-category').value = tx.category;
-    document.getElementById('modal-edit-tx')?.classList.add('active');
   }
 
   openEditAccountModal(acc) {
@@ -1629,13 +1621,34 @@ class AppController {
     });
 
     // 給与保存
-    document.getElementById('btn-save-salaries')?.addEventListener('click', () => {
-      const cur = document.getElementById('setting-salary-current').value;
-      const nxt = document.getElementById('setting-salary-next').value;
-      store.updateSalary('currentMonth', cur);
-      store.updateSalary('nextMonth', nxt);
+    document.getElementById('btn-save-salaries')?.addEventListener('click', async () => {
+      const curInput = document.getElementById('setting-salary-current');
+      const nxtInput = document.getElementById('setting-salary-next');
+      const cur = Number(curInput ? curInput.value : 250000);
+      const nxt = Number(nxtInput ? nxtInput.value : 250000);
+
+      if (isNaN(cur) || cur < 0 || isNaN(nxt) || nxt < 0) {
+        showToast('有効な給料の金額を入力してください', 'warning');
+        return;
+      }
+
+      store.updateSalaries(cur, nxt);
       this.render(store.getSummary());
-      showToast('給料設定を保存しました！', 'success');
+
+      if (this.api.isConfigured()) {
+        try {
+          const res = await this.api.updateSalaries(cur, nxt, store.data.currentMonth);
+          if (res && res.status === 'success') {
+            showToast('給料設定を保存しました！（スプシ D22・D26 反映済）', 'success');
+          } else {
+            showToast('給料設定を保存しました！', 'success');
+          }
+        } catch (err) {
+          showToast('給料設定を保存しました！（ローカル保存済）', 'success');
+        }
+      } else {
+        showToast('給料設定を保存しました！', 'success');
+      }
     });
 
     // クレカ引落額保存（設定画面）
