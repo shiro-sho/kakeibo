@@ -125,11 +125,11 @@ export class ChartRenderer {
         return totalValues[idx];
       });
       const maxVal = Math.max(...visualRowTotals, 1000);
-      const suggestedMax = Math.ceil(maxVal * 1.55);
+      const suggestedMax = Math.ceil(maxVal * 1.22);
 
-      // カテゴリ件数に応じて高さを動的に拡張（B/43やSuicaの2行ラベルも見やすいよう1項目54px）
-      const itemHeight = 54;
-      const calculatedHeight = Math.max(440, labels.length * itemHeight + 80);
+      // カテゴリ件数に応じて高さを動的に拡張
+      const itemHeight = 48;
+      const calculatedHeight = Math.max(420, labels.length * itemHeight + 70);
       const parentContainer = this.canvas.parentElement;
       if (parentContainer) {
         parentContainer.style.setProperty('height', `${calculatedHeight}px`, 'important');
@@ -140,7 +140,7 @@ export class ChartRenderer {
       this.canvas.style.setProperty('min-height', `${calculatedHeight}px`, 'important');
       this.canvas.height = calculatedHeight;
 
-      // 各棒の右端に金額＋内訳（B/43・Suicaは2段詳細ラベル＆B/43目標ライン）を描画するカスタムプラグイン
+      // 各棒の右端に金額を描画するカスタムプラグイン（棒が短くならないよう右余白をコンパクトに維持）
       const barValueLabelsPlugin = {
         id: 'barValueLabels',
         afterDatasetsDraw(chart) {
@@ -161,7 +161,7 @@ export class ChartRenderer {
               const barEndVal = Math.max(used, target);
               const endX = xAxis.getPixelForValue(barEndVal);
 
-              // ① 目標額（月初振込額）の縦ターゲットマーカー線を描画
+              // ① 目標額の縦ターゲットマーカー線を描画
               if (target > 0) {
                 const targetX = xAxis.getPixelForValue(target);
                 ctx.save();
@@ -169,70 +169,52 @@ export class ChartRenderer {
                 ctx.strokeStyle = b43.isOver ? '#f43f5e' : (isLight ? '#4f46e5' : '#818cf8');
                 ctx.lineWidth = 2;
                 ctx.setLineDash([3, 2]);
-                ctx.moveTo(targetX, y - 13);
-                ctx.lineTo(targetX, y + 13);
+                ctx.moveTo(targetX, y - 12);
+                ctx.lineTo(targetX, y + 12);
                 ctx.stroke();
                 ctx.restore();
 
-                // 目標超過時は超過部分（targetX 〜 usedX）に赤枠ハイライトを重ねて「何円超えたか」を視覚化
                 if (b43.isOver && used > target) {
                   const usedX = xAxis.getPixelForValue(used);
                   ctx.save();
                   ctx.strokeStyle = '#f43f5e';
-                  ctx.lineWidth = 2;
+                  ctx.lineWidth = 1.8;
                   ctx.strokeRect(targetX, y - 9, Math.max(2, usedX - targetX), 18);
                   ctx.restore();
                 }
               }
 
-              // ② B/43 右端の2段ラベル（1段目: 使用合計＆目標差分 / 2段目: 自炊・外食内訳）
+              // ② B/43 右端のコンパクト2段ラベル
               const labelX = endX + 8;
-              ctx.font = 'bold 11.5px "Outfit", "Noto Sans JP", sans-serif';
+              ctx.font = 'bold 12px "Outfit", -apple-system, sans-serif';
               ctx.textBaseline = 'middle';
               ctx.fillStyle = valueLabelColor;
-
-              const usedText = `¥${used.toLocaleString()}`;
-              ctx.fillText(usedText, labelX, y - 7);
-              const usedTextWidth = ctx.measureText(usedText).width;
+              ctx.fillText(`¥${used.toLocaleString()}`, labelX, target > 0 ? y - 6 : y);
 
               if (target > 0) {
-                ctx.font = 'bold 10px "Noto Sans JP", sans-serif';
+                ctx.font = '600 9.5px "Noto Sans JP", sans-serif';
                 if (used > target) {
                   ctx.fillStyle = isLight ? '#be123c' : '#fb7185';
-                  ctx.fillText(` (+¥${(used - target).toLocaleString()}超過)`, labelX + usedTextWidth + 2, y - 7);
+                  ctx.fillText(`+¥${(used - target).toLocaleString()}`, labelX, y + 7);
                 } else {
                   ctx.fillStyle = isLight ? '#047857' : '#34d399';
-                  ctx.fillText(` (残¥${(target - used).toLocaleString()})`, labelX + usedTextWidth + 2, y - 7);
+                  ctx.fillText(`残¥${(target - used).toLocaleString()}`, labelX, y + 7);
                 }
-              }
-
-              ctx.font = '600 9.5px "Noto Sans JP", sans-serif';
-              ctx.fillStyle = subLabelColor;
-              if (b43.spentTotal > 0) {
-                ctx.fillText(
-                  `1人分(半額): 食費¥${b43.groceriesTotal.toLocaleString()} / 外食¥${b43.diningTotal.toLocaleString()}`,
-                  labelX,
-                  y + 7
-                );
-              } else {
-                ctx.fillText(`チャージ済 (食費・外食の実額未入力)`, labelX, y + 7);
               }
             } else if (cat === 'Suica') {
               const endX = xAxis.getPixelForValue(actualVal);
               const labelX = endX + 8;
 
-              ctx.font = 'bold 11.5px "Outfit", "Noto Sans JP", sans-serif';
+              ctx.font = 'bold 12px "Outfit", -apple-system, sans-serif';
               ctx.textBaseline = 'middle';
               ctx.fillStyle = valueLabelColor;
-              ctx.fillText(`¥${actualVal.toLocaleString()}`, labelX, y - 7);
+              ctx.fillText(`¥${actualVal.toLocaleString()}`, labelX, suica.vendingTotal > 0 ? y - 6 : y);
 
-              ctx.font = '600 9.5px "Noto Sans JP", sans-serif';
-              ctx.fillStyle = subLabelColor;
-              ctx.fillText(
-                `交通費¥${suica.transitTotal.toLocaleString()} / 自販機¥${suica.vendingTotal.toLocaleString()}`,
-                labelX,
-                y + 7
-              );
+              if (suica.vendingTotal > 0) {
+                ctx.font = '600 9.5px "Noto Sans JP", sans-serif';
+                ctx.fillStyle = subLabelColor;
+                ctx.fillText(`自販¥${suica.vendingTotal.toLocaleString()}`, labelX, y + 7);
+              }
             } else {
               // 通常カテゴリの金額ラベル
               const endX = xAxis.getPixelForValue(actualVal);
@@ -326,7 +308,7 @@ export class ChartRenderer {
           maintainAspectRatio: false,
           layout: {
             padding: {
-              right: 135, // 2段の内訳ラベル・目標差分表示用の右側ゆとりマージン
+              right: 68,
               left: 4,
               top: 12,
               bottom: 12

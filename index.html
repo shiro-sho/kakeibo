@@ -34,7 +34,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;900&display=swap">
 
   <!-- Stylesheet (キャッシュバスター付き) -->
-  <link rel="stylesheet" href="./css/style.css?v=20261111_2">
+  <link rel="stylesheet" href="./css/style.css?v=20261111_3">
 
   <!-- Chart.js CDN for interactive beautiful charts (deferで初期描画ブロックを解消) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
@@ -418,11 +418,6 @@
           </button>
         </div>
 
-        <!-- 💑 B/43 目標設定額 ＆ 食費・外食の実額 クイック入力パネル（明細タブ用） -->
-        <div class="glass-card b43-inline-quick-card mb-16" id="tx-b43-inline-card">
-          <!-- JSで動的描画（目標設定額・食費実額・外食実額と1人分半額のプレビュー） -->
-        </div>
-
         <div class="timeline-list" id="full-tx-container">
           <!-- Dynamically populated -->
         </div>
@@ -462,25 +457,21 @@
             </svg>
             <span>カテゴリ別支出グラフ</span>
           </h2>
-          <div style="display: flex; gap: 6px;">
-            <button type="button" class="section-link" id="btn-open-b43-quick">＋ B/43記録</button>
-            <button type="button" class="section-link" id="btn-open-suica-quick">＋ 自販機記録</button>
-          </div>
         </div>
 
-        <div class="glass-card">
-          <!-- 積み上げ棒グラフの凡例（B/43・Suica内訳） -->
+        <div class="glass-card mb-16">
+          <!-- 積み上げ棒グラフのコンパクト凡例 -->
           <div class="stacked-chart-legend">
             <div class="legend-group">
-              <span class="legend-group-title">💑 B/43(半額=1人分):</span>
-              <span class="legend-item"><i class="legend-dot" style="background: #10b981;"></i>食費(自炊)</span>
+              <span class="legend-group-title">B/43</span>
+              <span class="legend-item"><i class="legend-dot" style="background: #10b981;"></i>食費</span>
               <span class="legend-item"><i class="legend-dot" style="background: #f97316;"></i>外食</span>
-              <span class="legend-item"><i class="legend-dot legend-dot-target"></i>目標ライン/残枠</span>
+              <span class="legend-item"><i class="legend-dot legend-dot-target"></i>目標枠</span>
             </div>
             <div class="legend-group">
-              <span class="legend-group-title">🚃 Suica:</span>
-              <span class="legend-item"><i class="legend-dot" style="background: #0284c7;"></i>交通費(自動)</span>
-              <span class="legend-item"><i class="legend-dot" style="background: #eab308;"></i>自販機(手打ち)</span>
+              <span class="legend-group-title">Suica</span>
+              <span class="legend-item"><i class="legend-dot" style="background: #0284c7;"></i>交通費</span>
+              <span class="legend-item"><i class="legend-dot" style="background: #eab308;"></i>自販機</span>
             </div>
           </div>
 
@@ -489,37 +480,48 @@
           </div>
         </div>
 
-        <!-- 💑 B/43（彼女と2人の食費管理）目標設定額 ＆ 食費・外食の実額 入力カード -->
-        <div class="glass-card subtracker-card" id="b43-tracker-card">
-          <div class="subtracker-header">
-            <div>
-              <div class="subtracker-badge b43">💑 B/43 ふたりの食費管理（割り勘・半額自動反映）</div>
-              <h3 class="subtracker-title">目標設定額 ＆ 食費・外食の実額入力（棒グラフへ半額反映）</h3>
+        <!-- B/43 内訳・目標管理カード (Apple Wallet セグメントカード統一デザイン) -->
+        <div class="glass-card expense-segment-card mb-16" id="b43-tracker-card">
+          <div class="segment-card-header">
+            <div class="segment-pill cyan">
+              <svg class="svg-icon svg-icon-xs" viewBox="0 0 24 24">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span>B/43 内訳</span>
             </div>
-            <button type="button" class="btn-subtracker-add b43" id="btn-add-b43-log">
-              <span>＋ 都度手打ち追加</span>
-            </button>
+            <span class="segment-header-desc">実額の半額（1人分）をグラフ反映</span>
           </div>
 
           <div id="b43-tracker-summary-box">
-            <!-- JSで動的生成（目標額・使用合計・残り/超過・積み上げバー・履歴リスト） -->
+            <!-- JSで動的生成 -->
           </div>
         </div>
 
-        <!-- 🚃 Suica（交通費＋自販機代）内訳トラッカーカード -->
-        <div class="glass-card subtracker-card" id="suica-tracker-card">
-          <div class="subtracker-header">
-            <div>
-              <div class="subtracker-badge suica">🚃 Suica 内訳管理</div>
-              <h3 class="subtracker-title">交通費（自動算出）＋ 自販機代（手打ち）</h3>
+        <!-- Suica 内訳管理カード (Apple Wallet セグメントカード統一デザイン) -->
+        <div class="glass-card expense-segment-card" id="suica-tracker-card">
+          <div class="segment-card-header">
+            <div class="segment-pill purple">
+              <svg class="svg-icon svg-icon-xs" viewBox="0 0 24 24">
+                <rect x="4" y="3" width="16" height="16" rx="2"></rect>
+                <path d="M4 11h16"></path>
+                <path d="M12 3v8"></path>
+                <path d="M8 19l-2 3"></path>
+                <path d="M16 19l2 3"></path>
+                <circle cx="8.5" cy="15.5" r="1"></circle>
+                <circle cx="15.5" cy="15.5" r="1"></circle>
+              </svg>
+              <span>Suica 内訳</span>
             </div>
-            <button type="button" class="btn-subtracker-add suica" id="btn-add-suica-log">
-              <span>＋ 自販機代を記録</span>
+            <button type="button" class="section-link" id="btn-add-suica-log" style="font-size: 0.75rem; padding: 4px 10px;">
+              ＋ 自販機を追加
             </button>
           </div>
 
           <div id="suica-tracker-summary-box">
-            <!-- JSで動的生成（チャージ合計・交通費・自販機代・履歴リスト） -->
+            <!-- JSで動的生成 -->
           </div>
         </div>
       </section>
@@ -607,43 +609,6 @@
         </div>
 
         <div class="glass-card">
-          <h3 style="font-size: 0.95rem; margin-bottom: 8px;">💑 B/43 目標金額（月初振込額）設定</h3>
-          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
-            彼女と2人の食費を管理するB/43へ月初にまとめて振り込む目標予算額（2人分の合計目標額）を設定します。<br>
-            分析タブの積み上げ棒グラフ上で、この目標額に対して「何円残っているか / 何円超えたか」が自動で可視化されます。
-          </p>
-          <div class="form-group">
-            <label class="form-label" for="setting-b43-target">B/43 月間目標額 (¥)</label>
-            <input type="number" id="setting-b43-target" class="form-input" placeholder="例: 30000">
-          </div>
-          <button class="btn-primary" id="btn-save-b43-target">B/43目標額を保存</button>
-        </div>
-
-        <div class="glass-card">
-          <h3 style="font-size: 0.95rem; margin-bottom: 8px;">📋 スプレッドシートC列（19カテゴリ）更新</h3>
-          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
-            スプレッドシートの「テンプレ」シートおよび当月シートのC列（ジャンル選択プルダウン）を、見直し後の最新19カテゴリへ一括更新します（※既存の明細や数式は100%保護されます）。
-          </p>
-          <button class="btn-primary" id="btn-update-sheet-categories" type="button">
-            スプレッドシートのプルダウンを19カテゴリに更新
-          </button>
-        </div>
-
-        <div class="glass-card">
-          <h3 style="font-size: 0.95rem; margin-bottom: 8px;">今月のクレカ引落額（確定額）</h3>
-          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
-            月半ばにカード会社から通知される今月の確定引落額を設定します。<br>
-            保存するとスプレッドシートの <b>D20セル</b>（及び数式連動 C4, B20, J32）へ反映されます。
-          </p>
-          <div class="form-group">
-            <label class="form-label" for="setting-card-bill-amount">確定引落額 (¥)</label>
-            <input type="number" id="setting-card-bill-amount" class="form-input" placeholder="例: 241324">
-          </div>
-          <button class="btn-primary" id="btn-save-card-bill">クレカ引落額を保存</button>
-        </div>
-
-
-        <div class="glass-card">
           <h3 style="font-size: 0.95rem; margin-bottom: 8px;">データ復元・再初期化</h3>
           <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5;">
             テンプレシートから今月シートを再生成し、前月データの引き継ぎと最新メール明細の取り込みを一括で実行します。
@@ -726,54 +691,21 @@
       </button>
     </nav>
 
-    <!-- MODAL: Quick Add Expense (クレカ出費 / B/43手打ち / Suica自販機手打ち の3モード切替対応) -->
+    <!-- MODAL: Quick Add Expense (他のモードのタブは一切表示せず、開いた用途のフォームのみシンプルに表示) -->
     <div class="modal-overlay" id="modal-add-tx">
       <div class="modal-content">
         <div class="modal-header">
-          <h3 class="modal-title" id="modal-add-tx-title">出費・内訳を登録</h3>
+          <h3 class="modal-title" id="modal-add-tx-title">出費を登録</h3>
           <button class="close-btn" id="btn-close-add-tx">✕</button>
-        </div>
-
-        <!-- 3モード切り替えタブ -->
-        <div class="add-mode-tabs" id="add-tx-mode-tabs">
-          <button type="button" class="add-mode-tab active" data-add-mode="card">
-            💳 クレカ出費
-          </button>
-          <button type="button" class="add-mode-tab" data-add-mode="b43">
-            💑 B/43 手打ち
-          </button>
-          <button type="button" class="add-mode-tab" data-add-mode="suica">
-            🥤 Suica 自販機
-          </button>
         </div>
 
         <form id="form-add-tx">
           <input type="hidden" id="input-tx-mode" value="card">
+          <input type="hidden" id="input-b43-subtype" value="groceries">
 
-          <!-- モード案内バナー（B/43 または Suica 選択時のみ表示） -->
-          <div class="add-mode-info-banner" id="add-mode-info-banner" style="display: none;"></div>
-
-          <!-- B/43 内訳種別ピッカー（食費(自炊) vs 外食） -->
-          <div class="form-group" id="group-b43-subtype" style="display: none;">
-            <label class="form-label">B/43 の使った内訳</label>
-            <div class="b43-subtype-selector">
-              <button type="button" class="b43-subtype-btn active" data-b43-type="groceries">
-                <span class="subtype-emoji">🍳</span>
-                <span class="subtype-name">食費（自炊代）</span>
-                <span class="subtype-desc">スーパー・食材買い出し</span>
-              </button>
-              <button type="button" class="b43-subtype-btn" data-b43-type="dining">
-                <span class="subtype-emoji">🍽️</span>
-                <span class="subtype-name">外食代</span>
-                <span class="subtype-desc">2人での外食・カフェ</span>
-              </button>
-            </div>
-            <input type="hidden" id="input-b43-subtype" value="groceries">
-          </div>
-
-          <!-- Suica 自販機 ワンタップ金額プリセット（Suicaモード時のみ表示） -->
+          <!-- Suica 自販機 金額チップ（Suica自販機追加時のみ表示） -->
           <div class="form-group" id="group-suica-presets" style="display: none;">
-            <label class="form-label">自販機ワンタップ金額</label>
+            <label class="form-label">金額を選択</label>
             <div class="suica-preset-chips">
               <button type="button" class="suica-preset-btn" data-preset-amt="110">¥110</button>
               <button type="button" class="suica-preset-btn" data-preset-amt="130">¥130</button>
@@ -1093,7 +1025,7 @@
   <div class="toast-container" id="toast-container"></div>
 
   <!-- App Scripts (キャッシュバスター付き) -->
-  <script type="module" src="./js/app.js?v=20261111_2"></script>
+  <script type="module" src="./js/app.js?v=20261111_3"></script>
 
   <!-- PWA Service Worker Registration & Cache Purge -->
   <script>
@@ -1104,7 +1036,7 @@
             reg.update();
           }
         });
-        navigator.serviceWorker.register('./sw.js?v=20261111_2').catch((err) => {
+        navigator.serviceWorker.register('./sw.js?v=20261111_3').catch((err) => {
           console.log('SW registration skipped:', err);
         });
       });

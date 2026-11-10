@@ -7124,18 +7124,21 @@ html[data-theme="white"],
    B/43 & Suica 積立棒グラフ凡例・手打ちトラッカー・3モード追加モーダル
    ========================================================================== */
 
-/* 1. 棒グラフ上部の積み上げ凡例 */
+/* 1. 棒グラフ上部の積み上げ凡例（コンパクト1行〜2行・絵文字なし） */
 .stacked-chart-legend {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 12px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 14px;
+  margin-bottom: 10px;
+  padding: 7px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.legend-group,
 .stacked-legend-group {
   display: flex;
   flex-wrap: wrap;
@@ -7144,12 +7147,14 @@ html[data-theme="white"],
   font-size: 0.72rem;
 }
 
+.legend-group-title,
 .stacked-legend-title {
   font-weight: 800;
   color: var(--text-primary);
   margin-right: 2px;
 }
 
+.legend-item,
 .stacked-legend-item {
   display: inline-flex;
   align-items: center;
@@ -7158,17 +7163,19 @@ html[data-theme="white"],
   font-weight: 600;
 }
 
+.legend-dot,
 .stacked-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
   display: inline-block;
   flex-shrink: 0;
 }
 
+.legend-dot-target,
 .stacked-dot-frame {
-  background: rgba(148, 163, 184, 0.22);
-  border: 1px dashed rgba(148, 163, 184, 0.65);
+  background: rgba(99, 102, 241, 0.22);
+  border: 1px dashed rgba(129, 140, 248, 0.75);
 }
 
 /* 2. B/43 & Suica トラッカーカード */
@@ -7814,5 +7821,64 @@ html[data-theme="white"],
 [data-theme="light"] .b43-half-badge.dining {
   color: #b45309 !important;
 }
+
+/* 5. B/43 & Suica チタンリスト統一デザイン */
+.b43-titanium-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.b43-input-item {
+  padding: 10px 12px !important;
+}
+
+.b43-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.b43-half-sub {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #818cf8;
+  font-family: var(--font-display);
+}
+
+.b43-half-sub.groceries {
+  color: #34d399;
+}
+
+.b43-half-sub.dining {
+  color: #fb923c;
+}
+
+.b43-compact-footer {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="platinum"] .b43-compact-footer,
+[data-theme="light"] .b43-compact-footer {
+  border-top-color: rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="platinum"] .b43-half-sub,
+[data-theme="light"] .b43-half-sub {
+  color: #4f46e5;
+}
+
+[data-theme="platinum"] .b43-half-sub.groceries,
+[data-theme="light"] .b43-half-sub.groceries {
+  color: #059669;
+}
+
+[data-theme="platinum"] .b43-half-sub.dining,
+[data-theme="light"] .b43-half-sub.dining {
+  color: #ea580c;
+}
+
 
 
