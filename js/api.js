@@ -112,6 +112,21 @@ export class GasApiClient {
     return this.postRequest('updateTransaction', { txId, ...updates, month });
   }
 
+  // B/43 目標額・内訳ログ ＆ Suica自販機ログのスプレッドシート保存（Z1セル）
+  async saveSubLogs(monthStr) {
+    if (!this.isConfigured()) return { status: 'local_only' };
+    const month = monthStr || this.store.data.currentMonth;
+    const payload = this.store.getSubLogsPayload(month);
+    return this.postRequest('saveSubLogs', payload);
+  }
+
+  // スプレッドシートC列のデータ入力規則（プルダウン）を新19カテゴリに一括更新
+  async updateSpreadsheetCategories(categories, monthStr) {
+    if (!this.isConfigured()) throw new Error('GAS Web App URLが設定されていません');
+    const month = monthStr || this.store.data.currentMonth;
+    return this.postRequest('updateCategoryRules', { categories, month });
+  }
+
   // クレカ利用通知メールの同期実行（スプレッドシート反映）
   async syncCardEmails(monthStr, syncMode = 'standard', functionName = '') {
     if (!this.isConfigured()) {

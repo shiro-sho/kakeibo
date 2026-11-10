@@ -7119,3 +7119,700 @@ html[data-theme="white"],
   color: #be123c !important;
   font-weight: 800 !important;
 }
+
+/* ==========================================================================
+   B/43 & Suica 積立棒グラフ凡例・手打ちトラッカー・3モード追加モーダル
+   ========================================================================== */
+
+/* 1. 棒グラフ上部の積み上げ凡例 */
+.stacked-chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stacked-legend-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+}
+
+.stacked-legend-title {
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-right: 2px;
+}
+
+.stacked-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.stacked-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.stacked-dot-frame {
+  background: rgba(148, 163, 184, 0.22);
+  border: 1px dashed rgba(148, 163, 184, 0.65);
+}
+
+/* 2. B/43 & Suica トラッカーカード */
+.subtracker-card {
+  margin-top: 16px;
+  padding: 18px;
+}
+
+.subtracker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.subtracker-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subtracker-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+
+.b43-badge {
+  background: rgba(16, 185, 129, 0.16);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.suica-badge {
+  background: rgba(34, 197, 94, 0.16);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+}
+
+.subtracker-subtitle {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.subtracker-add-btn {
+  flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(5, 150, 105, 0.14));
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #34d399;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.subtracker-add-btn:active {
+  transform: scale(0.95);
+}
+
+.suica-add-btn {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(2, 132, 199, 0.14));
+  border-color: rgba(56, 189, 248, 0.45);
+  color: #38bdf8;
+}
+
+.subtracker-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.subtracker-metric {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.subtracker-metric.clickable-metric {
+  cursor: pointer;
+  border-style: dashed;
+}
+
+.subtracker-metric.clickable-metric:hover {
+  border-color: var(--accent-primary);
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.subtracker-metric .metric-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.subtracker-metric .metric-val {
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.subtracker-metric .metric-sub {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+}
+
+/* 積立プログレスバー */
+.subtracker-bar-wrap {
+  margin-bottom: 12px;
+}
+
+.subtracker-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.subtracker-status-pill {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.subtracker-status-pill.ok {
+  background: rgba(16, 185, 129, 0.16);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.subtracker-status-pill.over {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+}
+
+.subtracker-stacked-bar {
+  position: relative;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  overflow: hidden;
+}
+
+.subtracker-seg {
+  height: 100%;
+  transition: width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.subtracker-seg.groceries {
+  background: linear-gradient(90deg, #059669, #10b981);
+}
+
+.subtracker-seg.dining {
+  background: linear-gradient(90deg, #d97706, #f59e0b);
+}
+
+.subtracker-seg.remain {
+  background: transparent;
+}
+
+.subtracker-seg.suica-train {
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+}
+
+.subtracker-seg.suica-vending {
+  background: linear-gradient(90deg, #0284c7, #38bdf8);
+}
+
+.subtracker-target-marker {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2.5px;
+  background: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.9);
+  z-index: 3;
+}
+
+.subtracker-charge-note {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.025);
+  border-radius: 8px;
+  padding: 7px 10px;
+  margin-bottom: 12px;
+}
+
+.subtracker-log-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 10px;
+}
+
+.subtracker-log-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.subtracker-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.subtracker-empty {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 12px 8px;
+}
+
+.subtracker-log-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.8rem;
+}
+
+.subtracker-log-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.subtracker-log-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.subtracker-log-tag.groceries {
+  background: rgba(16, 185, 129, 0.16);
+  color: #34d399;
+}
+
+.subtracker-log-tag.dining {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+}
+
+.subtracker-log-tag.vending {
+  background: rgba(56, 189, 248, 0.16);
+  color: #38bdf8;
+}
+
+.subtracker-log-date {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.subtracker-log-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subtracker-log-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.subtracker-log-amount {
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.subtracker-del-btn {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  color: #f87171;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+/* 3. 支出追加モーダル: 3モード切替タブ & B/43・Suica補助UI */
+.add-mode-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 12px;
+}
+
+.add-mode-tab {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 9px 4px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.add-mode-tab.active {
+  background: linear-gradient(135deg, var(--accent-primary), #059669);
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3);
+}
+
+.add-mode-info-banner {
+  font-size: 0.74rem;
+  line-height: 1.45;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+
+.b43-subtype-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.b43-subtype-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.b43-subtype-btn .subtype-icon {
+  font-size: 1.2rem;
+}
+
+.b43-subtype-btn .subtype-name {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.b43-subtype-btn .subtype-desc {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.b43-subtype-btn.active[data-b43-subtype="groceries"] {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.14);
+}
+
+.b43-subtype-btn.active[data-b43-subtype="dining"] {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.suica-preset-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.suica-preset-btn {
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 11px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.suica-preset-btn:active {
+  transform: scale(0.94);
+  background: rgba(56, 189, 248, 0.28);
+}
+
+/* プラチナ・ホワイト（ライトテーマ）対応 */
+[data-theme="platinum"] .stacked-chart-legend,
+[data-theme="light"] .stacked-chart-legend,
+[data-theme="white"] .stacked-chart-legend {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="platinum"] .subtracker-metric,
+[data-theme="light"] .subtracker-metric,
+[data-theme="white"] .subtracker-metric,
+[data-theme="platinum"] .subtracker-log-row,
+[data-theme="light"] .subtracker-log-row,
+[data-theme="white"] .subtracker-log-row {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="platinum"] .b43-badge,
+[data-theme="light"] .b43-badge {
+  color: #047857 !important;
+  background: #ecfdf5 !important;
+}
+
+[data-theme="platinum"] .suica-badge,
+[data-theme="light"] .suica-badge {
+  color: #15803d !important;
+  background: #f0fdf4 !important;
+}
+
+[data-theme="platinum"] .subtracker-add-btn,
+[data-theme="light"] .subtracker-add-btn {
+  color: #047857 !important;
+  background: #ecfdf5 !important;
+  border-color: #6ee7b7 !important;
+}
+
+[data-theme="platinum"] .suica-add-btn,
+[data-theme="light"] .suica-add-btn {
+  color: #0369a1 !important;
+  background: #f0f9ff !important;
+  border-color: #7dd3fc !important;
+}
+
+/* 4. B/43 目標設定額 ＆ 食費・外食の実額（2人分）直接入力フォーム（半額自動換算） */
+.b43-direct-input-panel {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.b43-direct-note {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.b43-direct-fields-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.b43-direct-field-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.b43-field-label-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.b43-field-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.b43-half-badge {
+  font-size: 0.7rem;
+  color: #818cf8;
+  font-weight: 600;
+}
+
+.b43-half-badge.groceries {
+  color: #34d399;
+}
+
+.b43-half-badge.dining {
+  color: #fbbf24;
+}
+
+.b43-field-input-col {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 128px;
+  flex-shrink: 0;
+}
+
+.b43-field-input-col .yen-prefix {
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.b43-direct-input {
+  padding: 8px 10px !important;
+  font-family: var(--font-display) !important;
+  font-size: 0.95rem !important;
+  font-weight: 800 !important;
+  text-align: right;
+}
+
+.b43-direct-summary-bar {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.b43-sum-real {
+  display: block;
+  font-size: 0.73rem;
+  color: var(--text-muted);
+}
+
+.b43-sum-half {
+  display: block;
+  font-size: 0.8rem;
+  color: #34d399;
+  margin-top: 2px;
+}
+
+.btn-save-b43-direct {
+  width: 100%;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.28);
+  transition: all 0.2s ease;
+}
+
+.btn-save-b43-direct:active {
+  transform: scale(0.97);
+}
+
+.b43-inline-quick-card {
+  padding: 12px 14px;
+}
+
+.b43-inline-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.b43-inline-toggle-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #34d399;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+[data-theme="platinum"] .b43-direct-input-panel,
+[data-theme="light"] .b43-direct-input-panel {
+  background: #f8fafc !important;
+  border-color: #6ee7b7 !important;
+}
+
+[data-theme="platinum"] .b43-direct-field-row,
+[data-theme="light"] .b43-direct-field-row {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="platinum"] .b43-half-badge.groceries,
+[data-theme="light"] .b43-half-badge.groceries,
+[data-theme="platinum"] .b43-sum-half,
+[data-theme="light"] .b43-sum-half,
+[data-theme="platinum"] .b43-inline-toggle-label,
+[data-theme="light"] .b43-inline-toggle-label {
+  color: #047857 !important;
+}
+
+[data-theme="platinum"] .b43-half-badge.dining,
+[data-theme="light"] .b43-half-badge.dining {
+  color: #b45309 !important;
+}
+
+

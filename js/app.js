@@ -2,9 +2,9 @@
  * アプリメインコントローラー（UIレンダリング・インタラクション）
  */
 
-import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM, DEFAULT_PENDING_ESTIMATES } from './store.js?v=20261110_5';
-import { ChartRenderer } from './charts.js?v=20261110_5';
-import { GasApiClient } from './api.js?v=20261110_5';
+import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM, DEFAULT_PENDING_ESTIMATES } from './store.js?v=20261111_2';
+import { ChartRenderer } from './charts.js?v=20261111_2';
+import { GasApiClient } from './api.js?v=20261111_2';
 
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toast-container');
@@ -45,30 +45,35 @@ function sortTransactionsDesc(list) {
     .map((w) => w.tx);
 }
 
-// カテゴリ別カラーパレット定義（デザインタブと連動した洗練されたチタンカラー）
+// カテゴリ別カラーパレット定義（新19カテゴリ＋互換エイリアス）
 const CATEGORY_COLORS = {
-  '食費': '#f59e0b',
-  '飲み物代': '#d97706',
-  '昼ご飯': '#10b981',
-  '外食': '#f97316',
   '交際費': '#ec4899',
+  'Suica': '#0284c7',
+  '定期代': '#3b82f6',
+  'デート': '#a855f7',
+  '夜食代': '#8b5cf6',
+  'B/43': '#6366f1',
+  '通信費': '#0ea5e9',
+  '美容費': '#f43f5e',
+  '医療費': '#14b8a6',
+  '勉強・資格': '#10b981',
+  '課金': '#64748b',
+  'ジム': '#e11d48',
+  '被服費': '#8b5cf6',
+  '雑費': '#94a3b8',
+  '外食': '#f97316',
+  '食費': '#f59e0b',
+  '昼ごはん': '#10b981',
+  '日用品費': '#06b6d4',
+  '水道光熱費': '#eab308',
+  // 旧カテゴリ互換
+  '昼ご飯': '#10b981',
+  '飲み物代': '#d97706',
   'お菓子代': '#f43f5e',
   'おやつ': '#fb7185',
-  '夜食代': '#8b5cf6',
-  '日用品費': '#06b6d4',
-  'デート': '#a855f7',
   '交通費': '#3b82f6',
-  'Suica': '#0284c7',
-  'B/43': '#6366f1',
-  '美容費': '#ec4899',
-  '医療費': '#14b8a6',
-  '被服費': '#8b5cf6',
   '娯楽費': '#e11d48',
-  '通信費': '#0ea5e9',
-  '水道光熱費': '#eab308',
   '月額課金': '#64748b',
-  '勉強・資格': '#10b981',
-  '雑費': '#94a3b8',
   '引落系、課金系': '#8b5cf6',
   '未分類': '#94a3b8'
 };
@@ -246,7 +251,8 @@ class AppController {
 
     // グラフの再描画（テーマの背景や色に合わせる）
     if (this.currentView === 'analytics' && this.chartRenderer) {
-      this.chartRenderer.renderCategoryBarChart(store.getSummary().categoryTotals);
+      const s = store.getSummary();
+      this.chartRenderer.renderCategoryBarChart(s.categoryTotals, s.b43Summary, s.suicaSummary);
     }
   }
 
@@ -329,7 +335,7 @@ class AppController {
     if (viewName === 'analytics') {
       setTimeout(() => {
         const s = this.lastSummary || store.getSummary();
-        this.chartRenderer.renderCategoryBarChart(s.categoryTotals);
+        this.chartRenderer.renderCategoryBarChart(s.categoryTotals, s.b43Summary, s.suicaSummary);
       }, 150);
     }
 
@@ -1256,11 +1262,372 @@ class AppController {
     });
   }
 
-  // 8. 分析（カテゴリ別支出グラフ）
+  // 8. 分析（カテゴリ別支出グラフ ＆ B/43・Suica内訳管理）
   renderAnalytics(s) {
     if (this.currentView === 'analytics' && this.chartRenderer) {
-      this.chartRenderer.renderCategoryBarChart(s.categoryTotals);
+      this.chartRenderer.renderCategoryBarChart(s.categoryTotals, s.b43Summary, s.suicaSummary);
     }
+    this.renderB43Tracker(s);
+    this.renderSuicaTracker(s);
+  }
+
+  // B/43 内訳・目標管理カードの描画（2人分の実額を入力し、棒グラフへ半額＝1人分を自動反映）
+  renderB43Tracker(s) {
+    const b43 = s.b43Summary || {
+      target: 15000,
+      chargedTotal: 0,
+      groceriesTotal: 0,
+      diningTotal: 0,
+      spentTotal: 0,
+      remaining: 15000,
+      overAmount: 0,
+      isOver: false,
+      actualTarget: 30000,
+      actualGroceries: 0,
+      actualDining: 0,
+      actualSpentTotal: 0,
+      actualRemaining: 30000,
+      actualOverAmount: 0,
+      logs: []
+    };
+
+    const actualTarget = b43.actualTarget ?? (b43.target * 2);
+    const actualGroceries = b43.actualGroceries ?? (b43.groceriesTotal * 2);
+    const actualDining = b43.actualDining ?? (b43.diningTotal * 2);
+    const actualSpentTotal = b43.actualSpentTotal ?? (actualGroceries + actualDining);
+    const actualRemaining = Math.max(0, actualTarget - actualSpentTotal);
+    const actualOverAmount = Math.max(0, actualSpentTotal - actualTarget);
+
+    const maxBase = Math.max(b43.target, b43.spentTotal, 1);
+    const grocPct = Math.min(100, Math.round((b43.groceriesTotal / maxBase) * 100));
+    const diningPct = Math.min(100 - grocPct, Math.round((b43.diningTotal / maxBase) * 100));
+    const targetMarkerPct = b43.spentTotal > b43.target && b43.target > 0
+      ? Math.round((b43.target / b43.spentTotal) * 100)
+      : 100;
+
+    const statusBadgeHtml = b43.isOver
+      ? `<span class="subtracker-status-pill over">🚨 1人分目標を +¥${b43.overAmount.toLocaleString()} 超過（2人実額 +¥${actualOverAmount.toLocaleString()}）</span>`
+      : `<span class="subtracker-status-pill ok">✓ 目標内：1人分残り ¥${b43.remaining.toLocaleString()}（2人実額 残り ¥${actualRemaining.toLocaleString()}）</span>`;
+
+    // 共通のB/43直接実額入力フォーム生成ヘルパー（prefix: 'analytics' または 'tx'）
+    const buildB43DirectFormHtml = (prefix) => `
+      <div class="b43-direct-input-panel" data-b43-form="${prefix}">
+        <div class="b43-direct-note">
+          💡 <b>B/43での実額（2人分の合計額）</b>をそのまま入力してください。<br>
+          棒グラフは1人分の出費額のため、自動で<b>実額の半額（割り勘分）</b>が計算・反映されます。
+        </div>
+
+        <div class="b43-direct-fields-grid">
+          <!-- ① 目標設定額（B/43実額） -->
+          <div class="b43-direct-field-row">
+            <div class="b43-field-label-col">
+              <label class="b43-field-label" for="b43-${prefix}-target">🎯 B/43 目標設定額（2人合計）</label>
+              <span class="b43-half-badge" id="b43-${prefix}-half-target">
+                棒グラフ目標（半額・1人分）: <b>¥${b43.target.toLocaleString()}</b>
+              </span>
+            </div>
+            <div class="b43-field-input-col">
+              <span class="yen-prefix">¥</span>
+              <input type="number" id="b43-${prefix}-target" class="form-input b43-direct-input" value="${actualTarget}" min="0" step="100" placeholder="30000">
+            </div>
+          </div>
+
+          <!-- ② 食費（自炊代）の実額 -->
+          <div class="b43-direct-field-row">
+            <div class="b43-field-label-col">
+              <label class="b43-field-label" for="b43-${prefix}-groceries">🍳 食費（自炊代）の実額</label>
+              <span class="b43-half-badge groceries" id="b43-${prefix}-half-groceries">
+                棒グラフ反映（半額・1人分）: <b>¥${b43.groceriesTotal.toLocaleString()}</b>
+              </span>
+            </div>
+            <div class="b43-field-input-col">
+              <span class="yen-prefix">¥</span>
+              <input type="number" id="b43-${prefix}-groceries" class="form-input b43-direct-input" value="${actualGroceries}" min="0" step="1" placeholder="0">
+            </div>
+          </div>
+
+          <!-- ③ 外食代の実額 -->
+          <div class="b43-direct-field-row">
+            <div class="b43-field-label-col">
+              <label class="b43-field-label" for="b43-${prefix}-dining">🍽️ 外食代の実額</label>
+              <span class="b43-half-badge dining" id="b43-${prefix}-half-dining">
+                棒グラフ反映（半額・1人分）: <b>¥${b43.diningTotal.toLocaleString()}</b>
+              </span>
+            </div>
+            <div class="b43-field-input-col">
+              <span class="yen-prefix">¥</span>
+              <input type="number" id="b43-${prefix}-dining" class="form-input b43-direct-input" value="${actualDining}" min="0" step="1" placeholder="0">
+            </div>
+          </div>
+        </div>
+
+        <!-- 合計プレビュー＆保存ボタン -->
+        <div class="b43-direct-summary-bar" id="b43-${prefix}-summary-bar">
+          <div>
+            <span class="b43-sum-real">B/43実額計: <b>¥${actualSpentTotal.toLocaleString()}</b> / 目標 ¥${actualTarget.toLocaleString()}</span>
+            <span class="b43-sum-half">👉 棒グラフ反映計（半額・1人分）: <b>¥${b43.spentTotal.toLocaleString()}</b> / 目標 ¥${b43.target.toLocaleString()}</span>
+          </div>
+          <button type="button" class="btn-save-b43-direct" id="btn-save-b43-${prefix}">
+            💾 実額を保存（半額をグラフ反映）
+          </button>
+        </div>
+      </div>
+    `;
+
+    // フォーム入力イベントと保存イベントをバインドするヘルパー
+    const bindB43DirectEvents = (container, prefix) => {
+      if (!container) return;
+      const targetInput = container.querySelector(`#b43-${prefix}-target`);
+      const grocInput = container.querySelector(`#b43-${prefix}-groceries`);
+      const diningInput = container.querySelector(`#b43-${prefix}-dining`);
+      const halfTargetEl = container.querySelector(`#b43-${prefix}-half-target`);
+      const halfGrocEl = container.querySelector(`#b43-${prefix}-half-groceries`);
+      const halfDiningEl = container.querySelector(`#b43-${prefix}-half-dining`);
+      const summaryBar = container.querySelector(`#b43-${prefix}-summary-bar`);
+      const saveBtn = container.querySelector(`#btn-save-b43-${prefix}`);
+
+      const updateLivePreview = () => {
+        const tVal = Math.max(0, Number(targetInput?.value) || 0);
+        const gVal = Math.max(0, Number(grocInput?.value) || 0);
+        const dVal = Math.max(0, Number(diningInput?.value) || 0);
+        const halfT = Math.round(tVal / 2);
+        const halfG = Math.round(gVal / 2);
+        const halfD = Math.round(dVal / 2);
+        const totalReal = gVal + dVal;
+        const totalHalf = halfG + halfD;
+
+        if (halfTargetEl) {
+          halfTargetEl.innerHTML = `棒グラフ目標（半額・1人分）: <b>¥${halfT.toLocaleString()}</b>`;
+        }
+        if (halfGrocEl) {
+          halfGrocEl.innerHTML = `棒グラフ反映（半額・1人分）: <b>¥${halfG.toLocaleString()}</b>`;
+        }
+        if (halfDiningEl) {
+          halfDiningEl.innerHTML = `棒グラフ反映（半額・1人分）: <b>¥${halfD.toLocaleString()}</b>`;
+        }
+        if (summaryBar) {
+          const realSpan = summaryBar.querySelector('.b43-sum-real');
+          const halfSpan = summaryBar.querySelector('.b43-sum-half');
+          if (realSpan) realSpan.innerHTML = `B/43実額計: <b>¥${totalReal.toLocaleString()}</b> / 目標 ¥${tVal.toLocaleString()}`;
+          if (halfSpan) halfSpan.innerHTML = `👉 棒グラフ反映計（半額・1人分）: <b>¥${totalHalf.toLocaleString()}</b> / 目標 ¥${halfT.toLocaleString()}`;
+        }
+      };
+
+      [targetInput, grocInput, diningInput].forEach((inp) => {
+        inp?.addEventListener('input', updateLivePreview);
+      });
+
+      saveBtn?.addEventListener('click', async () => {
+        const tVal = Math.max(0, Number(targetInput?.value) || 0);
+        const gVal = Math.max(0, Number(grocInput?.value) || 0);
+        const dVal = Math.max(0, Number(diningInput?.value) || 0);
+        const halfG = Math.round(gVal / 2);
+        const halfD = Math.round(dVal / 2);
+
+        store.updateB43Actuals({
+          target: tVal,
+          groceries: gVal,
+          dining: dVal
+        });
+
+        showToast(
+          `B/43実額を保存しました！棒グラフに半額（食費¥${halfG.toLocaleString()}・外食¥${halfD.toLocaleString()}）を反映しました`,
+          'success'
+        );
+
+        if (this.api.isConfigured()) {
+          try {
+            await this.api.saveSubLogs();
+          } catch (e) {
+            console.warn('B/43実額同期警告:', e);
+          }
+        }
+      });
+    };
+
+    // ① 分析タブ（#b43-tracker-summary-box）の描画
+    const box = document.getElementById('b43-tracker-summary-box');
+    if (box) {
+      const logsHtml = b43.logs.length === 0
+        ? ''
+        : `<div class="subtracker-log-section">
+            <div class="subtracker-log-header">
+              <span>都度手打ちしたB/43履歴（実額 / 半額）</span>
+              <span>${b43.logs.length}件</span>
+            </div>
+            <div class="subtracker-log-list">
+              ${b43.logs.map((item) => {
+                const isDining = item.subType === 'dining';
+                const badgeText = isDining ? '🍽️ 外食' : '🍳 食費(自炊)';
+                const badgeClass = isDining ? 'dining' : 'groceries';
+                const realAmt = Number(item.amount || 0);
+                const halfAmt = Math.round(realAmt / 2);
+                return `
+                  <div class="subtracker-log-row" data-b43-id="${item.id}">
+                    <div class="subtracker-log-left">
+                      <span class="subtracker-log-tag ${badgeClass}">${badgeText}</span>
+                      <span class="subtracker-log-name">${item.name}</span>
+                      <span class="subtracker-log-date">${item.date || ''}</span>
+                    </div>
+                    <div class="subtracker-log-right">
+                      <span class="subtracker-log-amount">実額¥${realAmt.toLocaleString()} <small style="opacity:0.75;">(半額¥${halfAmt.toLocaleString()})</small></span>
+                      <button type="button" class="subtracker-del-btn" data-del-b43="${item.id}" title="削除">✕</button>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>`;
+
+      box.innerHTML = `
+        ${buildB43DirectFormHtml('analytics')}
+
+        <div class="subtracker-bar-wrap" style="margin-top: 14px;">
+          <div class="subtracker-bar-labels">
+            <span>棒グラフ上の1人分積立内訳（半額換算）</span>
+            ${statusBadgeHtml}
+          </div>
+          <div class="subtracker-stacked-bar">
+            <div class="subtracker-seg groceries" style="width: ${grocPct}%;" title="食費(1人分): ¥${b43.groceriesTotal.toLocaleString()}"></div>
+            <div class="subtracker-seg dining" style="width: ${diningPct}%;" title="外食(1人分): ¥${b43.diningTotal.toLocaleString()}"></div>
+            ${b43.isOver ? `<div class="subtracker-target-marker" style="left: ${targetMarkerPct}%;" title="1人分目標ライン: ¥${b43.target.toLocaleString()}"></div>` : ''}
+          </div>
+          <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin-top: 8px; font-size: 0.74rem; color: var(--text-secondary);">
+            <span>🍳 食費: 実額¥${actualGroceries.toLocaleString()} → <b>1人分 ¥${b43.groceriesTotal.toLocaleString()}</b></span>
+            <span>🍽️ 外食: 実額¥${actualDining.toLocaleString()} → <b>1人分 ¥${b43.diningTotal.toLocaleString()}</b></span>
+          </div>
+        </div>
+
+        ${b43.chargedTotal > 0 ? `<div class="subtracker-charge-note">💳 スプレッドシートのクレカB/43チャージ計: ¥${b43.chargedTotal.toLocaleString()}</div>` : ''}
+        ${logsHtml}
+      `;
+
+      bindB43DirectEvents(box, 'analytics');
+
+      // B/43 履歴削除ボタン
+      box.querySelectorAll('[data-del-b43]').forEach((btn) => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const id = btn.dataset.delB43;
+          if (confirm('このB/43記録を削除しますか？')) {
+            store.deleteB43Log(id);
+            showToast('B/43記録を削除しました');
+            try {
+              await this.api.saveSubLogs();
+            } catch (err) {}
+          }
+        });
+      });
+    }
+
+    // ② 明細タブ（#tx-b43-inline-card）にも開閉式のB/43目標・実額入力パネルを描画
+    const txInlineCard = document.getElementById('tx-b43-inline-card');
+    if (txInlineCard) {
+      const wasOpen = txInlineCard.dataset.drawerOpen === 'true';
+      txInlineCard.innerHTML = `
+        <div class="b43-inline-card-header" id="btn-toggle-tx-b43-drawer">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span class="subtracker-badge b43">💑 B/43 実額入力</span>
+            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary);">
+              1人分計 ¥${b43.spentTotal.toLocaleString()} / 目標 ¥${b43.target.toLocaleString()}
+            </span>
+            <span style="font-size: 0.7rem; color: var(--text-muted);">
+              (実額: 食費¥${actualGroceries.toLocaleString()}・外食¥${actualDining.toLocaleString()})
+            </span>
+          </div>
+          <span class="b43-inline-toggle-label">${wasOpen ? '▲ 閉じる' : '▼ 目標・実額を入力'}</span>
+        </div>
+        <div class="b43-inline-drawer" id="tx-b43-drawer-body" style="display: ${wasOpen ? 'block' : 'none'}; margin-top: 12px;">
+          ${buildB43DirectFormHtml('tx')}
+        </div>
+      `;
+
+      txInlineCard.querySelector('#btn-toggle-tx-b43-drawer')?.addEventListener('click', () => {
+        const isNowOpen = txInlineCard.dataset.drawerOpen !== 'true';
+        txInlineCard.dataset.drawerOpen = isNowOpen ? 'true' : 'false';
+        const drawer = txInlineCard.querySelector('#tx-b43-drawer-body');
+        const label = txInlineCard.querySelector('.b43-inline-toggle-label');
+        if (drawer) drawer.style.display = isNowOpen ? 'block' : 'none';
+        if (label) label.textContent = isNowOpen ? '▲ 閉じる' : '▼ 目標・実額を入力';
+      });
+
+      bindB43DirectEvents(txInlineCard, 'tx');
+    }
+  }
+
+  // Suica 内訳管理カードの描画
+  renderSuicaTracker(s) {
+    const box = document.getElementById('suica-tracker-summary-box');
+    if (!box) return;
+    const suica = s.suicaSummary || {
+      chargedTotal: 0,
+      vendingTotal: 0,
+      transitTotal: 0,
+      total: 0,
+      logs: []
+    };
+
+    const maxBase = Math.max(suica.total, 1);
+    const transitPct = Math.min(100, Math.round((suica.transitTotal / maxBase) * 100));
+    const vendingPct = Math.min(100 - transitPct, Math.round((suica.vendingTotal / maxBase) * 100));
+
+    const logsHtml = suica.logs.length === 0
+      ? `<div class="subtracker-empty">まだ自販機の手打ち記録はありません（Suicaチャージ額はすべて交通費として計算中）。</div>`
+      : `<div class="subtracker-log-list">
+          ${suica.logs.map((item) => `
+            <div class="subtracker-log-row" data-suica-id="${item.id}">
+              <div class="subtracker-log-left">
+                <span class="subtracker-type-tag vending">🥤 自販機</span>
+                <span class="subtracker-log-name">${item.name}</span>
+                <span class="subtracker-log-date">${item.date || ''}</span>
+              </div>
+              <div class="subtracker-log-right">
+                <span class="subtracker-log-amount">¥${Number(item.amount || 0).toLocaleString()}</span>
+                <button type="button" class="subtracker-del-btn" data-del-suica="${item.id}" title="削除">✕</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>`;
+
+    box.innerHTML = `
+      <div class="subtracker-metrics-grid">
+        <div class="subtracker-metric-item">
+          <span class="metric-label">Suica チャージ総額</span>
+          <span class="metric-val">¥${suica.chargedTotal.toLocaleString()}</span>
+        </div>
+        <div class="subtracker-metric-item">
+          <span class="metric-label">🚃 交通費（自動算出）</span>
+          <span class="metric-val" style="color: #38bdf8;">¥${suica.transitTotal.toLocaleString()}</span>
+        </div>
+      </div>
+
+      <div class="subtracker-bar-wrap">
+        <div class="subtracker-stacked-bar">
+          <div class="subtracker-seg transit" style="width: ${transitPct}%;" title="交通費: ¥${suica.transitTotal.toLocaleString()}"></div>
+          <div class="subtracker-seg vending" style="width: ${vendingPct}%;" title="自販機代: ¥${suica.vendingTotal.toLocaleString()}"></div>
+        </div>
+        <div class="subtracker-breakdown-chips">
+          <span class="breakdown-chip transit">🚃 交通費（残り全額）: <b>¥${suica.transitTotal.toLocaleString()}</b></span>
+          <span class="breakdown-chip vending">🥤 自販機代（手打ち計）: <b>¥${suica.vendingTotal.toLocaleString()}</b></span>
+        </div>
+      </div>
+
+      ${logsHtml}
+    `;
+
+    box.querySelectorAll('[data-del-suica]').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.delSuica;
+        if (confirm('この自販機記録を削除しますか？')) {
+          store.deleteSuicaLog(id);
+          showToast('自販機記録を削除しました');
+          try {
+            await this.api.saveSubLogs();
+          } catch (err) {}
+        }
+      });
+    });
   }
 
   // 9. 設定
@@ -1293,6 +1660,11 @@ class AppController {
       cardBillInput.value = Math.abs(store.data.currentMonthCardBill || 0);
     }
 
+    const b43TargetInput = document.getElementById('setting-b43-target');
+    if (b43TargetInput && document.activeElement !== b43TargetInput) {
+      b43TargetInput.value = s.b43Summary ? (s.b43Summary.actualTarget ?? s.b43Summary.target * 2) : store.getB43Target();
+    }
+
     // 給料推定 / 確定バッジおよびステータステキストの更新
     const badgeCur = document.getElementById('badge-salary-current');
     const badgeNext = document.getElementById('badge-salary-next');
@@ -1319,6 +1691,85 @@ class AppController {
     }
   }
 
+  // 出費追加モーダルのモード切り替え（'card' | 'b43' | 'suica'）
+  setAddModalMode(mode = 'card', b43SubType = 'groceries') {
+    const modeInput = document.getElementById('input-tx-mode');
+    const modalTitle = document.getElementById('modal-add-tx-title');
+    const infoBanner = document.getElementById('add-mode-info-banner');
+    const groupB43 = document.getElementById('group-b43-subtype');
+    const groupSuica = document.getElementById('group-suica-presets');
+    const groupCat = document.getElementById('group-tx-category');
+    const nameInput = document.getElementById('input-tx-name');
+    const nameLabel = document.getElementById('label-input-tx-name');
+    const amountInput = document.getElementById('input-tx-amount');
+    const submitBtn = document.getElementById('btn-submit-add-tx');
+
+    if (modeInput) modeInput.value = mode;
+
+    document.querySelectorAll('#add-tx-mode-tabs .add-mode-tab').forEach((tab) => {
+      tab.classList.toggle('active', tab.dataset.addMode === mode);
+    });
+
+    if (mode === 'b43') {
+      if (modalTitle) modalTitle.textContent = '💑 B/43 実額（2人分）を手打ち追加';
+      if (infoBanner) {
+        infoBanner.style.display = 'block';
+        infoBanner.innerHTML = '💡 ここには<b>B/43での実額（2人分）</b>を入力してください。食費/外食の実額に加算され、<b>棒グラフには自動で半額（1人分）</b>が反映されます。';
+      }
+      if (groupB43) groupB43.style.display = 'block';
+      if (groupSuica) groupSuica.style.display = 'none';
+      if (groupCat) groupCat.style.display = 'none';
+      if (nameLabel) nameLabel.textContent = 'お店・メモ（任意でもOK）';
+      this.setB43SubType(b43SubType);
+      if (submitBtn) submitBtn.textContent = 'B/43 内訳として記録する';
+    } else if (mode === 'suica') {
+      if (modalTitle) modalTitle.textContent = '🥤 Suica 自販機代を手打ち記録';
+      if (infoBanner) {
+        infoBanner.style.display = 'block';
+        infoBanner.innerHTML = '💡 記録した自販機代を除いた<b>残りのSuicaチャージ額がすべて自動で「交通費」</b>として棒グラフに積み上げ表示されます。';
+      }
+      if (groupB43) groupB43.style.display = 'none';
+      if (groupSuica) groupSuica.style.display = 'block';
+      if (groupCat) groupCat.style.display = 'none';
+      if (nameLabel) nameLabel.textContent = '飲み物・内容';
+      if (nameInput && !nameInput.value) nameInput.value = '自販機（飲み物）';
+      if (nameInput) nameInput.placeholder = '例: 自販機（水・コーヒー）';
+      if (amountInput) amountInput.placeholder = '160';
+      if (submitBtn) submitBtn.textContent = 'Suica 自販機代として記録する';
+    } else {
+      if (modalTitle) modalTitle.textContent = '💳 クレカ出費を登録';
+      if (infoBanner) infoBanner.style.display = 'none';
+      if (groupB43) groupB43.style.display = 'none';
+      if (groupSuica) groupSuica.style.display = 'none';
+      if (groupCat) groupCat.style.display = 'block';
+      if (nameLabel) nameLabel.textContent = 'お店・内容';
+      if (nameInput && (nameInput.value === '自販機（飲み物）' || nameInput.value === '自炊・買い出し' || nameInput.value === '2人で外食')) {
+        nameInput.value = '';
+      }
+      if (nameInput) nameInput.placeholder = '例: セブン-イレブン';
+      if (amountInput) amountInput.placeholder = '1000';
+      if (submitBtn) submitBtn.textContent = '追加する';
+    }
+  }
+
+  setB43SubType(subType = 'groceries') {
+    const valid = subType === 'dining' ? 'dining' : 'groceries';
+    const subInput = document.getElementById('input-b43-subtype');
+    const nameInput = document.getElementById('input-tx-name');
+    if (subInput) subInput.value = valid;
+
+    document.querySelectorAll('.b43-subtype-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.b43Type === valid);
+    });
+
+    if (nameInput) {
+      if (!nameInput.value || nameInput.value === '自炊・買い出し' || nameInput.value === '2人で外食' || nameInput.value === '自販機（飲み物）') {
+        nameInput.value = valid === 'dining' ? '2人で外食' : '自炊・買い出し';
+      }
+      nameInput.placeholder = valid === 'dining' ? '例: サイゼリヤ・カフェ' : '例: ライフ・スーパー買い出し';
+    }
+  }
+
   // --- モーダル制御 ---
   setupModals() {
     // 支出追加モーダル
@@ -1326,15 +1777,52 @@ class AppController {
     const modalAddTx = document.getElementById('modal-add-tx');
     const btnCloseAddTx = document.getElementById('btn-close-add-tx');
 
-    const openAddModal = () => {
+    const openAddModal = (mode = 'card', b43SubType = 'groceries') => {
       const dateInput = document.getElementById('input-tx-date');
       if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
+      const amountInput = document.getElementById('input-tx-amount');
+      if (amountInput) amountInput.value = '';
+      this.setAddModalMode(mode, b43SubType);
       modalAddTx?.classList.add('active');
+      setTimeout(() => {
+        amountInput?.focus();
+      }, 120);
     };
 
-    fab?.addEventListener('click', openAddModal);
-    document.getElementById('btn-add-quick')?.addEventListener('click', openAddModal);
-    document.getElementById('btn-hero-add-tx')?.addEventListener('click', openAddModal);
+    fab?.addEventListener('click', () => openAddModal('card'));
+    document.getElementById('btn-add-quick')?.addEventListener('click', () => openAddModal('card'));
+    document.getElementById('btn-hero-add-tx')?.addEventListener('click', () => openAddModal('card'));
+    document.getElementById('btn-open-b43-quick')?.addEventListener('click', () => openAddModal('b43', 'groceries'));
+    document.getElementById('btn-add-b43-log')?.addEventListener('click', () => openAddModal('b43', 'groceries'));
+    document.getElementById('btn-open-suica-quick')?.addEventListener('click', () => openAddModal('suica'));
+    document.getElementById('btn-add-suica-log')?.addEventListener('click', () => openAddModal('suica'));
+
+    // モーダル内の3モード切り替えタブ
+    document.querySelectorAll('#add-tx-mode-tabs .add-mode-tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        this.setAddModalMode(tab.dataset.addMode || 'card');
+      });
+    });
+
+    // B/43 内訳種別ボタン（食費(自炊) vs 外食）
+    document.querySelectorAll('.b43-subtype-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        this.setB43SubType(btn.dataset.b43Type || 'groceries');
+      });
+    });
+
+    // Suica 自販機プリセット金額ボタン
+    document.querySelectorAll('.suica-preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const amt = btn.dataset.presetAmt;
+        const amountInput = document.getElementById('input-tx-amount');
+        if (amountInput && amt) {
+          amountInput.value = amt;
+          amountInput.focus();
+        }
+      });
+    });
+
     btnCloseAddTx?.addEventListener('click', () => modalAddTx?.classList.remove('active'));
 
     // 明細編集モーダル閉じる
@@ -1451,15 +1939,50 @@ class AppController {
 
   // --- フォーム送信制御 ---
   setupForms() {
-    // 支出追加
+    // 支出追加（クレカ出費 / B/43 手打ち / Suica 自販機 の3モード対応）
     document.getElementById('form-add-tx')?.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const mode = document.getElementById('input-tx-mode')?.value || 'card';
       const name = document.getElementById('input-tx-name').value.trim();
       const amount = Number(document.getElementById('input-tx-amount').value);
-      const category = document.getElementById('input-tx-category').value;
       const rawDate = document.getElementById('input-tx-date').value;
       const date = rawDate ? rawDate.replace(/-/g, '/') : new Date().toISOString().slice(0, 10).replace(/-/g, '/');
 
+      if (mode === 'b43') {
+        const subType = document.getElementById('input-b43-subtype')?.value || 'groceries';
+        const subLabel = subType === 'dining' ? '外食代' : '食費（自炊代）';
+        store.addB43Log({
+          date,
+          subType,
+          name: name || subLabel,
+          amount,
+        });
+        document.getElementById('modal-add-tx')?.classList.remove('active');
+        document.getElementById('form-add-tx')?.reset();
+        const halfAmt = Math.round(amount / 2);
+        showToast(`B/43（${subLabel}）実額¥${amount.toLocaleString()} を追加！（棒グラフに半額¥${halfAmt.toLocaleString()}を反映）`, 'success');
+        if (this.api.isConfigured()) {
+          this.api.saveSubLogs().catch((err) => console.warn('B/43ログ同期エラー:', err));
+        }
+        return;
+      }
+
+      if (mode === 'suica') {
+        store.addSuicaLog({
+          date,
+          name: name || '自販機ドリンク',
+          amount,
+        });
+        document.getElementById('modal-add-tx')?.classList.remove('active');
+        document.getElementById('form-add-tx')?.reset();
+        showToast(`Suica自販機代 ¥${amount.toLocaleString()} を記録しました！（残額を交通費に自動按分）`, 'success');
+        if (this.api.isConfigured()) {
+          this.api.saveSubLogs().catch((err) => console.warn('Suicaログ同期エラー:', err));
+        }
+        return;
+      }
+
+      const category = document.getElementById('input-tx-category').value;
       const newTx = store.addTransaction({ name, amount, category, date, group: 'card' });
       document.getElementById('modal-add-tx')?.classList.remove('active');
       document.getElementById('form-add-tx')?.reset();
@@ -1747,6 +2270,53 @@ class AppController {
         }
       } else {
         showToast(`クレカ引落額を ¥${val.toLocaleString()} に更新しました（ローカル保存）`);
+      }
+    });
+
+    // B/43 月初振込額（目標予算）の保存（設定画面）
+    document.getElementById('btn-save-b43-target')?.addEventListener('click', async () => {
+      const input = document.getElementById('setting-b43-target');
+      const val = Number(input?.value);
+      if (isNaN(val) || val < 0) {
+        showToast('有効なB/43目標予算を入力してください', 'warning');
+        return;
+      }
+      store.updateB43Target(val);
+      showToast(`B/43の月間目標予算を ¥${val.toLocaleString()} に保存しました！`, 'success');
+      if (this.api.isConfigured()) {
+        try {
+          await this.api.saveSubLogs();
+        } catch (err) {
+          console.warn('B/43目標予算のスプシ同期警告:', err);
+        }
+      }
+    });
+
+    // スプレッドシートのC列プルダウン（新19カテゴリ）一括更新ボタン
+    document.getElementById('btn-update-sheet-categories')?.addEventListener('click', async () => {
+      if (!this.api.isConfigured()) {
+        showToast('設定画面でGAS Web App URLを設定してください', 'warning');
+        return;
+      }
+      const btn = document.getElementById('btn-update-sheet-categories');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'スプレッドシートのC列プルダウンを更新中...';
+      }
+      try {
+        const res = await this.api.updateSpreadsheetCategories(SPREADSHEET_CATEGORIES, store.data.currentMonth);
+        if (res && res.status === 'success') {
+          showToast(res.message || 'スプレッドシートの新19カテゴリプルダウンを更新しました！', 'success');
+        } else {
+          showToast(`更新警告: ${res?.message || 'GASのデプロイ更新をご確認ください'}`, 'warning');
+        }
+      } catch (err) {
+        showToast(`更新エラー: ${err.message}`, 'warning');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'スプレッドシートのC列プルダウンを新19カテゴリに更新';
+        }
       }
     });
 

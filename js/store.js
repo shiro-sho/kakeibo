@@ -2,31 +2,53 @@
  * 家計簿データストア（計算ロジック・ローカルストレージ・初期データ管理）
  */
 
-// スプレッドシートのプルダウン（データ入力規則）に定義されている全22カテゴリ
+// スプレッドシートのプルダウン（データ入力規則）に定義されている全19カテゴリ
 export const SPREADSHEET_CATEGORIES = [
-  'Suica',
-  '飲み物代',
-  '昼ご飯',
-  '外食',
   '交際費',
-  'お菓子代',
-  '食費',
-  '日用品費',
+  'Suica',
+  '定期代',
   'デート',
   '夜食代',
-  '交通費',
-  'おやつ',
   'B/43',
+  '通信費',
   '美容費',
   '医療費',
-  '雑費',
+  '勉強・資格',
+  '課金',
+  'ジム',
   '被服費',
-  '娯楽費',
-  '通信費',
-  '水道光熱費',
-  '月額課金',
-  '勉強・資格'
+  '雑費',
+  '外食',
+  '食費',
+  '昼ごはん',
+  '日用品費',
+  '水道光熱費'
 ];
+
+// 旧カテゴリ名から新19カテゴリへの自動正規化ヘルパー
+export function normalizeCategoryName(rawCat, txName = '') {
+  const cat = String(rawCat || '').trim();
+  const name = String(txName || '').trim();
+
+  if (name.includes('AnyTime') || name.includes('エニタイム') || name.includes('ジム')) {
+    if (!cat || cat === '月額課金' || cat === '課金' || cat === '引落系、課金系') return 'ジム';
+  }
+  if (name.includes('定期')) {
+    if (!cat || cat === '交通費' || cat === '引落系、課金系') return '定期代';
+  }
+
+  if (!cat) return '';
+  if (cat === '昼ご飯') return '昼ごはん';
+  if (cat === '月額課金') return '課金';
+  if (cat === '交通費') {
+    if (name.includes('定期')) return '定期代';
+    if (name.includes('Suica') || name.includes('Ｓｕｉｃａ')) return 'Suica';
+    return '雑費';
+  }
+  if (cat === '飲み物代' || cat === 'お菓子代' || cat === 'おやつ') return '食費';
+  if (cat === '娯楽費') return '雑費';
+  return cat;
+}
 
 // 現在のJSTカレンダー年月（YYYYMM形式、例: "202610"）を取得するヘルパー
 export function getCurrentCalendarYM() {
@@ -1021,12 +1043,87 @@ class KakeiboStore {
     const mufgAfterNext = mufgAfterCurrent;
     const totalAfterNext = smbcAfterNext + mizuhoAfterNext + mufgAfterNext;
 
-    // 10. カテゴリ別集計
+    // 10. カテゴリ別集計（旧カテゴリ名は新19カテゴリへ自動正規化して合算）
     const categoryTotals = {};
     d.transactions.forEach((tx) => {
-      const cat = tx.category || '未分類';
-      categoryTotals[cat] = (categoryTotals[cat] || 0) + Number(tx.amount || 0);
+      const normalizedCat = normalizeCategoryName(tx.category, tx.name) || '未分類';
+      if (tx.category && tx.category !== normalizedCat && tx.category !== '未分類') {
+        tx.category = normalizedCat;
+      }
+      const amt = (tx.group === 'recurring' && (tx.amountPending || !tx.amount || Number(tx.amount) === 0))
+        ? this.getRecurringPendingEstimate(tx, d.currentMonth)
+        : Number(tx.amount || 0);
+      if (amt > 0) {
+        categoryTotals[normalizedCat] = (categoryTotals[normalizedCat] || 0) + amt;
+      }
     });
+
+    // 11. B/43（彼女の2人食費管理：実額は2人分を入力し、棒グラフには1人分＝半額を反映）の集計
+    const currentYM = String(d.currentMonth || getCurrentCalendarYM());
+    const b43ActualTarget = this.getB43Target(currentYM); // 2人合計のB/43目標設定額（実額）
+    const b43Logs = this.getB43Logs(currentYM);
+    const b43Actuals = this.getB43Actuals(currentYM);     // 2人合計の食費・外食の実額
+
+    const b43ActualGroceries = b43Actuals.groceries;
+    const b43ActualDining = b43Actuals.dining;
+    const b43ActualSpentTotal = b43ActualGroceries + b43ActualDining;
+    const b43ActualRemaining = Math.max(0, b43ActualTarget - b43ActualSpentTotal);
+    const b43ActualOverAmount = Math.max(0, b43ActualSpentTotal - b43ActualTarget);
+
+    // 棒グラフ反映用の1人分（実額の半額：2人で同額を入れ毎度割り勘という計算）
+    const b43HalfTarget = Math.round(b43ActualTarget / 2);
+    const b43HalfGroceries = Math.round(b43ActualGroceries / 2);
+    const b43HalfDining = Math.round(b43ActualDining / 2);
+    const b43HalfSpentTotal = b43HalfGroceries + b43HalfDining;
+    const b43ChargedTotal = categoryTotals['B/43'] || 0;
+    const b43HalfRemaining = Math.max(0, b43HalfTarget - b43HalfSpentTotal);
+    const b43HalfOverAmount = Math.max(0, b43HalfSpentTotal - b43HalfTarget);
+
+    // 棒グラフ上のB/43カテゴリの基準値（実額が入力されていればその半額＝1人分、未入力時はクレカチャージ額）
+    if (b43HalfSpentTotal > 0) {
+      categoryTotals['B/43'] = b43HalfSpentTotal;
+    } else if (b43ChargedTotal > 0) {
+      categoryTotals['B/43'] = b43ChargedTotal;
+    }
+
+    const b43Summary = {
+      // 棒グラフ表示用（1人分＝実額の半額）
+      target: b43HalfTarget,
+      chargedTotal: b43ChargedTotal,
+      groceriesTotal: b43HalfGroceries,
+      diningTotal: b43HalfDining,
+      spentTotal: b43HalfSpentTotal,
+      remaining: b43HalfRemaining,
+      overAmount: b43HalfOverAmount,
+      isOver: b43ActualSpentTotal > b43ActualTarget,
+      // B/43での実額（2人分合計：入力欄で管理する値）
+      actualTarget: b43ActualTarget,
+      actualGroceries: b43ActualGroceries,
+      actualDining: b43ActualDining,
+      actualSpentTotal: b43ActualSpentTotal,
+      actualRemaining: b43ActualRemaining,
+      actualOverAmount: b43ActualOverAmount,
+      logs: b43Logs
+    };
+
+    // 12. Suica（交通費＋自販機代：自販機代は手打ち、残りのチャージ分はすべて自動で交通費）の集計
+    const suicaLogs = this.getSuicaLogs(currentYM);
+    const suicaVendingTotal = suicaLogs.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+    const suicaChargedTotal = categoryTotals['Suica'] || 0;
+    const suicaTransitTotal = Math.max(0, suicaChargedTotal - suicaVendingTotal);
+    const suicaTotal = Math.max(suicaChargedTotal, suicaVendingTotal);
+
+    if (suicaTotal > 0) {
+      categoryTotals['Suica'] = suicaTotal;
+    }
+
+    const suicaSummary = {
+      chargedTotal: suicaChargedTotal,
+      vendingTotal: suicaVendingTotal,
+      transitTotal: suicaTransitTotal,
+      total: suicaTotal,
+      logs: suicaLogs
+    };
 
     return {
       currentMonth: d.currentMonth,
@@ -1065,7 +1162,217 @@ class KakeiboStore {
       },
       transactions: d.transactions,
       bankTransfers: d.bankTransfers,
-      categoryTotals
+      categoryTotals,
+      b43Summary,
+      suicaSummary
+    };
+  }
+
+  // --- B/43 & Suica 内訳ログ・目標額の管理メソッド ---
+
+  getB43Target(ym) {
+    const monthKey = String(ym || this.data?.currentMonth || getCurrentCalendarYM());
+    const byMonth = this.data?.b43TargetByMonth?.[monthKey];
+    if (byMonth !== undefined && byMonth !== null && !isNaN(Number(byMonth))) {
+      return Number(byMonth);
+    }
+    const globalTarget = this.settings?.b43TargetBudget ?? this.data?.b43TargetBudget;
+    if (globalTarget !== undefined && globalTarget !== null && !isNaN(Number(globalTarget))) {
+      return Number(globalTarget);
+    }
+    return 30000; // デフォルト目標額 30,000円
+  }
+
+  updateB43Target(amount, ym) {
+    const val = Math.max(0, Number(amount) || 0);
+    const monthKey = String(ym || this.data?.currentMonth || getCurrentCalendarYM());
+    if (!this.data.b43TargetByMonth) this.data.b43TargetByMonth = {};
+    this.data.b43TargetByMonth[monthKey] = val;
+    this.data.b43TargetBudget = val;
+    this.settings = {
+      ...this.settings,
+      b43TargetBudget: val
+    };
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(this.settings));
+    } catch (e) {}
+    this.saveData();
+    return val;
+  }
+
+  // B/43 での2人分の食費（自炊代）・外食代の実額を取得
+  getB43Actuals(ym) {
+    const monthKey = String(ym || this.data?.currentMonth || getCurrentCalendarYM());
+    const direct = this.data?.b43ActualsByMonth?.[monthKey];
+    const logs = this.getB43Logs(monthKey);
+    const logGroceries = logs
+      .filter((item) => item.subType !== 'dining')
+      .reduce((sum, item) => sum + Number(item.amount || 0), 0);
+    const logDining = logs
+      .filter((item) => item.subType === 'dining')
+      .reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+    const groceries = (direct && direct.groceries !== undefined && !isNaN(Number(direct.groceries)))
+      ? Math.max(0, Number(direct.groceries))
+      : logGroceries;
+    const dining = (direct && direct.dining !== undefined && !isNaN(Number(direct.dining)))
+      ? Math.max(0, Number(direct.dining))
+      : logDining;
+
+    return { groceries, dining };
+  }
+
+  // B/43 の目標設定額・食費実額・外食実額（2人分）を直接一括更新
+  updateB43Actuals({ target, groceries, dining }, ym) {
+    const monthKey = String(ym || this.data?.currentMonth || getCurrentCalendarYM());
+    if (target !== undefined && !isNaN(Number(target))) {
+      const targetVal = Math.max(0, Number(target) || 0);
+      if (!this.data.b43TargetByMonth) this.data.b43TargetByMonth = {};
+      this.data.b43TargetByMonth[monthKey] = targetVal;
+      this.data.b43TargetBudget = targetVal;
+      this.settings = {
+        ...this.settings,
+        b43TargetBudget: targetVal
+      };
+      try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(this.settings));
+      } catch (e) {}
+    }
+
+    if (!this.data.b43ActualsByMonth) this.data.b43ActualsByMonth = {};
+    const current = this.getB43Actuals(monthKey);
+    this.data.b43ActualsByMonth[monthKey] = {
+      groceries: groceries !== undefined && !isNaN(Number(groceries)) ? Math.max(0, Number(groceries)) : current.groceries,
+      dining: dining !== undefined && !isNaN(Number(dining)) ? Math.max(0, Number(dining)) : current.dining
+    };
+    this.saveData();
+    return this.data.b43ActualsByMonth[monthKey];
+  }
+
+  getB43Logs(ym) {
+    const monthKey = String(ym || this.data?.currentMonth || getCurrentCalendarYM());
+    const list = this.data?.b43LogsByMonth?.[monthKey];
+    return Array.isArray(list) ? list : [];
+  }
+
+  addB43Log(entry, ym) {
+    const monthKey = String(ym || this.data?.currentMonth || getCurrentCalendarYM());
+    if (!this.data.b43LogsByMonth) this.data.b43LogsByMonth = {};
+    if (!Array.isArray(this.data.b43LogsByMonth[monthKey])) {
+      this.data.b43LogsByMonth[monthKey] = [];
+    }
+    const currentActuals = this.getB43Actuals(monthKey);
+    const subType = entry.subType === 'dining' ? 'dining' : 'groceries';
+    const defaultName = subType === 'dining' ? '2人で外食' : '自炊・買い出し';
+    const amt = Math.max(0, Number(entry.amount) || 0);
+    const newItem = {
+      id: entry.id || `b43-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      date: entry.date || new Date().toISOString().slice(0, 10).replace(/-/g, '/'),
+      subType,
+      name: String(entry.name || defaultName).trim(),
+      amount: amt
+    };
+    this.data.b43LogsByMonth[monthKey].unshift(newItem);
+
+    // 直接実額欄にも加算して同期
+    if (!this.data.b43ActualsByMonth) this.data.b43ActualsByMonth = {};
+    this.data.b43ActualsByMonth[monthKey] = {
+      groceries: subType === 'groceries' ? currentActuals.groceries + amt : currentActuals.groceries,
+      dining: subType === 'dining' ? currentActuals.dining + amt : currentActuals.dining
+    };
+
+    this.saveData();
+    return newItem;
+  }
+
+  updateB43Log(id, updates, ym) {
+    const monthKey = String(ym || this.data?.currentMonth || getCurrentCalendarYM());
+    const list = this.data?.b43LogsByMonth?.[monthKey];
+    if (!Array.isArray(list)) return null;
+    const item = list.find((x) => x.id === id);
+    if (item) {
+      if (updates.date !== undefined) item.date = updates.date;
+      if (updates.subType !== undefined) item.subType = updates.subType === 'dining' ? 'dining' : 'groceries';
+      if (updates.name !== undefined) item.name = String(updates.name).trim();
+      if (updates.amount !== undefined) item.amount = Math.max(0, Number(updates.amount) || 0);
+      this.saveData();
+      return item;
+    }
+    return null;
+  }
+
+  deleteB43Log(id, ym) {
+    const monthKey = String(ym || this.data?.currentMonth || getCurrentCalendarYM());
+    if (!this.data?.b43LogsByMonth?.[monthKey]) return;
+    const targetItem = this.data.b43LogsByMonth[monthKey].find((x) => x.id === id);
+    const currentActuals = this.getB43Actuals(monthKey);
+    this.data.b43LogsByMonth[monthKey] = this.data.b43LogsByMonth[monthKey].filter((x) => x.id !== id);
+    if (targetItem) {
+      if (!this.data.b43ActualsByMonth) this.data.b43ActualsByMonth = {};
+      const amt = Math.max(0, Number(targetItem.amount) || 0);
+      this.data.b43ActualsByMonth[monthKey] = {
+        groceries: targetItem.subType === 'dining' ? currentActuals.groceries : Math.max(0, currentActuals.groceries - amt),
+        dining: targetItem.subType === 'dining' ? Math.max(0, currentActuals.dining - amt) : currentActuals.dining
+      };
+    }
+    this.saveData();
+  }
+
+  getSuicaLogs(ym) {
+    const monthKey = String(ym || this.data?.currentMonth || getCurrentCalendarYM());
+    const list = this.data?.suicaLogsByMonth?.[monthKey];
+    return Array.isArray(list) ? list : [];
+  }
+
+  addSuicaLog(entry, ym) {
+    const monthKey = String(ym || this.data?.currentMonth || getCurrentCalendarYM());
+    if (!this.data.suicaLogsByMonth) this.data.suicaLogsByMonth = {};
+    if (!Array.isArray(this.data.suicaLogsByMonth[monthKey])) {
+      this.data.suicaLogsByMonth[monthKey] = [];
+    }
+    const newItem = {
+      id: entry.id || `suica-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      date: entry.date || new Date().toISOString().slice(0, 10).replace(/-/g, '/'),
+      subType: 'vending',
+      name: String(entry.name || '自販機（飲み物）').trim(),
+      amount: Math.max(0, Number(entry.amount) || 0)
+    };
+    this.data.suicaLogsByMonth[monthKey].unshift(newItem);
+    this.saveData();
+    return newItem;
+  }
+
+  updateSuicaLog(id, updates, ym) {
+    const monthKey = String(ym || this.data?.currentMonth || getCurrentCalendarYM());
+    const list = this.data?.suicaLogsByMonth?.[monthKey];
+    if (!Array.isArray(list)) return null;
+    const item = list.find((x) => x.id === id);
+    if (item) {
+      if (updates.date !== undefined) item.date = updates.date;
+      if (updates.name !== undefined) item.name = String(updates.name).trim();
+      if (updates.amount !== undefined) item.amount = Math.max(0, Number(updates.amount) || 0);
+      this.saveData();
+      return item;
+    }
+    return null;
+  }
+
+  deleteSuicaLog(id, ym) {
+    const monthKey = String(ym || this.data?.currentMonth || getCurrentCalendarYM());
+    if (!this.data?.suicaLogsByMonth?.[monthKey]) return;
+    this.data.suicaLogsByMonth[monthKey] = this.data.suicaLogsByMonth[monthKey].filter((x) => x.id !== id);
+    this.saveData();
+  }
+
+  // スプレッドシート同期用の内訳ペイロードを取得
+  getSubLogsPayload(ym) {
+    const monthKey = String(ym || this.data?.currentMonth || getCurrentCalendarYM());
+    return {
+      month: monthKey,
+      b43Target: this.getB43Target(monthKey),
+      b43Actuals: this.getB43Actuals(monthKey),
+      b43Logs: this.getB43Logs(monthKey),
+      suicaLogs: this.getSuicaLogs(monthKey)
     };
   }
 
@@ -1223,6 +1530,21 @@ class KakeiboStore {
         if (tx.id) customMap[`id:${ym}:${tx.id}`] = rawName;
         if (tx.date && tx.amount !== undefined) {
           customMap[`da:${ym}:${tx.date}:${Number(tx.amount)}`] = rawName;
+        }
+      }
+
+      // 旧カテゴリ表記を新19カテゴリに正規化
+      if (nextCat && nextCat !== '未分類' && nextCat !== '引落系、課金系') {
+        const normalized = normalizeCategoryName(nextCat, nextName);
+        if (normalized && normalized !== nextCat) {
+          nextCat = normalized;
+          changed = true;
+        }
+      } else if ((!nextCat || nextCat === '引落系、課金系') && tx.group === 'recurring') {
+        const normalized = normalizeCategoryName(nextCat, nextName);
+        if (normalized && normalized !== nextCat) {
+          nextCat = normalized;
+          changed = true;
         }
       }
 
@@ -1526,6 +1848,30 @@ class KakeiboStore {
       }
       if (apiData.nextSalary !== undefined) {
         this.data.salaries.nextMonth = Number(apiData.nextSalary);
+      }
+    }
+
+    // 5. B/43 目標額・実額・内訳ログ ＆ Suica自販機ログの同期反映（スプレッドシートZ1セル保存分）
+    if (apiData.subLogs && typeof apiData.subLogs === 'object') {
+      const mKey = this.data.currentMonth || getCurrentCalendarYM();
+      if (apiData.subLogs.b43Target !== undefined && !isNaN(Number(apiData.subLogs.b43Target))) {
+        if (!this.data.b43TargetByMonth) this.data.b43TargetByMonth = {};
+        this.data.b43TargetByMonth[mKey] = Number(apiData.subLogs.b43Target);
+      }
+      if (apiData.subLogs.b43Actuals && typeof apiData.subLogs.b43Actuals === 'object') {
+        if (!this.data.b43ActualsByMonth) this.data.b43ActualsByMonth = {};
+        this.data.b43ActualsByMonth[mKey] = {
+          groceries: Math.max(0, Number(apiData.subLogs.b43Actuals.groceries) || 0),
+          dining: Math.max(0, Number(apiData.subLogs.b43Actuals.dining) || 0)
+        };
+      }
+      if (Array.isArray(apiData.subLogs.b43Logs)) {
+        if (!this.data.b43LogsByMonth) this.data.b43LogsByMonth = {};
+        this.data.b43LogsByMonth[mKey] = apiData.subLogs.b43Logs;
+      }
+      if (Array.isArray(apiData.subLogs.suicaLogs)) {
+        if (!this.data.suicaLogsByMonth) this.data.suicaLogsByMonth = {};
+        this.data.suicaLogsByMonth[mKey] = apiData.subLogs.suicaLogs;
       }
     }
 
