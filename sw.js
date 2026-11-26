@@ -1,5 +1,5 @@
 // ※ index.html / app.js の ?v= と揃えて更新してください（古いキャッシュは activate 時に自動削除）
-const VERSION = '20261126_2';
+const VERSION = '20261126_5';
 const CACHE_NAME = `kakeibo-v${VERSION}`;
 
 // 初回インストール時に先読みしておくアプリ本体（2回目以降の起動をネットワーク待ちゼロにする）

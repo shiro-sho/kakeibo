@@ -23,7 +23,7 @@
         var valid = (t === 'platinum' || t === 'starlight' || t === 'light' || t === 'white') ? 'platinum' : 'onyx';
         document.documentElement.setAttribute('data-theme', valid);
         var m = document.querySelector('meta[name="theme-color"]');
-        if (m) m.setAttribute('content', valid === 'platinum' ? '#f5f7fb' : '#000000');
+        if (m) m.setAttribute('content', valid === 'platinum' ? '#f3f1ec' : '#000000');
       } catch (e) {}
     })();
   </script>
@@ -39,13 +39,13 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;900&display=swap"></noscript>
 
   <!-- Stylesheet (キャッシュバスター付き) -->
-  <link rel="stylesheet" href="./css/style.css?v=20261126_2">
+  <link rel="stylesheet" href="./css/style.css?v=20261126_5">
 
   <!-- ES Modules の依存ファイルを並列先読み（app.js → store/charts/api の直列ダウンロードを解消） -->
-  <link rel="modulepreload" href="./js/app.js?v=20261126_2">
-  <link rel="modulepreload" href="./js/store.js?v=20261126_2">
-  <link rel="modulepreload" href="./js/charts.js?v=20261126_2">
-  <link rel="modulepreload" href="./js/api.js?v=20261126_2">
+  <link rel="modulepreload" href="./js/app.js?v=20261126_5">
+  <link rel="modulepreload" href="./js/store.js?v=20261126_5">
+  <link rel="modulepreload" href="./js/charts.js?v=20261126_5">
+  <link rel="modulepreload" href="./js/api.js?v=20261126_5">
 
   <!-- Chart.js は分析画面を開いた時に charts.js から遅延読み込み（起動時の約200KBの通信を削減） -->
 </head>
@@ -716,7 +716,7 @@
           <input type="hidden" id="input-b43-subtype" value="groceries">
 
           <!-- B/43 種別選択チップ（B/43記録追加時のみ表示） -->
-          <div class="form-group" id="group-b43-subtype" style="display: none;">
+          <div class="form-group" id="group-b43-subtype" data-b43-scope="add" style="display: none;">
             <label class="form-label">種別（2人分の実額を入力）</label>
             <div class="b43-subtype-chips">
               <button type="button" class="b43-subtype-btn groceries active" data-b43-subtype="groceries">食費（自炊）</button>
@@ -973,6 +973,41 @@
       </div>
     </div>
 
+    <!-- MODAL: B/43 履歴の編集・削除 -->
+    <div class="modal-overlay" id="modal-edit-b43">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">B/43 記録の編集</h3>
+          <button class="close-btn" id="btn-close-edit-b43">✕</button>
+        </div>
+        <form id="form-edit-b43">
+          <input type="hidden" id="edit-b43-id">
+          <input type="hidden" id="edit-b43-subtype" value="groceries">
+          <div class="form-group" data-b43-scope="edit">
+            <label class="form-label">種別（2人分の実額）</label>
+            <div class="b43-subtype-chips">
+              <button type="button" class="b43-subtype-btn groceries active" data-b43-subtype="groceries">食費（自炊）</button>
+              <button type="button" class="b43-subtype-btn dining" data-b43-subtype="dining">外食</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-b43-name">内容</label>
+            <input type="text" id="edit-b43-name" class="form-input" placeholder="例: スーパー買い出し">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-b43-amount">金額 (¥)</label>
+            <input type="number" id="edit-b43-amount" class="form-input" min="0" placeholder="3000" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="edit-b43-date">日付</label>
+            <input type="date" id="edit-b43-date" class="form-input">
+          </div>
+          <button type="submit" class="btn-primary">変更を保存する</button>
+          <button type="button" class="btn-danger" id="btn-delete-b43">この記録を削除</button>
+        </form>
+      </div>
+    </div>
+
     <!-- MODAL: Category Picker (テーマ連動・高視認性ジャンル選択シート) -->
     <div class="modal-overlay" id="modal-select-category">
       <div class="modal-content modal-category-content">
@@ -1046,7 +1081,7 @@
   <div class="toast-container" id="toast-container"></div>
 
   <!-- App Scripts (キャッシュバスター付き) -->
-  <script type="module" src="./js/app.js?v=20261126_2"></script>
+  <script type="module" src="./js/app.js?v=20261126_5"></script>
 
   <!-- PWA Service Worker Registration & Cache Purge -->
   <script>
@@ -1057,7 +1092,7 @@
             reg.update();
           }
         });
-        navigator.serviceWorker.register('./sw.js?v=20261126_2').catch((err) => {
+        navigator.serviceWorker.register('./sw.js?v=20261126_5').catch((err) => {
           console.log('SW registration skipped:', err);
         });
       });

@@ -140,8 +140,10 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: env(safe-area-inset-top, 0px);
+  /* Safari(ブラウザ表示)では inset-top が 0 になり、カバーが消えて iOS のぼかし(scroll edge effect)が出るため最低高さを確保 */
+  height: max(env(safe-area-inset-top, 0px), 12px);
   background-color: var(--bg-main);
+  transform: translateZ(0);
   background-image: none !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -7605,6 +7607,25 @@ html[data-theme="white"],
   background: rgba(56, 189, 248, 0.28);
 }
 
+/* B/43 履歴行：タップで編集モーダルを開く */
+.subtracker-log-row.clickable {
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.subtracker-log-row.clickable:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.subtracker-log-row.clickable:active {
+  transform: scale(0.985);
+}
+
+.subtracker-log-chevron {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
 /* B/43 種別選択チップ（食費 / 外食） */
 .b43-subtype-chips {
   display: grid;
@@ -7913,3 +7934,144 @@ html[data-theme="white"],
 
 
 
+
+/* ==========================================================================
+   Platinum Pearl Luxe (ライトテーマ高級感リファイン)
+   - 青みグレー → 温かみのあるパールアイボリー
+   - グレー枠線 → 多層ソフトシャドウで浮かせる
+   - 主役カードにシャンパンゴールドのヘアライン＆光沢ビーム
+   ※ ダーク(onyx)には一切影響しない
+   ========================================================================== */
+html[data-theme="platinum"],
+html[data-theme="light"],
+html[data-theme="white"] {
+  --bg-main: #f3f1ec;
+  --surface-card: #fdfcfa;
+  --surface-card-hover: #ffffff;
+  --border-glass: rgba(41, 37, 36, 0.06);
+  --border-glow: rgba(184, 149, 90, 0.45);
+  --text-primary: #1c1917;
+  --text-secondary: #44403c;
+  --text-muted: #78716c;
+  --lux-gold: #b08d57;
+  --lux-gold-soft: #e7d6b4;
+  --lux-shadow:
+    0 1px 2px rgba(41, 37, 36, 0.04),
+    0 8px 20px -6px rgba(41, 37, 36, 0.07),
+    0 24px 48px -18px rgba(41, 37, 36, 0.12);
+  --card-hero-bg: linear-gradient(160deg, #ffffff 0%, #fbf9f5 50%, #f2ede4 100%);
+}
+
+html[data-theme="platinum"],
+html[data-theme="light"],
+html[data-theme="white"],
+html[data-theme="platinum"] body,
+html[data-theme="light"] body,
+html[data-theme="white"] body {
+  background-color: #f3f1ec !important;
+}
+
+html[data-theme="platinum"] #app::after,
+html[data-theme="light"] #app::after,
+html[data-theme="white"] #app::after {
+  background: linear-gradient(180deg, rgba(243, 241, 236, 0) 0%, rgba(243, 241, 236, 0.92) 24%, #f3f1ec 44%, #f3f1ec 100%);
+}
+
+/* カード：枠線をほぼ消し、影の重なりで浮遊感を出す */
+html[data-theme="platinum"] .glass-card,
+html[data-theme="light"] .glass-card,
+html[data-theme="white"] .glass-card {
+  background: #fdfcfa !important;
+  border: 1px solid rgba(41, 37, 36, 0.05) !important;
+  box-shadow: var(--lux-shadow), inset 0 1px 0 #ffffff !important;
+}
+
+/* 主役カード：パール地 × シャンパンゴールドの光沢ビーム */
+html[data-theme="platinum"] .credit-hero,
+html[data-theme="light"] .credit-hero,
+html[data-theme="white"] .credit-hero {
+  background: #fdfcfa !important;
+  border: 1px solid rgba(176, 141, 87, 0.28) !important;
+  box-shadow:
+    0 2px 4px rgba(41, 37, 36, 0.04),
+    0 18px 36px -12px rgba(41, 37, 36, 0.14),
+    0 40px 70px -30px rgba(120, 90, 40, 0.22) !important;
+}
+
+html[data-theme="platinum"] .credit-hero::after,
+html[data-theme="light"] .credit-hero::after,
+html[data-theme="white"] .credit-hero::after {
+  background: linear-gradient(160deg, #ffffff 0%, #fbf9f5 50%, #f2ede4 100%) !important;
+  box-shadow: inset 0 1px 0 #ffffff !important;
+}
+
+html[data-theme="platinum"] .credit-hero::before,
+html[data-theme="light"] .credit-hero::before,
+html[data-theme="white"] .credit-hero::before {
+  background: conic-gradient(from 0deg at 50% 50%,
+      transparent 0deg, transparent 45deg,
+      #b08d57 70deg, #f1e3c4 95deg,
+      transparent 125deg, transparent 225deg,
+      #b08d57 250deg, #f1e3c4 275deg,
+      transparent 305deg, transparent 360deg) !important;
+  opacity: 0.9 !important;
+}
+
+html[data-theme="platinum"] .available-amount,
+html[data-theme="light"] .available-amount,
+html[data-theme="white"] .available-amount {
+  background: linear-gradient(135deg, #0c0a09 0%, #292524 55%, #57534e 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  filter: none !important;
+}
+
+/* ヘッダー：アイコンボタン・月バッジも枠線ではなく影で */
+html[data-theme="platinum"] .icon-btn,
+html[data-theme="light"] .icon-btn,
+html[data-theme="white"] .icon-btn {
+  background: #fdfcfa !important;
+  border: 1px solid rgba(41, 37, 36, 0.06) !important;
+  color: #1c1917 !important;
+  box-shadow: 0 1px 2px rgba(41, 37, 36, 0.05), 0 6px 14px -4px rgba(41, 37, 36, 0.10), inset 0 1px 0 #ffffff !important;
+}
+
+html[data-theme="platinum"] .month-badge,
+html[data-theme="light"] .month-badge,
+html[data-theme="white"] .month-badge {
+  background: #fdfcfa !important;
+  border: 1px solid rgba(176, 141, 87, 0.35) !important;
+  color: #1c1917 !important;
+  box-shadow: 0 1px 2px rgba(41, 37, 36, 0.05) !important;
+}
+
+html[data-theme="platinum"] .app-title-wrap h1,
+html[data-theme="light"] .app-title-wrap h1,
+html[data-theme="white"] .app-title-wrap h1 {
+  color: #1c1917 !important;
+}
+
+html[data-theme="platinum"] .app-icon,
+html[data-theme="light"] .app-icon,
+html[data-theme="white"] .app-icon {
+  border-color: rgba(176, 141, 87, 0.35);
+  box-shadow: 0 6px 16px -4px rgba(41, 37, 36, 0.18);
+}
+
+/* 下部ナビ：パールガラス */
+html[data-theme="platinum"] .bottom-nav,
+html[data-theme="light"] .bottom-nav,
+html[data-theme="white"] .bottom-nav {
+  background: rgba(253, 252, 250, 0.88) !important;
+  border: 1px solid rgba(41, 37, 36, 0.06) !important;
+  box-shadow: 0 1px 2px rgba(41, 37, 36, 0.04), 0 18px 40px -10px rgba(41, 37, 36, 0.18), inset 0 1px 0 #ffffff !important;
+}
+
+/* モーダル */
+html[data-theme="platinum"] .modal-content,
+html[data-theme="light"] .modal-content,
+html[data-theme="white"] .modal-content {
+  background: #fdfcfa !important;
+  border-color: rgba(41, 37, 36, 0.06) !important;
+  box-shadow: 0 30px 70px -20px rgba(41, 37, 36, 0.30) !important;
+}

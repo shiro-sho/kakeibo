@@ -2,9 +2,9 @@
  * アプリメインコントローラー（UIレンダリング・インタラクション）
  */
 
-import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM, DEFAULT_PENDING_ESTIMATES } from './store.js?v=20261126_2';
-import { ChartRenderer, loadChartJs } from './charts.js?v=20261126_2';
-import { GasApiClient } from './api.js?v=20261126_2';
+import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM, DEFAULT_PENDING_ESTIMATES } from './store.js?v=20261126_5';
+import { ChartRenderer, loadChartJs } from './charts.js?v=20261126_5';
+import { GasApiClient } from './api.js?v=20261126_5';
 
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toast-container');
@@ -258,7 +258,7 @@ class AppController {
     // ステータスバーのテーマカラーを連動
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', validTheme === 'platinum' ? '#f5f7fb' : '#000000');
+      metaThemeColor.setAttribute('content', validTheme === 'platinum' ? '#f3f1ec' : '#000000');
     }
 
     // モーダル内のカードアクティブ表示
@@ -1359,7 +1359,7 @@ class AppController {
           ${b43Logs.map((item) => {
             const isDining = item.subType === 'dining';
             return `
-            <div class="subtracker-log-row" data-b43-id="${escapeHtml(item.id)}">
+            <div class="subtracker-log-row clickable" data-b43-id="${escapeHtml(item.id)}" role="button" tabindex="0" title="タップして編集">
               <div class="subtracker-log-left">
                 <span class="subtracker-log-tag ${isDining ? 'dining' : 'groceries'}">${isDining ? '外食' : '食費'}</span>
                 <span class="subtracker-log-name">${escapeHtml(item.name)}</span>
@@ -1367,7 +1367,7 @@ class AppController {
               </div>
               <div class="subtracker-log-right">
                 <span class="subtracker-log-amount">¥${Number(item.amount || 0).toLocaleString()}</span>
-                <button type="button" class="subtracker-del-btn" data-del-b43="${escapeHtml(item.id)}" title="削除">✕</button>
+                <svg class="svg-icon svg-icon-xs subtracker-log-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
               </div>
             </div>`;
           }).join('')}
@@ -1466,21 +1466,17 @@ class AppController {
       </div>
     `;
 
-    // 履歴の削除（削除分は食費／外食の実額からも差し引かれる）
-    box.querySelectorAll('[data-del-b43]').forEach((btn) => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const id = btn.dataset.delB43;
-        if (confirm('このB/43記録を削除しますか？\n（実額からも差し引かれます）')) {
-          store.deleteB43Log(id);
-          showToast('B/43記録を削除しました');
-          if (this.api.isConfigured()) {
-            try {
-              await this.api.saveSubLogs();
-            } catch (err) {
-              console.warn('B/43ログ同期警告:', err);
-            }
-          }
+    // 履歴タップで編集モーダルを開く（削除は編集モーダル内で行う）
+    box.querySelectorAll('[data-b43-id]').forEach((row) => {
+      const open = () => {
+        const item = b43Logs.find((x) => x.id === row.dataset.b43Id);
+        if (item) this.openEditB43Modal(item);
+      };
+      row.addEventListener('click', open);
+      row.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          open();
         }
       });
     });
@@ -1700,13 +1696,29 @@ class AppController {
 
   // 出費追加モーダルのモード切り替え（開いた用途のフィールドのみ表示し、別モードのタブは一切出さない）
   // B/43 記録追加モーダルの種別（食費 / 外食）を切り替え
-  setB43Subtype(subType = 'groceries') {
+  // scope: 'add'（追加モーダル） / 'edit'（履歴編集モーダル）
+  setB43Subtype(subType = 'groceries', scope = 'add') {
     const val = subType === 'dining' ? 'dining' : 'groceries';
-    const hidden = document.getElementById('input-b43-subtype');
+    const hiddenId = scope === 'edit' ? 'edit-b43-subtype' : 'input-b43-subtype';
+    const hidden = document.getElementById(hiddenId);
     if (hidden) hidden.value = val;
-    document.querySelectorAll('.b43-subtype-btn').forEach((btn) => {
+    document.querySelectorAll(`[data-b43-scope="${scope}"] .b43-subtype-btn`).forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.b43Subtype === val);
     });
+  }
+
+  // B/43 履歴の編集モーダルを開く
+  openEditB43Modal(item) {
+    const m = document.getElementById('modal-edit-b43');
+    if (!m || !item) return;
+    document.getElementById('edit-b43-id').value = item.id;
+    document.getElementById('edit-b43-date').value = item.date
+      ? String(item.date).replace(/\//g, '-')
+      : new Date().toISOString().slice(0, 10);
+    document.getElementById('edit-b43-name').value = item.name || '';
+    document.getElementById('edit-b43-amount').value = Number(item.amount || 0);
+    this.setB43Subtype(item.subType, 'edit');
+    m.classList.add('active');
   }
 
   setAddModalMode(mode = 'card') {
@@ -1787,7 +1799,49 @@ class AppController {
 
     // B/43 種別（食費 / 外食）切替チップ
     document.querySelectorAll('.b43-subtype-btn').forEach((btn) => {
-      btn.addEventListener('click', () => this.setB43Subtype(btn.dataset.b43Subtype));
+      btn.addEventListener('click', () => {
+        const scope = btn.closest('[data-b43-scope]')?.dataset.b43Scope || 'add';
+        this.setB43Subtype(btn.dataset.b43Subtype, scope);
+      });
+    });
+
+    // B/43 履歴編集モーダル：閉じる・保存・削除
+    const modalEditB43 = document.getElementById('modal-edit-b43');
+    document.getElementById('btn-close-edit-b43')?.addEventListener('click', () => {
+      modalEditB43?.classList.remove('active');
+    });
+    const syncB43Logs = async () => {
+      if (!this.api.isConfigured()) return;
+      try {
+        await this.api.saveSubLogs();
+      } catch (err) {
+        console.warn('B/43ログ同期警告:', err);
+      }
+    };
+    document.getElementById('form-edit-b43')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('edit-b43-id').value;
+      const subType = document.getElementById('edit-b43-subtype').value;
+      const rawDate = document.getElementById('edit-b43-date').value;
+      const nameVal = document.getElementById('edit-b43-name').value.trim();
+      const amount = Math.max(0, Number(document.getElementById('edit-b43-amount').value) || 0);
+      store.updateB43Log(id, {
+        subType,
+        date: rawDate ? rawDate.replace(/-/g, '/') : undefined,
+        name: nameVal || (subType === 'dining' ? '外食代' : '食費（自炊代）'),
+        amount
+      });
+      modalEditB43?.classList.remove('active');
+      showToast('B/43記録を更新しました', 'success');
+      await syncB43Logs();
+    });
+    document.getElementById('btn-delete-b43')?.addEventListener('click', async () => {
+      const id = document.getElementById('edit-b43-id').value;
+      if (!confirm('このB/43記録を削除しますか？\n（実額からも差し引かれます）')) return;
+      store.deleteB43Log(id);
+      modalEditB43?.classList.remove('active');
+      showToast('B/43記録を削除しました');
+      await syncB43Logs();
     });
 
     // Suica 自販機プリセット金額ボタン

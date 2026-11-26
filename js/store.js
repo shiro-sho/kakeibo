@@ -1291,10 +1291,24 @@ class KakeiboStore {
     if (!Array.isArray(list)) return null;
     const item = list.find((x) => x.id === id);
     if (item) {
+      // 変更前の金額・種別を実額から差し引き、変更後の値を加算して実額欄と整合させる
+      const currentActuals = this.getB43Actuals(monthKey);
+      const oldAmt = Math.max(0, Number(item.amount) || 0);
+      const oldType = item.subType === 'dining' ? 'dining' : 'groceries';
+
       if (updates.date !== undefined) item.date = updates.date;
       if (updates.subType !== undefined) item.subType = updates.subType === 'dining' ? 'dining' : 'groceries';
       if (updates.name !== undefined) item.name = String(updates.name).trim();
       if (updates.amount !== undefined) item.amount = Math.max(0, Number(updates.amount) || 0);
+
+      const newAmt = Math.max(0, Number(item.amount) || 0);
+      const newType = item.subType === 'dining' ? 'dining' : 'groceries';
+      const next = { groceries: currentActuals.groceries, dining: currentActuals.dining };
+      next[oldType] = Math.max(0, next[oldType] - oldAmt);
+      next[newType] = next[newType] + newAmt;
+      if (!this.data.b43ActualsByMonth) this.data.b43ActualsByMonth = {};
+      this.data.b43ActualsByMonth[monthKey] = next;
+
       this.saveData();
       return item;
     }
