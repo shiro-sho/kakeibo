@@ -2,9 +2,9 @@
  * アプリメインコントローラー（UIレンダリング・インタラクション）
  */
 
-import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM, DEFAULT_PENDING_ESTIMATES } from './store.js?v=20261111_3';
-import { ChartRenderer } from './charts.js?v=20261111_3';
-import { GasApiClient } from './api.js?v=20261111_3';
+import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM, DEFAULT_PENDING_ESTIMATES } from './store.js?v=20261126_1';
+import { ChartRenderer } from './charts.js?v=20261126_1';
+import { GasApiClient } from './api.js?v=20261126_1';
 
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toast-container');
@@ -1307,6 +1307,31 @@ class AppController {
       ? `<span class="subtracker-status-pill over" id="b43-status-pill">超過 +¥${b43.overAmount.toLocaleString()}</span>`
       : `<span class="subtracker-status-pill ok" id="b43-status-pill">残り ¥${b43.remaining.toLocaleString()}</span>`;
 
+    // B/43 手打ち履歴（Suica内訳と同じ形式で一覧表示・削除可能）
+    const b43Logs = Array.isArray(b43.logs) ? b43.logs : [];
+    const escapeHtml = (str) => String(str ?? '').replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+    const b43LogsHtml = b43Logs.length === 0
+      ? ''
+      : `<div class="subtracker-log-list" style="margin-top: 10px;">
+          ${b43Logs.map((item) => {
+            const isDining = item.subType === 'dining';
+            return `
+            <div class="subtracker-log-row" data-b43-id="${escapeHtml(item.id)}">
+              <div class="subtracker-log-left">
+                <span class="subtracker-log-tag ${isDining ? 'dining' : 'groceries'}">${isDining ? '外食' : '食費'}</span>
+                <span class="subtracker-log-name">${escapeHtml(item.name)}</span>
+                <span class="subtracker-log-date">${escapeHtml(item.date || '')}</span>
+              </div>
+              <div class="subtracker-log-right">
+                <span class="subtracker-log-amount">¥${Number(item.amount || 0).toLocaleString()}</span>
+                <button type="button" class="subtracker-del-btn" data-del-b43="${escapeHtml(item.id)}" title="削除">✕</button>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`;
+
     box.innerHTML = `
       <div class="fixed-expenses-list b43-titanium-list">
         <!-- 1. 目標設定額（実額） -->
@@ -1391,8 +1416,33 @@ class AppController {
         <button type="button" class="btn-save-b43-direct" id="btn-save-b43-analytics">
           保存してグラフに反映
         </button>
+        ${b43Logs.length > 0 ? `
+        <div class="subtracker-bar-labels" style="margin-top: 12px;">
+          <span>入力履歴</span>
+          <span style="color: var(--text-muted); font-size: 0.7rem;">${b43Logs.length}件</span>
+        </div>` : ''}
+        ${b43LogsHtml}
       </div>
     `;
+
+    // 履歴の削除（削除分は食費／外食の実額からも差し引かれる）
+    box.querySelectorAll('[data-del-b43]').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.delB43;
+        if (confirm('このB/43記録を削除しますか？\n（実額からも差し引かれます）')) {
+          store.deleteB43Log(id);
+          showToast('B/43記録を削除しました');
+          if (this.api.isConfigured()) {
+            try {
+              await this.api.saveSubLogs();
+            } catch (err) {
+              console.warn('B/43ログ同期警告:', err);
+            }
+          }
+        }
+      });
+    });
 
     const targetInput = box.querySelector('#b43-analytics-target');
     const grocInput = box.querySelector('#b43-analytics-groceries');
