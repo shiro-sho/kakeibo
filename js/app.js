@@ -2,9 +2,9 @@
  * アプリメインコントローラー（UIレンダリング・インタラクション）
  */
 
-import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM, DEFAULT_PENDING_ESTIMATES } from './store.js?v=20261126_1';
-import { ChartRenderer } from './charts.js?v=20261126_1';
-import { GasApiClient } from './api.js?v=20261126_1';
+import { store, SPREADSHEET_CATEGORIES, getCurrentCalendarYM, DEFAULT_PENDING_ESTIMATES } from './store.js?v=20261126_2';
+import { ChartRenderer, loadChartJs } from './charts.js?v=20261126_2';
+import { GasApiClient } from './api.js?v=20261126_2';
 
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toast-container');
@@ -93,6 +93,14 @@ class AppController {
   }
 
   init() {
+    // GAS URL設定済みの場合は、DOM初期化・初回描画より先に通信を開始して待ち時間を重ねる
+    // （GASの応答は1〜数秒かかるため、ローカルデータの描画と並行させることで体感速度を改善）
+    let initialFetch = null;
+    if (this.api.isConfigured()) {
+      const targetYM = store.data.currentMonth || getCurrentCalendarYM();
+      initialFetch = this.api.fetchMonthData(targetYM);
+    }
+
     // 保存済みテーマの適用
     this.initTheme();
 
@@ -120,10 +128,17 @@ class AppController {
     // 初回レンダリング（初回は全ビューを描画してDOMを完全初期化）
     this.render(store.getSummary(), true);
 
-    // GAS URL設定済みの場合はバックグラウンドで最新データを同期
-    if (this.api.isConfigured()) {
-      const targetYM = store.data.currentMonth || getCurrentCalendarYM();
-      this.api.fetchMonthData(targetYM)
+    // 初期表示の通信が落ち着いた頃に Chart.js をバックグラウンド先読み（分析画面を即表示するため）
+    const prefetchChart = () => loadChartJs().catch(() => {});
+    if (typeof window.requestIdleCallback === 'function') {
+      setTimeout(() => window.requestIdleCallback(prefetchChart, { timeout: 5000 }), 2500);
+    } else {
+      setTimeout(prefetchChart, 3000);
+    }
+
+    // 先行開始したバックグラウンド同期の結果を反映
+    if (initialFetch) {
+      initialFetch
         .then((data) => {
           if (data) {
             store.applyMonthData(data);
@@ -184,13 +199,19 @@ class AppController {
     const touchIcon = document.getElementById('dynamic-touch-icon');
     const favicon = document.getElementById('dynamic-favicon');
 
-    if (logoImg) logoImg.src = src;
+    // ヘッダー(42px)とfaviconは128pxサムネイルを使用（512px原寸の数百KBダウンロードを回避）
+    // ※ホーム画面用 apple-touch-icon のみ高解像度の原寸を維持
+    const thumbSrc = src.replace(/(cow-(?:titanium|platinum))\.png$/, '$1-128.png');
+    if (logoImg && logoImg.getAttribute('src') !== thumbSrc) logoImg.src = thumbSrc;
     if (touchIcon) touchIcon.href = src;
-    if (favicon) favicon.href = src;
+    if (favicon) favicon.href = thumbSrc;
 
     // ページ内のすべての apple-touch-icon および favicon link タグを更新
-    document.querySelectorAll('link[rel="apple-touch-icon"], link[rel="icon"]').forEach((el) => {
+    document.querySelectorAll('link[rel="apple-touch-icon"]').forEach((el) => {
       el.href = src;
+    });
+    document.querySelectorAll('link[rel="icon"]').forEach((el) => {
+      el.href = thumbSrc;
     });
 
     localStorage.setItem('kakeibo_icon', src);
@@ -391,18 +412,38 @@ class AppController {
     this.renderView(this.currentView, summary);
 
     // 残りの非表示ビューはメインスレッドの描画完了後にバックグラウンドで更新
-    if (this._idleRenderTimer) {
-      clearTimeout(this._idleRenderTimer);
-    }
-    this._idleRenderTimer = setTimeout(() => {
+    // requestIdleCallback 対応ブラウザでは1ビューずつアイドル時間に描画し、操作のカクつきを防ぐ
+    this._cancelIdleRender();
+    const renderNextDirty = (deadline) => {
       this._idleRenderTimer = null;
       const latest = this.lastSummary || summary;
-      allViews.forEach((v) => {
-        if (this.dirtyViews.has(v)) {
-          this.renderView(v, latest);
+      for (const v of allViews) {
+        if (!this.dirtyViews.has(v)) continue;
+        this.renderView(v, latest);
+        // アイドル時間を使い切ったら残りは次のアイドル時に回す（タイムアウト発火時は待たせず残りも一気に描画）
+        if (deadline && !deadline.didTimeout && typeof deadline.timeRemaining === 'function' && deadline.timeRemaining() < 4) {
+          if (allViews.some((x) => this.dirtyViews.has(x))) this._scheduleIdleRender(renderNextDirty);
+          return;
         }
-      });
-    }, 32);
+      }
+    };
+    this._scheduleIdleRender(renderNextDirty);
+  }
+
+  _scheduleIdleRender(fn) {
+    if (typeof window.requestIdleCallback === 'function') {
+      this._idleRenderTimer = { idle: window.requestIdleCallback(fn, { timeout: 500 }) };
+    } else {
+      this._idleRenderTimer = { timer: setTimeout(fn, 32) };
+    }
+  }
+
+  _cancelIdleRender() {
+    const h = this._idleRenderTimer;
+    if (!h) return;
+    if (h.idle !== undefined && typeof window.cancelIdleCallback === 'function') window.cancelIdleCallback(h.idle);
+    if (h.timer !== undefined) clearTimeout(h.timer);
+    this._idleRenderTimer = null;
   }
 
   // ヘッダーの年月バッジ表示（例: 2026年10月）
@@ -1658,6 +1699,16 @@ class AppController {
   }
 
   // 出費追加モーダルのモード切り替え（開いた用途のフィールドのみ表示し、別モードのタブは一切出さない）
+  // B/43 記録追加モーダルの種別（食費 / 外食）を切り替え
+  setB43Subtype(subType = 'groceries') {
+    const val = subType === 'dining' ? 'dining' : 'groceries';
+    const hidden = document.getElementById('input-b43-subtype');
+    if (hidden) hidden.value = val;
+    document.querySelectorAll('.b43-subtype-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.b43Subtype === val);
+    });
+  }
+
   setAddModalMode(mode = 'card') {
     const modeInput = document.getElementById('input-tx-mode');
     const modalTitle = document.getElementById('modal-add-tx-title');
@@ -1670,7 +1721,23 @@ class AppController {
 
     if (modeInput) modeInput.value = mode;
 
-    if (mode === 'suica') {
+    // B/43 種別チップは B/43 モード時のみ表示（開くたびに「食費」を初期選択）
+    const groupB43 = document.getElementById('group-b43-subtype');
+    if (groupB43) groupB43.style.display = mode === 'b43' ? 'block' : 'none';
+    if (mode === 'b43') this.setB43Subtype('groceries');
+    // B/43 は内容が空でも種別名で登録できるよう任意入力にする
+    if (nameInput) nameInput.required = mode !== 'b43';
+
+    if (mode === 'b43') {
+      if (modalTitle) modalTitle.textContent = 'B/43 の記録を追加';
+      if (groupSuica) groupSuica.style.display = 'none';
+      if (groupCat) groupCat.style.display = 'none';
+      if (nameLabel) nameLabel.textContent = '内容';
+      if (nameInput && nameInput.value === '自販機') nameInput.value = '';
+      if (nameInput) nameInput.placeholder = '例: スーパー買い出し';
+      if (amountInput) amountInput.placeholder = '3000';
+      if (submitBtn) submitBtn.textContent = '追加する';
+    } else if (mode === 'suica') {
       if (modalTitle) modalTitle.textContent = 'Suica 自販機を追加';
       if (groupSuica) groupSuica.style.display = 'block';
       if (groupCat) groupCat.style.display = 'none';
@@ -1716,6 +1783,12 @@ class AppController {
     document.getElementById('btn-add-quick')?.addEventListener('click', () => openAddModal('card'));
     document.getElementById('btn-hero-add-tx')?.addEventListener('click', () => openAddModal('card'));
     document.getElementById('btn-add-suica-log')?.addEventListener('click', () => openAddModal('suica'));
+    document.getElementById('btn-add-b43-log')?.addEventListener('click', () => openAddModal('b43'));
+
+    // B/43 種別（食費 / 外食）切替チップ
+    document.querySelectorAll('.b43-subtype-btn').forEach((btn) => {
+      btn.addEventListener('click', () => this.setB43Subtype(btn.dataset.b43Subtype));
+    });
 
     // Suica 自販機プリセット金額ボタン
     document.querySelectorAll('.suica-preset-btn').forEach((btn) => {
@@ -2256,14 +2329,14 @@ class AppController {
         }
 
         showToast('ステップ1: テンプレシートをもとに今月シートを再作成＆クレカ全明細を取得中...');
-        const recreateRes = await this.api.postRequest('recreateMonthSheet', { targetMonth: currentCalYM });
+        const recreateRes = await this.api.postRequest('recreateMonthSheet', { targetMonth: currentCalYM, includeMonthData: true });
         if (!recreateRes || recreateRes.status !== 'success') {
           throw new Error(recreateRes?.message || 'シート再作成に失敗しました');
         }
 
         showToast('ステップ2: 復元後の最新データを同期中...');
         store.switchMonth(currentCalYM);
-        const freshData = await this.api.fetchMonthData(currentCalYM);
+        const freshData = recreateRes.monthData || await this.api.fetchMonthData(currentCalYM);
         if (freshData) {
           store.applyMonthData(freshData);
         }
@@ -2296,12 +2369,18 @@ class AppController {
         }
         showToast('スプレッドシートに今月シートを作成しています...');
         const currentCalYM = getCurrentCalendarYM();
-        const res = await this.api.postRequest('createMonthSheet', { targetMonth: currentCalYM });
+        const res = await this.api.postRequest('createMonthSheet', { targetMonth: currentCalYM, includeMonthData: true });
         if (res && res.status === 'success') {
           showToast(`「${currentCalYM}」シートを作成しました！最新データを同期します`, 'success');
           store.switchMonth(currentCalYM);
         }
-        await this.triggerSync(false);
+        if (res && res.status === 'success' && res.monthData) {
+          // GASが最新データを同梱して返した場合は再取得の往復を省略
+          store.applyMonthData(res.monthData);
+          showToast('スプレッドシートから最新データを同期しました！');
+        } else {
+          await this.triggerSync(false);
+        }
       } catch (err) {
         console.error('シート作成エラー:', err);
         showToast('シート作成に失敗しました: ' + err.message, 'warning');
@@ -2570,9 +2649,9 @@ class AppController {
       if (result && result.status === 'success') {
         const addedCount = result.addedCount || 0;
 
-        // 最新のスプレッドシートデータを即座に取得して反映（1回の通信で完結）
+        // 最新のスプレッドシートデータを反映（GASが同梱して返した場合は追加通信なし）
         try {
-          const freshData = await this.api.fetchMonthData(store.data.currentMonth);
+          const freshData = result.monthData || await this.api.fetchMonthData(store.data.currentMonth);
           if (freshData) {
             store.applyMonthData(freshData);
           }

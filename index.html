@@ -13,8 +13,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="家計簿アプリ">
-  <link rel="apple-touch-icon" id="dynamic-touch-icon" href="./icons/icon.png">
-  <link rel="icon" id="dynamic-favicon" type="image/png" href="./icons/icon.png">
+  <link rel="apple-touch-icon" id="dynamic-touch-icon" href="./icons/cow-titanium.png">
+  <link rel="icon" id="dynamic-favicon" type="image/png" href="./icons/cow-titanium-128.png">
   <meta name="theme-color" content="#000000">
   <script>
     (function () {
@@ -28,16 +28,26 @@
     })();
   </script>
 
-  <!-- Google Fonts (非同期・並列読み込みでCSSレンダーブロッキングを解消) -->
+  <!-- GAS API への接続（DNS/TLS）を先行確立して初回同期を高速化 -->
+  <link rel="preconnect" href="https://script.google.com">
+  <link rel="preconnect" href="https://script.googleusercontent.com">
+
+  <!-- Google Fonts (media=print → onload で切替える非同期読み込み。初期描画をブロックしない) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;900&display=swap">
+  <link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;900&display=swap">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;900&display=swap"></noscript>
 
   <!-- Stylesheet (キャッシュバスター付き) -->
-  <link rel="stylesheet" href="./css/style.css?v=20261126_1">
+  <link rel="stylesheet" href="./css/style.css?v=20261126_2">
 
-  <!-- Chart.js CDN for interactive beautiful charts (deferで初期描画ブロックを解消) -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <!-- ES Modules の依存ファイルを並列先読み（app.js → store/charts/api の直列ダウンロードを解消） -->
+  <link rel="modulepreload" href="./js/app.js?v=20261126_2">
+  <link rel="modulepreload" href="./js/store.js?v=20261126_2">
+  <link rel="modulepreload" href="./js/charts.js?v=20261126_2">
+  <link rel="modulepreload" href="./js/api.js?v=20261126_2">
+
+  <!-- Chart.js は分析画面を開いた時に charts.js から遅延読み込み（起動時の約200KBの通信を削減） -->
 </head>
 
 <body>
@@ -45,7 +55,7 @@
     <!-- Header -->
     <header class="app-header">
       <div class="brand-section">
-        <img src="./icons/icon.png" alt="家計簿アプリ" class="app-icon" id="app-logo" decoding="async">
+        <img src="./icons/cow-titanium-128.png" alt="家計簿アプリ" class="app-icon" id="app-logo" width="42" height="42" decoding="async">
         <div class="app-title-wrap">
           <h1>家計簿アプリ</h1>
           <button class="month-badge" id="header-month-badge" style="cursor: pointer; border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; color: var(--text-primary);" title="表示月を切り替え">
@@ -492,7 +502,9 @@
               </svg>
               <span>B/43 内訳</span>
             </div>
-            <span class="segment-header-desc">実額の半額（1人分）をグラフ反映</span>
+            <button type="button" class="section-link" id="btn-add-b43-log" style="font-size: 0.75rem; padding: 4px 10px;">
+              ＋ 記録を追加
+            </button>
           </div>
 
           <div id="b43-tracker-summary-box">
@@ -702,6 +714,15 @@
         <form id="form-add-tx">
           <input type="hidden" id="input-tx-mode" value="card">
           <input type="hidden" id="input-b43-subtype" value="groceries">
+
+          <!-- B/43 種別選択チップ（B/43記録追加時のみ表示） -->
+          <div class="form-group" id="group-b43-subtype" style="display: none;">
+            <label class="form-label">種別（2人分の実額を入力）</label>
+            <div class="b43-subtype-chips">
+              <button type="button" class="b43-subtype-btn groceries active" data-b43-subtype="groceries">食費（自炊）</button>
+              <button type="button" class="b43-subtype-btn dining" data-b43-subtype="dining">外食</button>
+            </div>
+          </div>
 
           <!-- Suica 自販機 金額チップ（Suica自販機追加時のみ表示） -->
           <div class="form-group" id="group-suica-presets" style="display: none;">
@@ -1025,7 +1046,7 @@
   <div class="toast-container" id="toast-container"></div>
 
   <!-- App Scripts (キャッシュバスター付き) -->
-  <script type="module" src="./js/app.js?v=20261126_1"></script>
+  <script type="module" src="./js/app.js?v=20261126_2"></script>
 
   <!-- PWA Service Worker Registration & Cache Purge -->
   <script>
@@ -1036,7 +1057,7 @@
             reg.update();
           }
         });
-        navigator.serviceWorker.register('./sw.js?v=20261126_1').catch((err) => {
+        navigator.serviceWorker.register('./sw.js?v=20261126_2').catch((err) => {
           console.log('SW registration skipped:', err);
         });
       });

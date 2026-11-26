@@ -5,6 +5,8 @@
 export class GasApiClient {
   constructor(store) {
     this.store = store;
+    // 同じ月の取得が重複した場合（起動時同期＋引っ張って更新 等）に通信を1本に共有する
+    this._inflightMonthFetch = new Map();
   }
 
   getUrl() {
@@ -17,31 +19,45 @@ export class GasApiClient {
   }
 
   // スプレッドシートから最新データを取得（POST通信でCORSエラーを回避）
-  async fetchMonthData(monthStr) {
+  fetchMonthData(monthStr) {
     if (!this.isConfigured()) {
-      throw new Error('GAS Web App URLが設定されていません');
+      return Promise.reject(new Error('GAS Web App URLが設定されていません'));
     }
+    const key = String(monthStr || '');
+    const inflight = this._inflightMonthFetch.get(key);
+    if (inflight) return inflight;
 
+    const p = this._fetchMonthDataOnce(monthStr).finally(() => {
+      this._inflightMonthFetch.delete(key);
+    });
+    this._inflightMonthFetch.set(key, p);
+    return p;
+  }
+
+  async _fetchMonthDataOnce(monthStr) {
+    let result;
     try {
-      const result = await this.postRequest('getMonthData', { month: monthStr });
-      if (result && result.status === 'success') {
-        return result.data;
-      } else if (result && result.status === 'error') {
-        throw new Error(result.message || 'データ取得エラー');
-      }
+      result = await this.postRequest('getMonthData', { month: monthStr }, { timeoutMs: READ_TIMEOUT_MS });
     } catch (postErr) {
-      // フォールバックGET
+      // POST自体が通信・CORSレベルで失敗した場合のみGETで再試行
+      // （サーバーが error を返した場合は同じ結果になるため再送しない＝待ち時間が倍になるのを防ぐ）
       try {
         const url = `${this.getUrl()}?action=getMonthData&month=${encodeURIComponent(monthStr)}`;
-        const res = await fetch(url, { method: 'GET' });
+        const res = await fetchWithTimeout(url, { method: 'GET' }, READ_TIMEOUT_MS);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const result = await res.json();
-        if (result.status === 'error') throw new Error(result.message);
-        return result.data;
+        result = await res.json();
       } catch (getErr) {
         throw new Error(postErr.message || getErr.message);
       }
     }
+
+    if (result && result.status === 'success') {
+      return result.data;
+    }
+    if (result && result.status === 'error') {
+      throw new Error(result.message || 'データ取得エラー');
+    }
+    return undefined;
   }
 
   // 新規明細の追加
@@ -133,18 +149,42 @@ export class GasApiClient {
       throw new Error('GAS Web App URLが設定されていません');
     }
     const month = monthStr || this.store.data.currentMonth;
-    return this.postRequest('syncCardEmails', { month, syncMode, functionName });
+    // includeMonthData: 取込後の最新月データを同じレスポンスで受け取る（対応GASなら再取得の往復が不要）
+    return this.postRequest('syncCardEmails', { month, syncMode, functionName, includeMonthData: true });
   }
 
-  async postRequest(action, payload) {
+  async postRequest(action, payload, { timeoutMs = WRITE_TIMEOUT_MS } = {}) {
     const url = this.getUrl();
-    const res = await fetch(url, {
+    const res = await fetchWithTimeout(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'text/plain;charset=utf-8' // GASのCORS対策
+        'Content-Type': 'text/plain;charset=utf-8' // GASのCORS対策（プリフライト不要の単純リクエストにする）
       },
       body: JSON.stringify({ action, ...payload })
-    });
+    }, timeoutMs);
     return res.json();
+  }
+}
+
+// 読み取りはGASのコールドスタートを考慮しても十分な30秒、書き込み・メール取込は処理完了を待つため長めに設定
+const READ_TIMEOUT_MS = 30000;
+const WRITE_TIMEOUT_MS = 180000;
+
+// 応答が返らない通信で画面が待ち続けないようタイムアウト付きで fetch する
+async function fetchWithTimeout(url, options, timeoutMs) {
+  if (!timeoutMs || typeof AbortController === 'undefined') {
+    return fetch(url, options);
+  }
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (err) {
+    if (err && err.name === 'AbortError') {
+      throw new Error(`通信がタイムアウトしました（${Math.round(timeoutMs / 1000)}秒）`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
   }
 }

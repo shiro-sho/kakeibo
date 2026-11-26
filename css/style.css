@@ -7605,6 +7605,37 @@ html[data-theme="white"],
   background: rgba(56, 189, 248, 0.28);
 }
 
+/* B/43 種別選択チップ（食費 / 外食） */
+.b43-subtype-chips {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.b43-subtype-btn {
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 9px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.b43-subtype-btn.groceries.active {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.5);
+  color: #10b981;
+}
+
+.b43-subtype-btn.dining.active {
+  background: rgba(249, 115, 22, 0.16);
+  border-color: rgba(249, 115, 22, 0.5);
+  color: #f97316;
+}
+
 /* プラチナ・ホワイト（ライトテーマ）対応 */
 [data-theme="platinum"] .stacked-chart-legend,
 [data-theme="light"] .stacked-chart-legend,

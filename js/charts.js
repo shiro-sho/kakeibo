@@ -2,6 +2,29 @@
  * グラフ描画（Chart.jsによるリッチなグラデーション＆B/43・Suica積み上げ棒グラフ）
  */
 
+// Chart.js は分析画面で初めて必要になった時点で1回だけ読み込む（起動時の通信量・パース時間を削減）
+const CHART_JS_URL = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+let chartJsPromise = null;
+
+export function loadChartJs() {
+  if (window.Chart) return Promise.resolve(window.Chart);
+  if (!chartJsPromise) {
+    chartJsPromise = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = CHART_JS_URL;
+      s.async = true;
+      s.onload = () => resolve(window.Chart);
+      s.onerror = () => {
+        chartJsPromise = null; // 次回の表示時に再試行できるようにする
+        s.remove();
+        reject(new Error('Chart.js の読み込みに失敗しました'));
+      };
+      document.head.appendChild(s);
+    });
+  }
+  return chartJsPromise;
+}
+
 export class ChartRenderer {
   constructor(canvasId) {
     this.canvas = document.getElementById(canvasId);
@@ -50,6 +73,17 @@ export class ChartRenderer {
 
     if (labels.length === 0) {
       this.renderEmpty('支出データがありません');
+      return;
+    }
+
+    // Chart.js 未読込なら読み込み完了後に同じ引数で再描画
+    if (!window.Chart) {
+      loadChartJs()
+        .then(() => this.renderCategoryBarChart(categoryTotals, b43Summary, suicaSummary))
+        .catch((err) => {
+          console.warn(err);
+          this.renderEmpty('グラフを読み込めませんでした（オフライン）');
+        });
       return;
     }
 
